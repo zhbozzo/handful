@@ -72,7 +72,7 @@ A local Expo native module in Swift: [`modules/privacy-shield`](modules/privacy-
 
 - **Detects** faces (`VNDetectFaceRectanglesRequest`), text (`VNRecognizeTextRequest`) and documents (`VNDetectDocumentSegmentationRequest`), and reads GPS / device metadata (ImageIO).
 - **Classifies** recognized text in JS ([`src/lib/privacy.ts`](src/lib/privacy.ts)): license plates, ID numbers (incl. Chilean RUT), addresses, phone numbers, emails. Documents with several lines of text are hidden whole.
-- **Redacts** with a mosaic + heavy blur and a feathered mask, then re-encodes a clean JPEG with **no EXIF and no GPS**.
+- **Redacts** with a mosaic + heavy blur and a feathered mask, then re-encodes a fresh JPEG with **no GPS, camera or capture metadata** (only basic image properties remain).
 - **Faces are always blurred** in public posts. It isn’t a setting — we don’t think a checkbox can prove consent.
 - The nonprofit sees what was found, can hold to compare with the original, and only the protected version is attached.
 

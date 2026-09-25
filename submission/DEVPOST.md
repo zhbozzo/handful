@@ -31,7 +31,7 @@ When organizations do try to show impact, it often goes wrong in the other direc
 - **Causes, not campaigns.** A verified nonprofit posts a need as items with prices (“Hot meal $6, hygiene essentials $5, warm socks $4, water $3”), a short story and a general area. Only nonprofits can post — never anonymous individuals.
 - **Complete it.** When a cause is close, Handful shows exactly what’s left and lets you finish it with one tap. “Only $4 left” is the whole interaction.
 - **Follow the money.** Every cause has the same four-step timeline: verified & published → fully funded → items purchased (receipt, with any leftover moved to the next cause) → delivered with proof.
-- **Privacy Shield.** When the nonprofit attaches a delivery photo, an on-device Swift module using Apple Vision finds faces, text (plates, ID numbers, addresses, phone numbers) and documents, and reads GPS metadata. It blurs what it found, lets staff compare with the original, and re-encodes a clean JPEG with no metadata. Faces are always blurred in public posts — that isn’t a setting. The same idea applies to text: a story check blocks exact addresses, where someone sleeps, diagnoses, children’s ages and full names before a cause can be published.
+- **Privacy Shield.** When the nonprofit attaches a delivery photo, an on-device Swift module using Apple Vision finds faces, text (plates, ID numbers, addresses, phone numbers) and documents, and reads GPS metadata. It blurs what it found, lets staff compare with the original, and re-encodes a fresh JPEG without GPS, camera or capture metadata. Faces are always blurred in public posts — that isn’t a setting. The same idea applies to text: a story check blocks exact addresses, where someone sleeps, diagnoses, children’s ages and full names before a cause can be published.
 - **Proof for donors.** When proof is posted, donors get a “Delivered ✓” update with the receipt and the protected photo.
 - **An honest impact screen.** It starts at zero and only counts what you actually did.
 
@@ -48,7 +48,7 @@ When organizations do try to show impact, it often goes wrong in the other direc
 
 - **Donations and in-app purchase don’t mix — on purpose.** App Store Guideline 3.2.2(iv) doesn’t allow collecting charitable donations through IAP; only Apple-approved nonprofits can fundraise, with Apple Pay (3.2.1(vi)). We didn’t want to hand-wave that. So we split the roles: in this prototype, gifts run through RevenueCat’s Test Store (real SDK, zero real money, labeled everywhere); in production, gifts go through Apple Pay / Stripe to approved nonprofits, and RevenueCat powers the Supporter membership that keeps the platform fee-free — which the guidelines explicitly allow.
 - **Vision in the Simulator.** Some Vision requests can’t use the Neural Engine in the Simulator, so the module falls back to CPU compute devices there.
-- **Making redaction actually irreversible.** A light blur can be partially undone. We pixellate first, then blur heavily through a feathered mask, and re-encode from scratch so no EXIF or GPS survives.
+- **Making redaction actually irreversible.** A light blur can be partially undone. We pixellate first, then blur heavily through a feathered mask, and re-encode from scratch so no GPS, camera or capture metadata survives.
 - **Copy.** Writing about need without pity or guilt took more rewrites than any screen. We ended up describing needs in terms of what the person asked for and what will be bought.
 
 ## Accomplishments that we’re proud of
@@ -76,13 +76,13 @@ When organizations do try to show impact, it often goes wrong in the other direc
 - **Clear, useful idea:** small, specific, verified needs with proof — solving the “where does my money go?” problem for donors and the “how do we ask for $18?” problem for small nonprofits.
 - **Working app:** a real iOS build with the full loop — browse, complete a cause, Test Store purchase, impact, nonprofit posting, Privacy Shield, proof, donor update.
 - **Thoughtful RevenueCat use:** consumables for the prototype’s gift flow, and a subscription + entitlement + offering for the part RevenueCat should power in production, with the reasoning written down.
-- **Care in the build:** native Swift module, design system, motion and haptics, accessibility labels, honest demo labeling, and a README that says what isn’t built yet.
+- **Care in the build:** native Swift module, design system, motion and haptics, accessibility labels, 29 unit tests on the privacy rules and the gift/proof state machine (one caught a real bug in address detection), strict TypeScript, ESLint with React Compiler rules, CI, honest demo labeling, and a README that says what isn’t built yet.
 
 ## Privacy approach
 
 - Money goes to verified nonprofits, never to individuals.
 - No full names, exact locations, diagnoses or identifiable children — enforced by the story check.
-- Photos pass through Privacy Shield on the device; faces are always blurred, metadata always stripped; only the protected version is ever attached.
+- Photos pass through Privacy Shield on the device; faces are always blurred, location and device metadata always stripped; only the protected version is ever attached.
 - This prototype does not claim a complete legal framework. Production needs written consent flows, a strict policy for minors, data-retention rules and local legal review.
 
 ## Demo & production disclaimer

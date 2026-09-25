@@ -282,7 +282,7 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
                   report.textBlurred
                     ? `${report.textBlurred} text area${report.textBlurred > 1 ? 's' : ''} hidden`
                     : null,
-                  'all metadata removed',
+                  'location & device data removed',
                 ]
                   .filter(Boolean)
                   .join(' · ')}

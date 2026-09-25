@@ -20,7 +20,7 @@ We went through the product screen by screen with the questions below, and chang
 
 - Causes show a **neighborhood or city**, labeled “general area”.
 - The story check blocks exact addresses and descriptions of where someone sleeps or lives.
-- Privacy Shield strips EXIF/GPS from every photo by re-encoding it, and detects address/plate text in the image.
+- Privacy Shield strips GPS and device metadata from every photo by re-encoding it, and detects address/plate text in the image.
 
 ## Does the copy infantilize or dehumanize beneficiaries?
 
@@ -52,7 +52,7 @@ We went through the product screen by screen with the questions below, and chang
 
 ## Does Privacy Shield actually reduce risk?
 
-Yes, for the common cases: frontal and three-quarter faces, readable plates/IDs/addresses/phones, document-like regions, and all embedded metadata. It runs before upload, so an unprotected original never leaves the phone. Known gaps are listed in the README (“Limitations”).
+Yes, for the common cases: frontal and three-quarter faces, readable plates/IDs/addresses/phones, document-like regions, and location/device metadata. It runs before upload, so an unprotected original never leaves the phone. Known gaps are listed in the README (“Limitations”).
 
 ## What a production version needs
 

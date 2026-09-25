@@ -9,7 +9,7 @@ import Vision
 ///
 /// Everything runs locally with Apple's Vision and Core Image frameworks.
 /// The original photo never leaves the device; only the redacted re-encode
-/// (with no EXIF / GPS metadata) is handed back to JavaScript.
+/// (no GPS, camera or capture metadata) is handed back to JavaScript.
 public class PrivacyShieldModule: Module {
   private let ciContext = CIContext(options: [.cacheIntermediates: false])
 
@@ -73,8 +73,8 @@ public class PrivacyShieldModule: Module {
       ]
     }
 
-    /// Blurs the given regions and re-encodes the photo without any metadata.
-    /// Pass an empty `regions` array to only strip metadata.
+    /// Blurs the given regions and re-encodes the photo without location or device metadata.
+    /// Pass an empty `regions` array to only strip that metadata.
     AsyncFunction("redact") { (uri: String, regions: [[String: Any]]) throws -> [String: Any] in
       let url = try Self.fileURL(uri)
       let image = try Self.loadNormalized(url, maxDimension: 2048)
@@ -112,7 +112,8 @@ public class PrivacyShieldModule: Module {
       guard let rendered = ciContext.createCGImage(output, from: original.extent) else {
         throw ShieldError("Could not render the protected image.")
       }
-      // UIImage.jpegData writes a clean JPEG: no EXIF, no GPS, no maker notes.
+      // UIImage.jpegData writes a fresh JPEG: no GPS, no camera make/model, no capture date,
+      // no maker notes — only basic image properties (size, orientation, color space).
       guard let data = UIImage(cgImage: rendered).jpegData(compressionQuality: 0.88) else {
         throw ShieldError("Could not encode the protected image.")
       }
