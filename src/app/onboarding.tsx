@@ -1,4 +1,5 @@
-import { router } from 'expo-router';
+import { Image } from 'expo-image';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
@@ -30,7 +31,7 @@ const PAGES = [
   },
   {
     title: ['Dignity,', 'by design.'],
-    body: 'Privacy Shield hides faces and strips location before any photo is posted. We show the help, not the suffering.',
+    body: 'Privacy Shield blurs faces and strips location on the phone, before any photo is posted. We show the help, not the suffering.',
     Visual: ShieldVisual,
   },
 ];
@@ -38,7 +39,9 @@ const PAGES = [
 export default function Onboarding() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const [page, setPage] = useState(0);
+  const { page: devPage } = useLocalSearchParams<{ page?: string }>();
+  const startPage = __DEV__ && devPage ? Number(devPage) : 0;
+  const [page, setPage] = useState(startPage);
   const ref = useRef<ScrollView>(null);
   const finish = useStore((s) => s.finishOnboarding);
   const last = page === PAGES.length - 1;
@@ -62,6 +65,7 @@ export default function Onboarding() {
         ref={ref}
         horizontal
         pagingEnabled
+        contentOffset={{ x: startPage * width, y: 0 }}
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
         style={{ flex: 1 }}>
@@ -152,19 +156,17 @@ function TimelineVisual() {
 function ShieldVisual() {
   return (
     <View style={{ alignItems: 'center' }}>
-      <View style={styles.photo}>
-        <View style={styles.photoGround} />
-        <View style={styles.bag}>
-          <Icon name="bag.fill" size={60} color="#B98B55" />
-        </View>
-        <Animated.View entering={FadeIn.delay(300).duration(600)} style={styles.face}>
-          <Icon name="eye.slash.fill" size={20} color={color.white} />
-        </Animated.View>
-      </View>
-      <Animated.View entering={FadeInDown.delay(600).duration(500)} style={styles.shieldTag}>
+      <Animated.View entering={FadeIn.duration(500)} style={styles.photo}>
+        <Image
+          source={require('@/assets/images/onboarding-shield.jpg')}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+        />
+      </Animated.View>
+      <Animated.View entering={FadeInDown.delay(450).duration(500)} style={styles.shieldTag}>
         <Icon name="checkmark.shield.fill" size={16} color={color.shield} />
         <Txt variant="caption" color={color.shield} style={{ fontWeight: '700' }}>
-          1 face blurred · location removed
+          2 faces blurred · GPS removed · on-device
         </Txt>
       </Animated.View>
     </View>
@@ -196,29 +198,12 @@ const styles = StyleSheet.create({
   },
   tlLine: { width: 2, flex: 1, backgroundColor: color.ink, minHeight: 16 },
   photo: {
-    width: 250,
-    height: 250,
+    width: 312,
+    height: 234,
     borderRadius: radius.xl,
-    backgroundColor: '#E9DCC7',
     overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    backgroundColor: color.paperDeep,
     ...shadow.lift,
-  },
-  photoGround: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 90, backgroundColor: '#DCCBB0' },
-  bag: { marginBottom: 36 },
-  face: {
-    position: 'absolute',
-    top: 38,
-    right: 46,
-    width: 72,
-    height: 86,
-    borderRadius: 40,
-    backgroundColor: 'rgba(75,63,209,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.8)',
   },
   shieldTag: {
     flexDirection: 'row',

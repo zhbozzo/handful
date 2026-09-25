@@ -1,5 +1,5 @@
 import { BlurView } from 'expo-blur';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -48,7 +48,9 @@ export default function CauseScreen() {
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: 140 + insets.bottom }}
         showsVerticalScrollIndicator={false}>
-        <CoverArt cause={cause} height={300 + insets.top} rounded={0} />
+        <Link.AppleZoomTarget>
+          <CoverArt cause={cause} height={300 + insets.top} rounded={0} />
+        </Link.AppleZoomTarget>
 
         <View style={styles.body}>
           <Animated.View entering={FadeInDown.duration(450)} style={{ gap: space.sm }}>
@@ -197,7 +199,9 @@ export default function CauseScreen() {
             <View style={styles.fundedNote}>
               <Icon name="clock.fill" size={16} color={color.leaf} />
               <Txt variant="callout" color={color.ink} style={{ flex: 1 }}>
-                Fully funded. {org.name} posts the receipt and delivery proof next.
+                {cause.status === 'purchased'
+                  ? 'Items bought and receipt posted. The delivery photo comes next.'
+                  : `Fully funded. ${org.name} buys the items and posts the receipt next.`}
               </Txt>
             </View>
           )}

@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
+  useAnimatedStyle,
   Easing,
   FadeIn,
   FadeInDown,
@@ -28,6 +29,19 @@ import { color, radius, space } from '@/theme/tokens';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const RING_MS = 1300;
+
+/** Soft warm bloom behind the ring when a cause closes. */
+function Glow({ delay }: { delay: number }) {
+  const v = useSharedValue(0);
+  useEffect(() => {
+    v.value = withDelay(delay, withTiming(1, { duration: 900, easing: Easing.out(Easing.cubic) }));
+  }, [delay, v]);
+  const style = useAnimatedStyle(() => ({
+    opacity: v.value * 0.45,
+    transform: [{ scale: 0.75 + v.value * 0.35 }],
+  }));
+  return <Animated.View pointerEvents="none" style={[styles.glow, style]} />;
+}
 
 function Check({ delay }: { delay: number }) {
   const len = 60;
@@ -78,12 +92,19 @@ export default function SuccessScreen() {
   const left = cause.goal - cause.raised;
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top + space.xl, paddingBottom: insets.bottom + space.md }]}>
+    <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom + space.md }]}>
       <ScrollView
         contentOffset={devScroll()}
-        contentContainerStyle={{ alignItems: 'center', gap: space.lg, paddingHorizontal: space.lg, paddingBottom: space.lg }}
+        contentContainerStyle={{
+          alignItems: 'center',
+          gap: space.lg,
+          paddingHorizontal: space.lg,
+          paddingTop: 36,
+          paddingBottom: space.lg,
+        }}
         showsVerticalScrollIndicator={false}>
-        <Animated.View entering={FadeIn.duration(400)}>
+        <Animated.View entering={FadeIn.duration(400)} style={styles.ringWrap}>
+          {done ? <Glow delay={RING_MS + 100} /> : null}
           <Ring
             value={now}
             from={before}
@@ -197,6 +218,8 @@ export default function SuccessScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.paper },
+  ringWrap: { alignItems: 'center', justifyContent: 'center' },
+  glow: { position: 'absolute', width: 224, height: 224, borderRadius: 112, backgroundColor: color.sunSoft },
   card: {
     alignSelf: 'stretch',
     backgroundColor: color.card,

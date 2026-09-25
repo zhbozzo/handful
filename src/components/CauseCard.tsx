@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
@@ -42,51 +42,55 @@ export function CauseCard({ cause }: { cause: Cause }) {
 
   return (
     <Animated.View style={[styles.card, p.style]}>
-      <Pressable
-        onPress={() => router.push(`/cause/${cause.id}`)}
-        onPressIn={p.onPressIn}
-        onPressOut={p.onPressOut}
-        accessibilityRole="button"
-        accessibilityLabel={`${cause.title}. ${done ? statusLabel[cause.status] : `${money(left)} to go`}`}>
-        <CoverArt cause={cause} height={148} rounded={0} />
-        <View style={styles.body}>
-          <View style={styles.pills}>
-            <Pill label={cat.label} small />
-            {done ? (
-              <Pill
-                label={statusLabel[cause.status]}
-                tone={cause.status === 'delivered' ? 'leaf' : 'sun'}
-                symbol={cause.status === 'delivered' ? 'checkmark' : undefined}
-                small
-              />
-            ) : null}
-          </View>
-          <Txt variant="headline" numberOfLines={2}>
-            {cause.title}
-          </Txt>
-          <OrgLine org={org} size="sm" />
-          <View style={{ gap: 8, marginTop: 2 }}>
-            <ProgressBar value={cause.raised / cause.goal} fill={done ? color.leaf : color.sun} />
-            <View style={styles.row}>
-              <Txt variant="caption">
-                <Txt variant="caption" color={color.ink} style={{ fontWeight: '700' }}>
-                  {money(cause.raised)}
-                </Txt>{' '}
-                of {money(cause.goal)} · {cause.area}
+      {/* iOS 18+ zoom transition: the card grows into the cause's cover. */}
+      <Link href={`/cause/${cause.id}`} asChild>
+        <Link.AppleZoom>
+          <Pressable
+            onPressIn={p.onPressIn}
+            onPressOut={p.onPressOut}
+            accessibilityRole="button"
+            accessibilityLabel={`${cause.title}. ${done ? statusLabel[cause.status] : `${money(left)} to go`}`}>
+            <CoverArt cause={cause} height={148} rounded={0} />
+            <View style={styles.body}>
+              <View style={styles.pills}>
+                <Pill label={cat.label} small />
+                {done ? (
+                  <Pill
+                    label={statusLabel[cause.status]}
+                    tone={cause.status === 'delivered' ? 'leaf' : 'sun'}
+                    symbol={cause.status === 'delivered' ? 'checkmark' : undefined}
+                    small
+                  />
+                ) : null}
+              </View>
+              <Txt variant="headline" numberOfLines={2}>
+                {cause.title}
               </Txt>
-              {done ? (
-                <Txt variant="caption" color={color.leaf} style={{ fontWeight: '700' }}>
-                  Fully funded
-                </Txt>
-              ) : (
-                <Txt variant="caption" color={color.sunDeep} style={{ fontWeight: '700' }}>
-                  {money(left)} to go
-                </Txt>
-              )}
+              <OrgLine org={org} size="sm" />
+              <View style={{ gap: 8, marginTop: 2 }}>
+                <ProgressBar value={cause.raised / cause.goal} fill={done ? color.leaf : color.sun} />
+                <View style={styles.row}>
+                  <Txt variant="caption">
+                    <Txt variant="caption" color={color.ink} style={{ fontWeight: '700' }}>
+                      {money(cause.raised)}
+                    </Txt>{' '}
+                    of {money(cause.goal)} · {cause.area}
+                  </Txt>
+                  {done ? (
+                    <Txt variant="caption" color={color.leaf} style={{ fontWeight: '700' }}>
+                      Fully funded
+                    </Txt>
+                  ) : (
+                    <Txt variant="caption" color={color.sunDeep} style={{ fontWeight: '700' }}>
+                      {money(left)} to go
+                    </Txt>
+                  )}
+                </View>
+              </View>
             </View>
-          </View>
-        </View>
-      </Pressable>
+          </Pressable>
+        </Link.AppleZoom>
+      </Link>
     </Animated.View>
   );
 }

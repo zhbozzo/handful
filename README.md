@@ -34,9 +34,13 @@ And when transparency *is* attempted, it often goes wrong: photos of people at t
 
 ## Screenshots
 
-| Causes | Cause | Complete it | Privacy Shield | Delivered |
-|---|---|---|---|---|
-| ![](submission/screenshots/01-home.png) | ![](submission/screenshots/02-cause.png) | ![](submission/screenshots/04-success.png) | ![](submission/screenshots/06-shield.png) | ![](submission/screenshots/08-proof.png) |
+| Causes | Cause | What it pays for | Give |
+|---|---|---|---|
+| ![](submission/screenshots/01-home.png) | ![](submission/screenshots/02-cause.png) | ![](submission/screenshots/03-cause-budget.png) | ![](submission/screenshots/04-give.png) |
+
+| Privacy Shield: found | Privacy Shield: protected | Publish a cause | Delivered, with proof |
+|---|---|---|---|
+| ![](submission/screenshots/06-shield-review.png) | ![](submission/screenshots/06b-shield-protected.png) | ![](submission/screenshots/07-publish.png) | ![](submission/screenshots/08-proof.png) |
 
 ## How RevenueCat is used
 
