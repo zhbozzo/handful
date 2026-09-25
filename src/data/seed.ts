@@ -1,0 +1,316 @@
+/**
+ * DEMO DATA — every organization, cause, amount and donor count below is fictional.
+ * Nothing here describes a real person, a real nonprofit or real money.
+ * The app labels all of it as demo content.
+ */
+import type { Cause, Organization } from './types';
+
+export const ORGANIZATIONS: Organization[] = [
+  {
+    id: 'org-ronda',
+    name: 'Ronda Nocturna',
+    focus: 'Night outreach for people living on the street',
+    city: 'Santiago',
+    initials: 'RN',
+    tint: '#2F5D50',
+    checks: ['Legal registration', 'Bank account in the nonprofit’s name', 'Field visit'],
+    isDemo: true,
+  },
+  {
+    id: 'org-casa',
+    name: 'Casa Tilo',
+    focus: 'Family support center',
+    city: 'Santiago',
+    initials: 'CT',
+    tint: '#7A4E2D',
+    checks: ['Legal registration', 'Bank account in the nonprofit’s name', 'Field visit'],
+    isDemo: true,
+  },
+  {
+    id: 'org-huellas',
+    name: 'Huellas Compartidas',
+    focus: 'Care for the pets of people in hard times',
+    city: 'Santiago',
+    initials: 'HC',
+    tint: '#4A7330',
+    checks: ['Legal registration', 'Bank account in the nonprofit’s name', 'Field visit'],
+    isDemo: true,
+  },
+  {
+    id: 'org-red',
+    name: 'Red Escolar Sur',
+    focus: 'School support network',
+    city: 'Santiago',
+    initials: 'RE',
+    tint: '#806410',
+    checks: ['Legal registration', 'Bank account in the nonprofit’s name', 'Field visit'],
+    isDemo: true,
+  },
+  {
+    id: 'org-aurora',
+    name: 'Albergue Aurora',
+    focus: 'Shelter for women and their kids',
+    city: 'Santiago',
+    initials: 'AA',
+    tint: '#3A579C',
+    checks: ['Legal registration', 'Bank account in the nonprofit’s name', 'Field visit'],
+    isDemo: true,
+  },
+  {
+    id: 'org-brigada',
+    name: 'Brigada Vecinal',
+    focus: 'Neighborhood emergency response',
+    city: 'Valparaíso',
+    initials: 'BV',
+    tint: '#9C4237',
+    checks: ['Legal registration', 'Bank account in the nonprofit’s name', 'Field visit'],
+    isDemo: true,
+  },
+];
+
+export const orgById = (id: string, extra: Organization[] = []): Organization =>
+  [...ORGANIZATIONS, ...extra].find((o) => o.id === id) ?? ORGANIZATIONS[0];
+
+/** The nonprofit the in-app studio acts as. */
+export const STUDIO_ORG_ID = 'org-ronda';
+
+const H = 3_600_000;
+const D = 24 * H;
+
+const consentOk = { consentObtained: true, noExactLocation: true, imagesReviewed: true };
+
+export function seedCauses(now = Date.now()): Cause[] {
+  return [
+    {
+      id: 'hot-meal-tonight',
+      orgId: 'org-ronda',
+      title: 'Hot meal + warm socks for tonight',
+      summary:
+        'A man our night team visits every week asked for a hot meal and dry socks before tonight’s cold front. We buy everything this afternoon and hand it over on tonight’s round.',
+      category: 'food',
+      beneficiary: 'individual',
+      area: 'Santiago Centro',
+      createdAt: now - 3 * H,
+      goal: 18,
+      raised: 14,
+      donors: 5,
+      status: 'open',
+      items: [
+        { id: 'meal', label: 'Hot meal', amount: 6, symbol: 'fork.knife' },
+        { id: 'hygiene', label: 'Hygiene essentials', amount: 5, symbol: 'drop.fill' },
+        { id: 'socks', label: 'Warm socks', amount: 4, symbol: 'snowflake' },
+        { id: 'water', label: 'Water + snacks', amount: 3, symbol: 'waterbottle.fill' },
+      ],
+      timeline: [{ status: 'open', at: now - 3 * H, note: 'Need verified on last night’s round' }],
+      consent: consentOk,
+      isDemo: true,
+    },
+    {
+      id: 'toby-food',
+      orgId: 'org-huellas',
+      title: 'A month of food for Toby',
+      summary:
+        'Toby keeps an older man company in the room he rents downtown. Rent is covered this month; dog food didn’t fit.',
+      category: 'animals',
+      beneficiary: 'individual',
+      area: 'Recoleta',
+      createdAt: now - 20 * H,
+      goal: 24,
+      raised: 19,
+      donors: 7,
+      status: 'open',
+      items: [
+        { id: 'food', label: 'Dry dog food, 8 kg', amount: 18, symbol: 'pawprint.fill' },
+        { id: 'flea', label: 'Flea treatment', amount: 6, symbol: 'cross.case.fill' },
+      ],
+      timeline: [{ status: 'open', at: now - 20 * H, note: 'Need verified at a home visit' }],
+      consent: consentOk,
+      isDemo: true,
+    },
+    {
+      id: 'bus-fare',
+      orgId: 'org-casa',
+      title: 'Bus fare to a hospital appointment',
+      summary:
+        'A grandmother we support has a specialist appointment across the city on Thursday. This covers the trip there and back.',
+      category: 'transport',
+      beneficiary: 'individual',
+      area: 'Puente Alto',
+      createdAt: now - 6 * H,
+      goal: 9,
+      raised: 2,
+      donors: 1,
+      status: 'open',
+      items: [
+        { id: 'fare', label: 'Round-trip bus fare', amount: 4, symbol: 'bus.fill' },
+        { id: 'metro', label: 'Metro card top-up', amount: 3, symbol: 'tram.fill' },
+        { id: 'snack', label: 'Snack for the wait', amount: 2, symbol: 'cup.and.saucer.fill' },
+      ],
+      timeline: [{ status: 'open', at: now - 6 * H, note: 'Appointment letter checked by our social worker' }],
+      consent: consentOk,
+      isDemo: true,
+    },
+    {
+      id: 'prescription',
+      orgId: 'org-casa',
+      title: 'A prescription refill',
+      summary:
+        'A monthly prescribed medication that isn’t covered this month. We buy it at the pharmacy with the prescription and keep the receipt.',
+      category: 'health',
+      beneficiary: 'individual',
+      area: 'Maipú',
+      createdAt: now - 26 * H,
+      goal: 16,
+      raised: 6,
+      donors: 2,
+      status: 'open',
+      items: [
+        { id: 'med', label: 'Prescribed medication, 1 month', amount: 13, symbol: 'pills.fill' },
+        { id: 'delivery', label: 'Pharmacy delivery', amount: 3, symbol: 'shippingbox.fill' },
+      ],
+      timeline: [{ status: 'open', at: now - 26 * H, note: 'Prescription checked by our social worker' }],
+      consent: consentOk,
+      isDemo: true,
+    },
+    {
+      id: 'school-supplies',
+      orgId: 'org-red',
+      title: 'School supplies for third grade',
+      summary:
+        'A third grader is starting at a new school after her family moved. Her teacher shared the list; we buy it and deliver it to her parents.',
+      category: 'education',
+      beneficiary: 'individual',
+      area: 'La Pintana',
+      createdAt: now - 30 * H,
+      goal: 32,
+      raised: 11,
+      donors: 3,
+      status: 'open',
+      items: [
+        { id: 'bag', label: 'Backpack', amount: 12, symbol: 'backpack.fill' },
+        { id: 'books', label: 'Notebooks + pencils', amount: 9, symbol: 'pencil.and.ruler.fill' },
+        { id: 'colors', label: 'Pencil case + colors', amount: 6, symbol: 'paintpalette.fill' },
+        { id: 'lunch', label: 'Lunch box', amount: 5, symbol: 'takeoutbag.and.cup.and.straw.fill' },
+      ],
+      timeline: [{ status: 'open', at: now - 30 * H, note: 'List confirmed with the school' }],
+      consent: consentOk,
+      isDemo: true,
+    },
+    {
+      id: 'family-groceries',
+      orgId: 'org-casa',
+      title: 'A week of groceries for a family of four',
+      summary:
+        'One parent lost their job this month. A week of groceries lets the family focus on the job search, not the next meal.',
+      category: 'families',
+      beneficiary: 'family',
+      area: 'Estación Central',
+      createdAt: now - 5 * D,
+      goal: 45,
+      raised: 45,
+      donors: 12,
+      status: 'delivered',
+      items: [
+        { id: 'staples', label: 'Rice, beans + pasta', amount: 14, symbol: 'basket.fill' },
+        { id: 'dairy', label: 'Milk + eggs', amount: 12, symbol: 'cart.fill' },
+        { id: 'veg', label: 'Fresh vegetables', amount: 10, symbol: 'carrot.fill' },
+        { id: 'clean', label: 'Cleaning basics', amount: 9, symbol: 'sparkles' },
+      ],
+      timeline: [
+        { status: 'open', at: now - 5 * D, note: 'Need verified at a home visit' },
+        { status: 'funded', at: now - 4.1 * D, note: '12 people funded it' },
+        { status: 'purchased', at: now - 3.3 * D, note: 'Receipt uploaded · $44.00 spent' },
+        { status: 'delivered', at: now - 2.8 * D, note: 'Delivered to the family' },
+      ],
+      evidence: {
+        photoAsset: 'groceries',
+        privacy: { facesBlurred: 0, textBlurred: 0, locationRemoved: true },
+        store: 'Neighborhood supermarket',
+        receipt: [
+          { label: 'Rice, beans + pasta', amount: 13.8 },
+          { label: 'Milk + eggs', amount: 11.9 },
+          { label: 'Fresh vegetables', amount: 9.6 },
+          { label: 'Cleaning basics', amount: 8.7 },
+        ],
+        note: 'Delivered Saturday morning. Everything on the list made it into the box.',
+      },
+      consent: consentOk,
+      isDemo: true,
+    },
+    {
+      id: 'fire-kit',
+      orgId: 'org-brigada',
+      title: 'First-week kit after a kitchen fire',
+      summary:
+        'A family lost most of their things in a kitchen fire on Sunday. Everyone is safe and staying with relatives. This covers the first week.',
+      category: 'emergency',
+      beneficiary: 'family',
+      area: 'Valparaíso',
+      createdAt: now - 1.5 * D,
+      goal: 60,
+      raised: 31,
+      donors: 9,
+      status: 'open',
+      items: [
+        { id: 'blankets', label: 'Blankets', amount: 18, symbol: 'bed.double.fill' },
+        { id: 'hygiene', label: 'Hygiene kit', amount: 12, symbol: 'drop.fill' },
+        { id: 'light', label: 'Flashlights + batteries', amount: 12, symbol: 'flashlight.on.fill' },
+        { id: 'water', label: 'Drinking water', amount: 10, symbol: 'waterbottle.fill' },
+        { id: 'kitchen', label: 'Kitchen basics', amount: 8, symbol: 'fork.knife' },
+      ],
+      timeline: [{ status: 'open', at: now - 1.5 * D, note: 'Verified with the local fire brigade report' }],
+      consent: consentOk,
+      isDemo: true,
+    },
+    {
+      id: 'winter-blanket',
+      orgId: 'org-ronda',
+      title: 'Wool blanket + thermal layer',
+      summary:
+        'For a woman sleeping outside who turned down a shelter bed because the shelter can’t take her dog. The forecast says 2°C this weekend.',
+      category: 'shelter',
+      beneficiary: 'individual',
+      area: 'Estación Central',
+      createdAt: now - 2.5 * D,
+      goal: 28,
+      raised: 28,
+      donors: 8,
+      status: 'purchased',
+      items: [
+        { id: 'blanket', label: 'Wool blanket', amount: 16, symbol: 'bed.double.fill' },
+        { id: 'thermal', label: 'Thermal layer', amount: 12, symbol: 'tshirt.fill' },
+      ],
+      timeline: [
+        { status: 'open', at: now - 2.5 * D, note: 'Need verified on a night round' },
+        { status: 'funded', at: now - 1.2 * D, note: '8 people funded it' },
+        { status: 'purchased', at: now - 4 * H, note: 'Receipt uploaded · $27.40 spent' },
+      ],
+      consent: consentOk,
+      isDemo: true,
+    },
+    {
+      id: 'shelter-hygiene',
+      orgId: 'org-aurora',
+      title: 'Six hygiene kits for a women’s shelter',
+      summary:
+        'Six women arrived at the shelter this week with only what they could carry. Each kit covers the basics for a month.',
+      category: 'hygiene',
+      beneficiary: 'community',
+      area: 'Santiago Centro',
+      createdAt: now - 1.2 * D,
+      goal: 36,
+      raised: 21,
+      donors: 6,
+      status: 'open',
+      items: [
+        { id: 'soap', label: 'Soap + shampoo ×6', amount: 12, symbol: 'drop.fill' },
+        { id: 'pads', label: 'Pads ×6', amount: 10, symbol: 'square.stack.fill' },
+        { id: 'teeth', label: 'Toothbrush + paste ×6', amount: 9, symbol: 'mouth.fill' },
+        { id: 'bags', label: 'Toiletry bags ×6', amount: 5, symbol: 'bag.fill' },
+      ],
+      timeline: [{ status: 'open', at: now - 1.2 * D, note: 'Need confirmed by the shelter coordinator' }],
+      consent: consentOk,
+      isDemo: true,
+    },
+  ];
+}

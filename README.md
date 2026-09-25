@@ -1,56 +1,165 @@
-# Welcome to your Expo app 👋
+<p align="center">
+  <img src="submission/app-icon-1024.png" width="112" alt="Handful app icon" />
+</p>
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<h1 align="center">Handful</h1>
 
-## Get started
+<p align="center"><b>Give to something real.</b><br/>
+Verified nonprofits turn real needs into small, fundable causes. You see what it costs, who checked it, what’s left — and the proof when it’s delivered.</p>
 
-1. Install dependencies
+<p align="center">
+  iOS · Expo SDK 57 · React Native 0.86 · RevenueCat · Apple Vision (on-device)<br/>
+  Built for the <b>RevenueCat Shipaton 2026 — Next Gen Award</b>
+</p>
 
-   ```bash
-   npm install
-   ```
+> **This is a working prototype with demo data.** Every nonprofit, cause, amount and donor count in the app is fictional. Gifts run through RevenueCat’s **Test Store**: real SDK, real transactions, **no real money**. Nothing is delivered to anyone. See [Demo data](#demo-data) and [Production architecture](#production-architecture).
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## The problem
 
-In the output, you'll find options to open the app in a
+Most people who want to help never see what their money did. A donation goes into a general fund, a thank-you email arrives, and that’s the end of it. Small nonprofits — the ones doing night outreach, running a shelter, or delivering groceries — have the opposite problem: they know exactly what someone needs tonight, but no simple way to ask a few neighbors for $18 and show them it happened.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+And when transparency *is* attempted, it often goes wrong: photos of people at their lowest, exact locations, names. Proof that costs someone their dignity.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## What Handful does
 
-## Get a fresh project
+1. **A verified nonprofit posts a need** — items, prices, a goal (usually under $60), a short story, a general area. Never anonymous individuals.
+2. **People fund it in small amounts** — $2, $5, $10 — or **complete it**: when a cause is close, one tap covers exactly what’s left.
+3. **The nonprofit buys the items and posts proof** — receipt lines, what was spent, what’s left over (it moves to the next cause), and a delivery photo.
+4. **Privacy Shield protects the people in that photo** — on the phone, before anything is posted: faces blurred, plates and documents hidden, GPS stripped.
+5. **Donors get the update** — “Delivered ✓” with the receipt and the protected photo. Their impact screen only counts what they actually did.
 
-When you're ready, run:
+**Show the help, not the suffering.** Covers are still lifes of the items being funded — a meal, socks, a bus fare — never a person.
 
-```bash
-npm run reset-project
+## Screenshots
+
+| Causes | Cause | Complete it | Privacy Shield | Delivered |
+|---|---|---|---|---|
+| ![](submission/screenshots/01-home.png) | ![](submission/screenshots/02-cause.png) | ![](submission/screenshots/04-success.png) | ![](submission/screenshots/06-shield.png) | ![](submission/screenshots/08-proof.png) |
+
+## How RevenueCat is used
+
+There are two RevenueCat flows in the app, and we want to be precise about what each one is.
+
+**1. Gifts (prototype only) — RevenueCat Test Store consumables.**
+Each gift is a purchase of a consumable product `handful_gift_<amount>` (`$1` … `$20`). The app calls `Purchases.getProducts()` and `Purchases.purchaseStoreProduct()`; the Test Store presents its purchase sheet; the resulting `transactionIdentifier` is stored with the gift and shown in the Impact screen’s gift history. Whole-dollar tiers are why “Complete it” always matches the exact remainder.
+
+This is real SDK integration — but **it is not how donations should work in production**, and we don’t pretend otherwise: App Store Review Guideline 3.2.2(iv) doesn’t allow collecting charitable donations with in-app purchase. See [Production architecture](#production-architecture).
+
+**2. Handful Supporter (production-ready model) — subscription + entitlement.**
+An optional monthly membership that pays for the platform itself, so nonprofits pay nothing and gifts carry no platform fee. It uses an offering (`supporter`), a monthly package, and an entitlement (`supporter`) checked through `CustomerInfo` and a `CustomerInfo` update listener. Guideline 3.1.1 allows in-app purchase for supporting the developer, so this is the part of the stack RevenueCat keeps powering after launch.
+
+Code: [`src/lib/purchases.ts`](src/lib/purchases.ts), [`src/app/give/[id].tsx`](src/app/give/[id].tsx), [`src/app/supporter.tsx`](src/app/supporter.tsx).
+
+## Privacy Shield
+
+A local Expo native module in Swift: [`modules/privacy-shield`](modules/privacy-shield/ios/PrivacyShieldModule.swift). It runs entirely on the device with Apple’s **Vision** and **Core Image** frameworks — the original photo is never uploaded.
+
+- **Detects** faces (`VNDetectFaceRectanglesRequest`), text (`VNRecognizeTextRequest`) and documents (`VNDetectDocumentSegmentationRequest`), and reads GPS / device metadata (ImageIO).
+- **Classifies** recognized text in JS ([`src/lib/privacy.ts`](src/lib/privacy.ts)): license plates, ID numbers (incl. Chilean RUT), addresses, phone numbers, emails. Documents with several lines of text are hidden whole.
+- **Redacts** with a mosaic + heavy blur and a feathered mask, then re-encodes a clean JPEG with **no EXIF and no GPS**.
+- **Faces are always blurred** in public posts. It isn’t a setting — we don’t think a checkbox can prove consent.
+- The nonprofit sees what was found, can hold to compare with the original, and only the protected version is attached.
+
+The same idea applies to words: a **story check** flags exact addresses, where someone sleeps, phone and ID numbers, health conditions, children’s exact ages and full names before a cause can be published.
+
+## Architecture
+
+```
+src/
+  app/                    Expo Router screens
+    (tabs)/index.tsx      Causes (home)
+    (tabs)/impact.tsx     Your impact + updates + gift history
+    (tabs)/studio.tsx     Nonprofit studio (demo)
+    cause/[id].tsx        Cause detail: budget, timeline, trust & privacy
+    give/[id].tsx         Gift sheet → RevenueCat
+    success/[id].tsx      Ring-closing success
+    proof/[id].tsx        Delivery proof (donor view)
+    nonprofit/new.tsx     Create cause (5 steps)
+    nonprofit/proof/[id]  Post proof (receipt → photo → note)
+    supporter.tsx         Supporter membership (RevenueCat subscription)
+  components/             Design system: Txt, Button, Pill, Ring, CoverArt, Timeline, ShieldReview…
+  data/                   Types, categories, demo seed data
+  lib/                    purchases (RevenueCat), privacy (Shield logic), notifications, format
+  store/useStore.ts       Zustand + AsyncStorage (all state is local)
+  theme/tokens.ts         Color, type, spacing, radius, motion
+modules/privacy-shield/   Local Expo module (Swift, Vision, Core Image)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+No backend, no login. State lives on the device. The “nonprofit” and the “donor” are the same phone in this demo; a delivered update fires a local notification to stand in for a push.
 
-### Other setup steps
+**Stack:** Expo SDK 57, React Native 0.86 (New Architecture), Expo Router (native tabs), TypeScript, Reanimated 4, react-native-svg, expo-symbols (SF Symbols), expo-haptics, expo-image-picker, expo-notifications, Zustand, react-native-purchases 10, Instrument Serif.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Run it
 
-## Learn more
+**Requirements:** macOS with Xcode 26+, an iOS Simulator runtime, Node 20+, CocoaPods. No paid Apple developer account is needed.
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+git clone https://github.com/zhbozzo/handful.git
+cd handful
+npm install
+cp .env.example .env        # then add your RevenueCat Test Store key (see below)
+npx expo run:ios            # builds the dev client and opens the iOS Simulator
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+If port 8081 is busy: `npx expo run:ios --port 8090`.
 
-## Join the community
+Without a RevenueCat key the app still runs: gifts are recorded as **“offline demo”** (clearly labeled, no SDK call), and the Supporter screen explains how to enable it.
 
-Join our community of developers creating universal apps.
+### Environment variables
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Variable | Used by | Notes |
+|---|---|---|
+| `EXPO_PUBLIC_REVENUECAT_API_KEY` | the app | RevenueCat **Test Store** public key (`test_…`). |
+| `REVENUECAT_SECRET_KEY` | `scripts/setup-revenuecat.mjs` only | v2 secret key. Never shipped in the app, never committed. |
+| `REVENUECAT_PROJECT_ID` | `scripts/setup-revenuecat.mjs` only | |
+
+### RevenueCat setup
+
+1. Create a project in the [RevenueCat dashboard](https://app.revenuecat.com).
+2. **Apps & providers → Test configuration** → create the Test Store and copy its API key into `.env`.
+3. Create the catalog — either run `node scripts/setup-revenuecat.mjs` with a v2 secret key, or by hand:
+   - 20 **consumable** products `handful_gift_1` … `handful_gift_20`, priced $1 … $20.
+   - 1 **subscription** `handful_supporter_monthly` ($2.99 / month).
+   - Entitlement `supporter` → attach `handful_supporter_monthly`.
+   - Offering `supporter` with a `$rc_monthly` package → attach `handful_supporter_monthly`.
+4. Rebuild (`npx expo run:ios`) so the key is embedded.
+
+## Demo data
+
+- Nine demo causes from six fictional nonprofits in Santiago and Valparaíso, Chile ([`src/data/seed.ts`](src/data/seed.ts)). Names are invented; any resemblance to a real organization is unintended.
+- Beneficiaries are never named; one cause names a dog (Toby). Locations are neighborhoods, never addresses.
+- Verification checks, consent and receipts are simulated and labeled as such in the UI.
+- **Your impact starts at zero.** It only reflects gifts you make in the app — no seeded “impact”.
+- **Nonprofit studio → Reset demo data** restores the starting state.
+
+## Limitations
+
+- Single device, local state: the nonprofit and donor views share one phone.
+- iOS only. Privacy Shield uses Apple Vision; an Android version would use ML Kit.
+- Text classification is heuristic (regex over recognized text). It catches common plates, IDs, addresses and phones, not everything.
+- Face detection can miss faces that are very small, turned away or heavily occluded. Faces turned away are, by design, fine to show.
+- Receipts are typed line items; production would require a receipt photo and review.
+
+## Production architecture
+
+What would change before real money moves:
+
+- **Payments:** gifts processed with **Apple Pay** (and Stripe for web/Android), paid out to the **nonprofit’s** account via Stripe Connect or a nonprofit donation provider — never to individuals. Every nonprofit listed would go through Apple’s nonprofit approval (Guideline 3.2.1(vi)) and issue tax receipts where required.
+- **RevenueCat:** keeps powering the Supporter subscription and entitlements; gift transactions could be mirrored into RevenueCat customer history for a single donor record.
+- **Trust:** nonprofit verification (registry, bank account ownership, field visit), receipt review, payout holds until proof, fraud and anomaly checks, leftover-funds policy.
+- **Privacy & legal:** written consent flows, a specific policy for minors (no identifiable children, ever), data-retention rules, local regulation review (e.g. Chile’s Ley 19.628 as amended by Ley 21.719, GDPR where applicable). **This prototype does not claim a complete legal framework.**
+- **Server-side Privacy Shield** as a second check before publishing, with human review for flagged posts.
+
+## Safety & privacy philosophy
+
+- Show the help, not the suffering.
+- Money goes to verified nonprofits, never to anonymous individuals.
+- No exact locations, no full names, no diagnoses, no identifiable children.
+- Proof protects dignity first; transparency never depends on exposing someone.
+- Nothing in the app implies money moved when it didn’t.
+
+## License
+
+[MIT](LICENSE). Fonts: Instrument Serif (SIL Open Font License). Icons: SF Symbols (Apple, used on Apple platforms under Apple’s license).
