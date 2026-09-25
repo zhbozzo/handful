@@ -7,7 +7,7 @@ import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
-import { LogBox } from 'react-native';
+import { LogBox, Platform, Settings } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { runDevLaunchAction } from '@/lib/devLaunch';
@@ -20,6 +20,8 @@ SplashScreen.preventAutoHideAsync();
 
 // Known third-party dev warnings; nothing actionable in our code.
 LogBox.ignoreLogs(['Sending `onAnimatedValueUpdate` with no listeners', '[RevenueCat] ⚠️ Using a Test Store API key']);
+// Screen recordings (`-handfulRecording 1`): no dev toasts on screen at all.
+if (__DEV__ && Platform.OS === 'ios' && Settings.get('handfulRecording') === '1') LogBox.ignoreAllLogs();
 
 const theme = {
   ...DefaultTheme,
