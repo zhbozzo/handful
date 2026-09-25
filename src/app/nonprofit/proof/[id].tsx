@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { Asset } from 'expo-asset';
+import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,7 +23,7 @@ import { color, font, radius, space } from '@/theme/tokens';
 const TITLES = ['Receipt', 'Delivery photo', 'Note & post'];
 
 export default function PostProof() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, devPhoto, auto } = useLocalSearchParams<{ id: string; devPhoto?: string; auto?: string }>();
   const cause = useCause(id);
   const postProof = useStore((s) => s.postProof);
   const insets = useSafeAreaInsets();
@@ -37,6 +38,17 @@ export default function PostProof() {
     })),
   );
   const [photo, setPhoto] = useState<PickedPhoto | null>(null);
+
+  // Dev/QA only: ?devPhoto=1 opens the photo step with the bundled demo photo (no picker taps).
+  useEffect(() => {
+    if (!__DEV__ || !devPhoto) return;
+    Asset.fromModule(require('@/assets/demo/delivery-with-gps.jpg'))
+      .downloadAsync()
+      .then((a) => {
+        setStep(1);
+        setPhoto({ uri: a.localUri ?? a.uri, width: a.width ?? 2000, height: a.height ?? 1333, hasGPS: true });
+      });
+  }, [devPhoto]);
   const [safe, setSafe] = useState<{ uri: string; report: PhotoReport } | null>(null);
   const [note, setNote] = useState('Delivered today — everything on the list. Thank you to everyone who chipped in.');
   const [confirmed, setConfirmed] = useState(false);
@@ -190,6 +202,7 @@ export default function PostProof() {
                 height={photo.height}
                 pickerHasGPS={photo.hasGPS}
                 onRetake={() => setPhoto(null)}
+                autoProtectMs={__DEV__ && auto ? Number(auto) : undefined}
                 onDone={(out) => {
                   setSafe(out);
                   setPhoto(null);
