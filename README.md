@@ -113,22 +113,41 @@ Without a RevenueCat key the app still runs: gifts are recorded as **“offline 
 
 ### Environment variables
 
-| Variable | Used by | Notes |
-|---|---|---|
-| `EXPO_PUBLIC_REVENUECAT_API_KEY` | the app | RevenueCat **Test Store** public key (`test_…`). |
-| `REVENUECAT_SECRET_KEY` | `scripts/setup-revenuecat.mjs` only | v2 secret key. Never shipped in the app, never committed. |
-| `REVENUECAT_PROJECT_ID` | `scripts/setup-revenuecat.mjs` only | |
+| Variable | Notes |
+|---|---|
+| `EXPO_PUBLIC_REVENUECAT_API_KEY` | RevenueCat **Test Store** public SDK key (`test_…`). The only variable the app reads. |
 
 ### RevenueCat setup
 
 1. Create a project in the [RevenueCat dashboard](https://app.revenuecat.com).
 2. **Apps & providers → Test configuration** → create the Test Store and copy its API key into `.env`.
-3. Create the catalog — either run `node scripts/setup-revenuecat.mjs` with a v2 secret key, or by hand:
+3. In **Product catalog**, create (Test Store app):
    - 20 **consumable** products `handful_gift_1` … `handful_gift_20`, priced $1 … $20.
    - 1 **subscription** `handful_supporter_monthly` ($2.99 / month).
    - Entitlement `supporter` → attach `handful_supporter_monthly`.
    - Offering `supporter` with a `$rc_monthly` package → attach `handful_supporter_monthly`.
-4. Rebuild (`npx expo run:ios`) so the key is embedded.
+4. Restart Metro (`npx expo start --dev-client`) so the key is picked up.
+
+## Tests & checks
+
+```bash
+npm test            # Jest: Privacy Shield rules (plates, IDs, addresses, story check) and the gift/proof state machine
+npm run typecheck   # TypeScript, strict
+npx eslint .        # Expo config incl. React Compiler rules
+```
+
+CI runs all three on every push (`.github/workflows/ci.yml`).
+
+### QA helpers (debug builds only)
+
+Launch arguments drive the debug build without taps, for screenshots and QA — they are compiled out of release builds (`__DEV__`):
+
+```bash
+xcrun simctl launch --terminate-running-process booted app.handful.demo -handfulDev reset
+xcrun simctl launch --terminate-running-process booted app.handful.demo -handfulDev "go:/cause/hot-meal-tonight"
+xcrun simctl launch --terminate-running-process booted app.handful.demo -handfulDev "shield:1500"   # Privacy Shield on a bundled photo
+xcrun simctl launch --terminate-running-process booted app.handful.demo -handfulDev rc              # log RevenueCat products/offerings
+```
 
 ## Demo data
 
