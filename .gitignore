@@ -45,3 +45,6 @@ yarn-error.*
 # video / capture work files
 submission/video/raw/
 submission/video/build/
+submission/video/*.mp4
+submission/video/*.wav
+__pycache__/

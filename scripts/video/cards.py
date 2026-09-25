@@ -112,7 +112,7 @@ def caption_panel(path, label, headline, sub=None, width=820):
         d.text((0, y), r, font=hf, fill=INK)
         y += 92
     if sub:
-        y += 18
+        y += 34
         sf = sans(30)
         d.text((0, y), sub, font=sf, fill=INK2)
     img.save(path)

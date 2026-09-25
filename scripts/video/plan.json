@@ -1,0 +1,41 @@
+[
+  { "kind": "card", "source": "card-01.png", "duration": 3.2 },
+  { "kind": "card", "source": "card-02.png", "duration": 3.8 },
+  { "kind": "card", "source": "card-03.png", "duration": 4.0 },
+  {
+    "kind": "clip", "source": "home.mp4", "start": 0.5, "duration": 9,
+    "label": "Real needs", "headline": "Small, specific needs, priced item by item.",
+    "sub": "Posted by verified nonprofits. Demo data."
+  },
+  {
+    "kind": "clip", "source": "cause.mp4", "start": 0.3, "duration": 12,
+    "label": "Transparency", "headline": "What it pays for. Who verified it. What’s left.",
+    "sub": "Every cause has the same four-step timeline."
+  },
+  {
+    "kind": "clip", "source": "complete.mp4", "start": 0.3, "duration": 15,
+    "label": "Complete it", "headline": "Only $4 left. One tap finishes it.",
+    "sub": "RevenueCat Test Store — real SDK, no real money."
+  },
+  {
+    "kind": "clip", "source": "impact.mp4", "start": 0.3, "duration": 6,
+    "label": "Your impact", "headline": "Only what you actually did.",
+    "sub": "Gift history with RevenueCat transaction IDs."
+  },
+  {
+    "kind": "clip", "source": "proof-post.mp4", "start": 0.3, "duration": 24,
+    "label": "Privacy Shield", "headline": "Faces blurred. Location removed. On the phone.",
+    "sub": "Apple Vision + Core Image, before anything is posted."
+  },
+  {
+    "kind": "clip", "source": "delivered.mp4", "start": 0.3, "duration": 12,
+    "label": "Proof", "headline": "It got there — without costing anyone their dignity.",
+    "sub": "Receipt, leftover, and a privacy-safe photo."
+  },
+  {
+    "kind": "clip", "source": "supporter.mp4", "start": 0.3, "duration": 6,
+    "label": "Business model", "headline": "Nonprofits pay nothing. Supporters keep it free.",
+    "sub": "RevenueCat subscription + entitlement."
+  },
+  { "kind": "card", "source": "card-end.png", "duration": 5.5 }
+]
