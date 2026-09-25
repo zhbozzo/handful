@@ -30,6 +30,16 @@ And when transparency *is* attempted, it often goes wrong: photos of people at t
 4. **Privacy Shield protects the people in that photo** — on the phone, before anything is posted: faces blurred, plates and documents hidden, GPS stripped.
 5. **Donors get the update** — “Delivered ✓” with the receipt and the protected photo. Their impact screen only counts what they actually did.
 
+```mermaid
+flowchart LR
+  N["Verified nonprofit"] -->|posts a need: items + prices| C["Cause · open"]
+  D["Donor"] -->|"gift $1–$20 or 'Complete it'"| C
+  C -->|goal reached| F["Funded"]
+  F -->|buys items, posts receipt| P["Purchased"]
+  P -->|"delivery photo → Privacy Shield (on-device)"| V["Delivered with proof"]
+  V -->|"'Delivered ✓' update"| D
+```
+
 **Show the help, not the suffering.** Covers are still lifes of the items being funded — a meal, socks, a bus fare — never a person.
 
 ## Screenshots
@@ -166,6 +176,20 @@ xcrun simctl launch --terminate-running-process booted app.handful.demo -handful
 - Receipts are typed line items; production would require a receipt photo and review.
 
 ## Production architecture
+
+```mermaid
+flowchart TB
+  subgraph Prototype["This prototype"]
+    D1["Donor"] -->|consumable handful_gift_N| T["RevenueCat Test Store<br/>(no real money)"]
+    T -->|transaction id| L["Gift recorded on device"]
+  end
+  subgraph Production["Production plan"]
+    D2["Donor"] -->|Apple Pay / Stripe| NP["Apple-approved nonprofit's account"]
+    D2 -->|optional Supporter subscription| RC["RevenueCat<br/>entitlement: supporter"]
+    RC -->|pays for| H["Handful platform<br/>(no fee on gifts)"]
+  end
+```
+
 
 What would change before real money moves:
 

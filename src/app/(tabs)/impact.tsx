@@ -130,7 +130,7 @@ export default function ImpactScreen() {
           ) : null}
 
           <View style={{ gap: space.sm }}>
-            <Txt variant="micro">Causes you gave to paid for</Txt>
+            <Txt variant="micro">What your gifts went toward</Txt>
             <View style={styles.items}>
               {stats.items.map((i) => (
                 <View key={i.label} style={[styles.itemChip, { backgroundColor: i.tint }]}>
