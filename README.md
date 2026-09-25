@@ -176,6 +176,7 @@ xcrun simctl launch --terminate-running-process booted app.handful.demo -handful
 - iOS only. Privacy Shield uses Apple Vision; an Android version would use ML Kit.
 - Text classification is heuristic (regex over recognized text). It catches common plates, IDs, addresses and phones, not everything.
 - Face detection can miss faces that are very small, turned away or heavily occluded. Faces turned away are, by design, fine to show.
+- The scene check (warns when a photo seems to show where someone sleeps, e.g. a tent) uses `VNClassifyImageRequest`. In the iOS Simulator that request returns no usable labels, so this advisory is only unit-tested, not verified end to end; it needs a real device.
 - Receipts are typed line items; production would require a receipt photo and review.
 
 ## Production architecture
