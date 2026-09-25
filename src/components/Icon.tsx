@@ -25,7 +25,15 @@ export function Icon({ name, size = 20, color = palette.ink, weight = 'semibold'
       style={{ width: size, height: size }}
       fallback={
         <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-          <View style={{ width: size * 0.42, height: size * 0.42, borderRadius: size, backgroundColor: color, opacity: 0.55 }} />
+          <View
+            style={{
+              width: size * 0.42,
+              height: size * 0.42,
+              borderRadius: size,
+              backgroundColor: color,
+              opacity: 0.55,
+            }}
+          />
         </View>
       }
     />

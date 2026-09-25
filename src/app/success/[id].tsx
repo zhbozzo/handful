@@ -17,6 +17,7 @@ import { Button } from '@/components/Button';
 import { Icon } from '@/components/Icon';
 import { Ring } from '@/components/Progress';
 import { Txt } from '@/components/Txt';
+import { devScroll } from '@/lib/devScroll';
 import { categoryById } from '@/data/categories';
 import { orgById } from '@/data/seed';
 import { money, pct } from '@/lib/format';
@@ -78,9 +79,19 @@ export default function SuccessScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + space.xl, paddingBottom: insets.bottom + space.md }]}>
-      <ScrollView contentContainerStyle={{ alignItems: 'center', gap: space.xl, paddingHorizontal: space.lg }} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentOffset={devScroll()}
+        contentContainerStyle={{ alignItems: 'center', gap: space.lg, paddingHorizontal: space.lg, paddingBottom: space.lg }}
+        showsVerticalScrollIndicator={false}>
         <Animated.View entering={FadeIn.duration(400)}>
-          <Ring value={now} from={before} size={196} stroke={16} fill={done ? color.sun : color.sun} duration={RING_MS} delay={250}>
+          <Ring
+            value={now}
+            from={before}
+            size={164}
+            stroke={14}
+            fill={done ? color.sun : color.sun}
+            duration={RING_MS}
+            delay={250}>
             {done ? (
               <Check delay={RING_MS + 250} />
             ) : (
@@ -91,7 +102,9 @@ export default function SuccessScreen() {
           </Ring>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.delay(done ? RING_MS : 700).duration(500)} style={{ gap: space.sm, alignItems: 'center' }}>
+        <Animated.View
+          entering={FadeInDown.delay(done ? RING_MS : 700).duration(500)}
+          style={{ gap: space.sm, alignItems: 'center' }}>
           <Txt variant="display" align="center">
             {done ? (
               <>
@@ -112,7 +125,7 @@ export default function SuccessScreen() {
           <Txt variant="callout" align="center" style={{ maxWidth: 320 }}>
             {done
               ? `${cause.title} is fully funded. ${org.name} buys everything next and posts the receipt and a privacy-safe delivery photo.`
-              : `${cause.title} is now ${pct(cause.raised, cause.goal)}% funded — ${money(left)} to go. We’ll tell you when it’s delivered.`}
+              : `${cause.title} is now ${pct(cause.raised, cause.goal)}% funded — ${money(left)} to go.`}
           </Txt>
         </Animated.View>
 
@@ -144,7 +157,11 @@ export default function SuccessScreen() {
               }}
               style={[styles.notify, notify === 'on' && styles.notifyOn]}
               accessibilityRole="button">
-              <Icon name={notify === 'on' ? 'bell.badge.fill' : 'bell.fill'} size={15} color={notify === 'on' ? color.leaf : color.ink} />
+              <Icon
+                name={notify === 'on' ? 'bell.badge.fill' : 'bell.fill'}
+                size={15}
+                color={notify === 'on' ? color.leaf : color.ink}
+              />
               <Txt variant="caption" color={notify === 'on' ? color.leaf : color.ink} style={{ fontWeight: '700' }}>
                 {notify === 'on' ? 'We’ll notify you when it’s delivered' : 'Notify me when it’s delivered'}
               </Txt>
@@ -164,7 +181,7 @@ export default function SuccessScreen() {
 
       <View style={styles.actions}>
         <Button
-          label="Follow this cause"
+          label="View cause"
           kind="secondary"
           style={{ flex: 1 }}
           onPress={() => {
@@ -187,7 +204,7 @@ const styles = StyleSheet.create({
     padding: space.md,
     gap: 4,
   },
-  item: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 7 },
+  item: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 5 },
   itemIcon: { width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
   receipt: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: space.md },
   notify: {

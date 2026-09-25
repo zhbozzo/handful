@@ -8,10 +8,25 @@ import { Icon } from './Icon';
 import { Txt } from './Txt';
 
 const STEPS: { status: CauseStatus; title: string; pending: string; symbol: string }[] = [
-  { status: 'open', title: 'Verified & published', pending: 'The nonprofit checks the need first', symbol: 'checkmark.seal.fill' },
+  {
+    status: 'open',
+    title: 'Verified & published',
+    pending: 'The nonprofit checks the need first',
+    symbol: 'checkmark.seal.fill',
+  },
   { status: 'funded', title: 'Fully funded', pending: 'Closes when the goal is reached', symbol: 'circle.circle.fill' },
-  { status: 'purchased', title: 'Items purchased', pending: 'Receipt posted within 24h of funding', symbol: 'receipt.fill' },
-  { status: 'delivered', title: 'Delivered with proof', pending: 'Privacy-safe photo + note from the team', symbol: 'shippingbox.fill' },
+  {
+    status: 'purchased',
+    title: 'Items purchased',
+    pending: 'Receipt posted within 24h of funding',
+    symbol: 'receipt.fill',
+  },
+  {
+    status: 'delivered',
+    title: 'Delivered with proof',
+    pending: 'Privacy-safe photo + note from the team',
+    symbol: 'shippingbox.fill',
+  },
 ];
 
 /** The transparency spine of every cause. */
@@ -27,13 +42,13 @@ export function Timeline({ cause }: { cause: Cause }) {
         const last = i === STEPS.length - 1;
         const nextDone = !!reached.get(STEPS[i + 1]?.status);
         return (
-          <View key={step.status} style={styles.row} accessible accessibilityLabel={`${step.title}: ${event ? when(event.at) : 'pending'}`}>
+          <View
+            key={step.status}
+            style={styles.row}
+            accessible
+            accessibilityLabel={`${step.title}: ${event ? when(event.at) : 'pending'}`}>
             <View style={styles.rail}>
-              <View
-                style={[
-                  styles.dot,
-                  event ? styles.dotDone : isNext ? styles.dotNext : styles.dotTodo,
-                ]}>
+              <View style={[styles.dot, event ? styles.dotDone : isNext ? styles.dotNext : styles.dotTodo]}>
                 {event ? <Icon name="checkmark" size={11} color={color.white} weight="heavy" /> : null}
               </View>
               {!last ? <View style={[styles.line, nextDone ? styles.lineDone : null]} /> : null}

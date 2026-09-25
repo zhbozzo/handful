@@ -106,17 +106,19 @@ function NeedsVisual() {
         <Animated.View
           key={c.id}
           entering={FadeInDown.delay(i * 120).duration(500)}
-          style={[styles.mini, { transform: [{ rotate: `${[-3, 2, -1][i]}deg` }], marginTop: i === 0 ? 0 : -14, zIndex: 3 - i }]}>
-          <CoverThumb cause={c} size={46} />
-          <View style={{ flex: 1, gap: 6 }}>
-            <Txt variant="bodyStrong" numberOfLines={1}>
-              {c.title}
+          style={{ width: '94%', marginTop: i === 0 ? 0 : -14, zIndex: 3 - i }}>
+          <View style={[styles.mini, { transform: [{ rotate: `${[-3, 2, -1][i]}deg` }] }]}>
+            <CoverThumb cause={c} size={46} />
+            <View style={{ flex: 1, gap: 6 }}>
+              <Txt variant="bodyStrong" numberOfLines={1}>
+                {c.title}
+              </Txt>
+              <ProgressBar value={c.raised / c.goal} height={6} delay={300 + i * 120} />
+            </View>
+            <Txt variant="caption" color={color.sunDeep} style={{ fontWeight: '700' }}>
+              {money(c.goal - c.raised)} left
             </Txt>
-            <ProgressBar value={c.raised / c.goal} height={6} delay={300 + i * 120} />
           </View>
-          <Txt variant="caption" color={color.sunDeep} style={{ fontWeight: '700' }}>
-            {money(c.goal - c.raised)} left
-          </Txt>
         </Animated.View>
       ))}
     </View>
@@ -128,7 +130,10 @@ function TimelineVisual() {
   return (
     <View style={[styles.panel, { gap: 0 }]}>
       {steps.map((s, i) => (
-        <Animated.View key={s} entering={FadeInDown.delay(i * 180).duration(420)} style={{ flexDirection: 'row', gap: 12 }}>
+        <Animated.View
+          key={s}
+          entering={FadeInDown.delay(i * 180).duration(420)}
+          style={{ flexDirection: 'row', gap: 12 }}>
           <View style={{ alignItems: 'center', width: 26 }}>
             <View style={[styles.tlDot, i === 3 && { backgroundColor: color.leaf }]}>
               <Icon name="checkmark" size={12} color={color.white} weight="heavy" />
@@ -172,7 +177,6 @@ const styles = StyleSheet.create({
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.lineStrong },
   dotOn: { width: 20, backgroundColor: color.ink },
   mini: {
-    width: '94%',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -182,7 +186,14 @@ const styles = StyleSheet.create({
     ...shadow.lift,
   },
   panel: { backgroundColor: color.card, borderRadius: radius.xl, padding: space.xl, ...shadow.card },
-  tlDot: { width: 26, height: 26, borderRadius: 13, backgroundColor: color.ink, alignItems: 'center', justifyContent: 'center' },
+  tlDot: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: color.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   tlLine: { width: 2, flex: 1, backgroundColor: color.ink, minHeight: 16 },
   photo: {
     width: 250,

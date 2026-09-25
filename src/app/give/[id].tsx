@@ -57,7 +57,10 @@ export default function GiveSheet() {
     });
     success();
     router.dismiss();
-    router.push({ pathname: '/success/[id]', params: { id: cause.id, gift: contribution.id, completed: completed ? '1' : '0' } });
+    router.push({
+      pathname: '/success/[id]',
+      params: { id: cause.id, gift: contribution.id, completed: completed ? '1' : '0' },
+    });
   }
 
   return (
@@ -106,7 +109,8 @@ export default function GiveSheet() {
               : 'Every dollar goes to the items on the list.'}
         </Txt>
         <Txt variant="caption" color={color.ink} style={{ fontWeight: '700' }}>
-          After your gift: {completes ? '100% funded' : `${pct(after, cause.goal)}% · ${money(cause.goal - after)} to go`}
+          After your gift:{' '}
+          {completes ? '100% funded' : `${pct(after, cause.goal)}% · ${money(cause.goal - after)} to go`}
         </Txt>
       </Animated.View>
 
@@ -132,7 +136,7 @@ export default function GiveSheet() {
         <Icon name="lock.fill" size={11} color={color.ink3} />
         <Txt variant="caption" color={color.ink3} align="center">
           {revenueCatEnabled()
-            ? `RevenueCat ${isTestStoreKey() ? 'Test Store' : 'sandbox'} · no real money moves in this demo`
+            ? `RevenueCat ${isTestStoreKey() ? 'Test Store' : 'sandbox'} · no real money moves`
             : 'Offline demo · RevenueCat key not configured · no money moves'}
         </Txt>
       </View>
@@ -162,7 +166,8 @@ const styles = StyleSheet.create({
   sheet: { flex: 1, padding: space.lg, paddingTop: space.xl, gap: space.md, backgroundColor: color.paper },
   options: { flexDirection: 'row', gap: 10 },
   amount: {
-    flex: 1,
+    flexBasis: '31%',
+    flexGrow: 0,
     height: 84,
     borderRadius: radius.lg,
     backgroundColor: color.card,

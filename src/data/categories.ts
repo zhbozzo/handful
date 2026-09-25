@@ -23,5 +23,4 @@ export const CATEGORIES: Category[] = [
   { id: 'emergency', label: 'Emergency', symbol: 'flashlight.on.fill', tint: '#F3DFD2', ink: '#A6481F' },
 ];
 
-export const categoryById = (id: CategoryId): Category =>
-  CATEGORIES.find((c) => c.id === id) ?? CATEGORIES[0];
+export const categoryById = (id: CategoryId): Category => CATEGORIES.find((c) => c.id === id) ?? CATEGORIES[0];

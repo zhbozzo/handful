@@ -6,23 +6,45 @@ import { color, font, radius, space } from '@/theme/tokens';
 import { Icon } from './Icon';
 import { Txt } from './Txt';
 
-export function FlowHeader({ step, total, title, onClose, onBack }: { step: number; total: number; title: string; onClose: () => void; onBack?: () => void }) {
+export function FlowHeader({
+  step,
+  total,
+  title,
+  onClose,
+  onBack,
+}: {
+  step: number;
+  total: number;
+  title: string;
+  onClose: () => void;
+  onBack?: () => void;
+}) {
   return (
     <View style={{ gap: space.md }}>
       <View style={styles.headerRow}>
         {onBack ? (
-          <Pressable onPress={onBack} hitSlop={12} accessibilityRole="button" accessibilityLabel="Previous step" style={styles.iconBtn}>
+          <Pressable
+            onPress={onBack}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel="Previous step"
+            style={styles.iconBtn}>
             <Icon name="chevron.left" size={16} color={color.ink} weight="bold" />
           </Pressable>
         ) : (
-          <View style={styles.iconBtn} />
+          <View style={[styles.iconBtn, { backgroundColor: 'transparent' }]} />
         )}
         <View style={styles.steps}>
           {Array.from({ length: total }).map((_, i) => (
             <View key={i} style={[styles.step, i <= step && styles.stepOn]} />
           ))}
         </View>
-        <Pressable onPress={onClose} hitSlop={12} accessibilityRole="button" accessibilityLabel="Close" style={styles.iconBtn}>
+        <Pressable
+          onPress={onClose}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+          style={styles.iconBtn}>
           <Icon name="xmark" size={15} color={color.ink} weight="bold" />
         </Pressable>
       </View>
@@ -47,12 +69,26 @@ export function Field({ label, hint, style, ...props }: TextInputProps & { label
         {...props}
         style={[styles.input, props.multiline && styles.multiline, style]}
       />
-      {hint ? <Txt variant="caption" color={color.ink3}>{hint}</Txt> : null}
+      {hint ? (
+        <Txt variant="caption" color={color.ink3}>
+          {hint}
+        </Txt>
+      ) : null}
     </View>
   );
 }
 
-export function Check({ checked, onToggle, label, detail }: { checked: boolean; onToggle: () => void; label: string; detail?: string }) {
+export function Check({
+  checked,
+  onToggle,
+  label,
+  detail,
+}: {
+  checked: boolean;
+  onToggle: () => void;
+  label: string;
+  detail?: string;
+}) {
   return (
     <Pressable
       onPress={() => {
@@ -62,7 +98,9 @@ export function Check({ checked, onToggle, label, detail }: { checked: boolean; 
       style={styles.check}
       accessibilityRole="checkbox"
       accessibilityState={{ checked }}>
-      <View style={[styles.box, checked && styles.boxOn]}>{checked ? <Icon name="checkmark" size={13} color={color.white} weight="heavy" /> : null}</View>
+      <View style={[styles.box, checked && styles.boxOn]}>
+        {checked ? <Icon name="checkmark" size={13} color={color.white} weight="heavy" /> : null}
+      </View>
       <View style={{ flex: 1, gap: 2 }}>
         <Txt variant="bodyStrong">{label}</Txt>
         {detail ? <Txt variant="caption">{detail}</Txt> : null}
@@ -71,7 +109,15 @@ export function Check({ checked, onToggle, label, detail }: { checked: boolean; 
   );
 }
 
-export function Segmented<T extends string>({ options, value, onChange }: { options: { value: T; label: string; symbol?: string }[]; value: T; onChange: (v: T) => void }) {
+export function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: T; label: string; symbol?: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
   return (
     <View style={styles.segment}>
       {options.map((o) => {
@@ -99,7 +145,14 @@ export function Segmented<T extends string>({ options, value, onChange }: { opti
 
 const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  iconBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: color.card },
+  iconBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: color.card,
+  },
   steps: { flex: 1, flexDirection: 'row', gap: 4 },
   step: { flex: 1, height: 4, borderRadius: 2, backgroundColor: color.line },
   stepOn: { backgroundColor: color.ink },

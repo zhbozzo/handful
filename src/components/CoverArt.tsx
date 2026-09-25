@@ -62,7 +62,9 @@ export function CoverArt({ cause, height, rounded = radius.lg, style }: Props) {
         end={{ x: 0.7, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
-      <View style={[styles.sun, { width: height * 1.1, height: height * 1.1, right: -height * 0.35, top: -height * 0.45 }]} />
+      <View
+        style={[styles.sun, { width: height * 1.1, height: height * 1.1, right: -height * 0.35, top: -height * 0.45 }]}
+      />
       {items.map((item, i) => {
         const p = layout[i];
         const size = Math.min(height * p.s, 128);
@@ -90,7 +92,13 @@ export function CoverArt({ cause, height, rounded = radius.lg, style }: Props) {
   );
 }
 
-export function CoverThumb({ cause, size = 56 }: { cause: Pick<Cause, 'category' | 'items' | 'coverUri'>; size?: number }) {
+export function CoverThumb({
+  cause,
+  size = 56,
+}: {
+  cause: Pick<Cause, 'category' | 'items' | 'coverUri'>;
+  size?: number;
+}) {
   const cat = categoryById(cause.category);
   if (cause.coverUri) {
     return (

@@ -29,6 +29,8 @@ type Props = {
   pickerHasGPS?: boolean;
   onDone: (out: ShieldOutput) => void;
   onRetake: () => void;
+  /** Dev/QA only: tap "Protect" automatically after N ms in review. */
+  autoProtectMs?: number;
 };
 
 const KIND_SYMBOL: Record<Finding['kind'], string> = {
@@ -44,7 +46,7 @@ const KIND_SYMBOL: Record<Finding['kind'], string> = {
 
 type Phase = 'scanning' | 'review' | 'protecting' | 'done' | 'error';
 
-export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetake }: Props) {
+export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetake, autoProtectMs }: Props) {
   const { width: screenW } = useWindowDimensions();
   const [phase, setPhase] = useState<Phase>('scanning');
   const [findings, setFindings] = useState<Finding[]>([]);
@@ -110,6 +112,13 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
     }
   }
 
+  useEffect(() => {
+    if (phase !== 'review' || autoProtectMs === undefined) return;
+    const t = setTimeout(protect, autoProtectMs);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, autoProtectMs]);
+
   const toggle = (id: string) => {
     tap();
     setFindings((fs) => fs.map((f) => (f.id === id && !f.locked ? { ...f, protect: !f.protect } : f)));
@@ -125,8 +134,15 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
         onPressIn={() => phase === 'done' && setPeek(true)}
         onPressOut={() => setPeek(false)}
         style={[styles.frame, { width: dispW, height: dispH }]}
-        accessibilityLabel={phase === 'done' ? 'Protected photo. Press and hold to compare with the original.' : 'Photo being checked'}>
-        <Image source={{ uri: shown }} style={StyleSheet.absoluteFill} contentFit="cover" transition={phase === 'done' ? 450 : 0} />
+        accessibilityLabel={
+          phase === 'done' ? 'Protected photo. Press and hold to compare with the original.' : 'Photo being checked'
+        }>
+        <Image
+          source={{ uri: shown }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={phase === 'done' ? 450 : 0}
+        />
 
         {phase === 'scanning' ? (
           <>
@@ -139,20 +155,26 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
           ? visible.map((f, i) => (
               <Animated.View
                 key={f.id}
-                entering={ZoomIn.delay(i * 90).springify().damping(14)}
+                entering={ZoomIn.delay(i * 90)
+                  .springify()
+                  .damping(14)}
                 style={[
                   styles.box,
                   f.kind === 'face' ? styles.faceBox : styles.textBox,
                   !f.protect && styles.boxOff,
                   {
-                    left: f.box!.x * dispW - (f.kind === 'face' ? f.box!.w * dispW * 0.15 : 3),
-                    top: f.box!.y * dispH - (f.kind === 'face' ? f.box!.h * dispH * 0.15 : 3),
-                    width: f.box!.w * dispW * (f.kind === 'face' ? 1.3 : 1) + (f.kind === 'face' ? 0 : 6),
-                    height: f.box!.h * dispH * (f.kind === 'face' ? 1.3 : 1) + (f.kind === 'face' ? 0 : 6),
+                    left: f.box!.x * dispW - 3,
+                    top: f.box!.y * dispH - 3,
+                    width: f.box!.w * dispW + 6,
+                    height: f.box!.h * dispH + 6,
                   },
                 ]}>
-                <View style={[styles.boxTag, { backgroundColor: f.kind === 'face' ? color.shield : color.sunDeep }]}>
-                  <Txt variant="micro" color={color.white} style={{ fontSize: 9 }}>
+                <View
+                  style={[
+                    styles.boxTag,
+                    { width: f.label.length * 6.4 + 14, backgroundColor: f.kind === 'face' ? color.shield : color.sunDeep },
+                  ]}>
+                  <Txt variant="micro" color={color.white} style={{ fontSize: 9 }} numberOfLines={1}>
                     {f.label}
                   </Txt>
                 </View>
@@ -161,7 +183,9 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
           : null}
 
         {phase === 'protecting' ? (
-          <Animated.View entering={FadeIn} style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: 'rgba(23,20,15,0.35)' }]}>
+          <Animated.View
+            entering={FadeIn}
+            style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: 'rgba(23,20,15,0.35)' }]}>
             <Txt variant="bodyStrong" color={color.white}>
               Blurring on device…
             </Txt>
@@ -196,15 +220,26 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
                 : `${findings.length} thing${findings.length > 1 ? 's' : ''} to protect`}
             </Txt>
             <Txt variant="caption">
-              Checked on this device in {ms} ms · {safeText} other text area{safeText === 1 ? '' : 's'} look safe · nothing uploaded
+              Checked on this device in {ms} ms · {safeText} other text area{safeText === 1 ? '' : 's'} look safe ·
+              nothing uploaded
             </Txt>
           </View>
           {findings.length > 0 ? (
             <View style={styles.card}>
               {findings.map((f, i) => (
                 <View key={f.id} style={[styles.finding, i > 0 && styles.findingBorder]}>
-                  <View style={[styles.findingIcon, { backgroundColor: f.kind === 'face' || f.kind === 'location' ? color.shieldSoft : color.sunSoft }]}>
-                    <Icon name={KIND_SYMBOL[f.kind]} size={16} color={f.kind === 'face' || f.kind === 'location' ? color.shield : color.sunDeep} />
+                  <View
+                    style={[
+                      styles.findingIcon,
+                      {
+                        backgroundColor: f.kind === 'face' || f.kind === 'location' ? color.shieldSoft : color.sunSoft,
+                      },
+                    ]}>
+                    <Icon
+                      name={KIND_SYMBOL[f.kind]}
+                      size={16}
+                      color={f.kind === 'face' || f.kind === 'location' ? color.shield : color.sunDeep}
+                    />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Txt variant="bodyStrong">{f.label}</Txt>
@@ -242,8 +277,12 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
               <Txt variant="bodyStrong">Safe version ready</Txt>
               <Txt variant="caption">
                 {[
-                  report.facesBlurred ? `${report.facesBlurred} face${report.facesBlurred > 1 ? 's' : ''} blurred` : null,
-                  report.textBlurred ? `${report.textBlurred} text area${report.textBlurred > 1 ? 's' : ''} hidden` : null,
+                  report.facesBlurred
+                    ? `${report.facesBlurred} face${report.facesBlurred > 1 ? 's' : ''} blurred`
+                    : null,
+                  report.textBlurred
+                    ? `${report.textBlurred} text area${report.textBlurred > 1 ? 's' : ''} hidden`
+                    : null,
                   'all metadata removed',
                 ]
                   .filter(Boolean)
@@ -281,10 +320,10 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(120,110,255,0.9)',
   },
   box: { position: 'absolute', borderWidth: 2.5 },
-  faceBox: { borderColor: color.shield, borderRadius: 999, backgroundColor: 'rgba(75,63,209,0.12)' },
+  faceBox: { borderColor: color.shield, borderRadius: 999, backgroundColor: 'rgba(75,63,209,0.16)' },
   textBox: { borderColor: color.sunDeep, borderRadius: 6, backgroundColor: 'rgba(244,166,42,0.15)' },
-  boxOff: { opacity: 0.35, borderStyle: 'dashed' },
-  boxTag: { position: 'absolute', top: -20, left: -2, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 6 },
+  boxOff: { opacity: 0.35 },
+  boxTag: { position: 'absolute', top: -22, left: 0, paddingVertical: 3, borderRadius: 6, alignItems: 'center' },
   center: { alignItems: 'center', justifyContent: 'center' },
   peekTag: {
     position: 'absolute',

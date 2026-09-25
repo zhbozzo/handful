@@ -67,7 +67,10 @@ export const useStore = create<State & Actions>()(
               raised,
               donors,
               status: 'funded',
-              timeline: [...c.timeline, { status: 'funded', at: now, note: `${donors} people funded it — you closed it` }],
+              timeline: [
+                ...c.timeline,
+                { status: 'funded', at: now, note: `${donors} people funded it — you closed it` },
+              ],
             };
           }),
           inbox: completed
@@ -113,14 +116,18 @@ export const useStore = create<State & Actions>()(
                 ...c.timeline,
                 ...(hasPurchase
                   ? []
-                  : [{ status: 'purchased' as const, at: now - 90_000, note: `Receipt uploaded · $${spent.toFixed(2)} spent` }]),
+                  : [
+                      {
+                        status: 'purchased' as const,
+                        at: now - 90_000,
+                        note: `Receipt uploaded · $${spent.toFixed(2)} spent`,
+                      },
+                    ]),
                 { status: 'delivered' as const, at: now, note: 'Delivered · proof posted with Privacy Shield' },
               ],
             };
           }),
-          inbox: gave
-            ? [{ id: uid('in'), causeId, kind: 'delivered', at: now, read: false }, ...s.inbox]
-            : s.inbox,
+          inbox: gave ? [{ id: uid('in'), causeId, kind: 'delivered', at: now, read: false }, ...s.inbox] : s.inbox,
         }));
       },
 

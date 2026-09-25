@@ -112,7 +112,13 @@ export default function SupporterSheet() {
         </Txt>
       ) : (
         <Button
-          label={pkg ? `Become a supporter · ${pkg.product.priceString}/month` : loading ? 'Loading…' : 'Unavailable right now'}
+          label={
+            pkg
+              ? `Become a supporter · ${pkg.product.priceString}/month`
+              : loading
+                ? 'Loading…'
+                : 'Unavailable right now'
+          }
           kind="sun"
           loading={busy || loading}
           disabled={!pkg}

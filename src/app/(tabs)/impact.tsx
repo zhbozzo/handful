@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { CoverThumb } from '@/components/CoverArt';
@@ -14,11 +13,11 @@ import { categoryById } from '@/data/categories';
 import type { CauseItem } from '@/data/types';
 import { ago, money, when } from '@/lib/format';
 import { getRevenueCatUserId } from '@/lib/purchases';
+import { devScroll } from '@/lib/devScroll';
 import { useStore } from '@/store/useStore';
 import { color, font, radius, shadow, space } from '@/theme/tokens';
 
 export default function ImpactScreen() {
-  const insets = useSafeAreaInsets();
   const { contributions, causes, inbox, supporter, markInboxRead } = useStore();
   const [rcUser, setRcUser] = useState<string | null>(null);
 
@@ -47,8 +46,10 @@ export default function ImpactScreen() {
 
   return (
     <ScrollView
+      contentOffset={devScroll()}
       style={{ flex: 1, backgroundColor: color.paper }}
-      contentContainerStyle={{ paddingTop: insets.top + space.md, paddingBottom: 120, paddingHorizontal: space.lg, gap: space.xl }}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ paddingTop: space.sm, paddingBottom: 48, paddingHorizontal: space.lg, gap: space.xl }}
       showsVerticalScrollIndicator={false}>
       <View style={{ gap: 6 }}>
         <Txt variant="title">Your impact</Txt>
@@ -71,7 +72,11 @@ export default function ImpactScreen() {
           <Animated.View entering={FadeInDown.duration(450)} style={styles.grid}>
             <Stat value={money(stats.total)} label="given" />
             <Stat value={String(stats.helped)} label={stats.helped === 1 ? 'cause helped' : 'causes helped'} />
-            <Stat value={String(stats.completed)} label={stats.completed === 1 ? 'cause you completed' : 'causes you completed'} accent />
+            <Stat
+              value={String(stats.completed)}
+              label={stats.completed === 1 ? 'cause you completed' : 'causes you completed'}
+              accent
+            />
             <Stat value={String(stats.delivered)} label="delivered with proof" leaf />
           </Animated.View>
 
@@ -89,7 +94,11 @@ export default function ImpactScreen() {
                       markInboxRead(u.id);
                       router.push(delivered ? `/proof/${cause.id}` : `/cause/${cause.id}`);
                     }}
-                    style={({ pressed }) => [styles.update, delivered && styles.updateDelivered, pressed && { opacity: 0.75 }]}
+                    style={({ pressed }) => [
+                      styles.update,
+                      delivered && styles.updateDelivered,
+                      pressed && { opacity: 0.75 },
+                    ]}
                     accessibilityRole="button">
                     <CoverThumb cause={cause} size={48} />
                     <View style={{ flex: 1, gap: 2 }}>
@@ -105,9 +114,15 @@ export default function ImpactScreen() {
                       <Txt variant="bodyStrong" numberOfLines={1}>
                         {cause.title}
                       </Txt>
-                      <Txt variant="caption">{delivered ? 'See the receipt and delivery photo' : 'Proof arrives once it’s delivered'}</Txt>
+                      <Txt variant="caption">
+                        {delivered ? 'See the receipt and delivery photo' : 'Proof arrives once it’s delivered'}
+                      </Txt>
                     </View>
-                    {!u.read ? <View style={styles.unread} /> : <Icon name="chevron.right" size={13} color={color.ink3} />}
+                    {!u.read ? (
+                      <View style={styles.unread} />
+                    ) : (
+                      <Icon name="chevron.right" size={13} color={color.ink3} />
+                    )}
                   </Pressable>
                 );
               })}
@@ -143,8 +158,14 @@ export default function ImpactScreen() {
                         {when(g.at)}
                         {g.completedCause ? ' · completed it' : ''}
                       </Txt>
-                      <Txt variant="caption" color={color.ink3} style={{ fontFamily: font.mono, fontSize: 11 }} numberOfLines={1}>
-                        {g.rail === 'revenuecat-test-store' ? `RC Test Store · ${g.transactionId}` : `offline demo · ${g.transactionId}`}
+                      <Txt
+                        variant="caption"
+                        color={color.ink3}
+                        style={{ fontFamily: font.mono, fontSize: 11 }}
+                        numberOfLines={1}>
+                        {g.rail === 'revenuecat-test-store'
+                          ? `RC Test Store · ${g.transactionId}`
+                          : `offline demo · ${g.transactionId}`}
                       </Txt>
                     </View>
                     <Txt variant="number">{money(g.amount)}</Txt>
@@ -159,10 +180,15 @@ export default function ImpactScreen() {
         </>
       )}
 
-      <Pressable onPress={() => router.push('/supporter')} style={[styles.card, styles.supporter]} accessibilityRole="button">
+      <Pressable
+        onPress={() => router.push('/supporter')}
+        style={[styles.card, styles.supporter]}
+        accessibilityRole="button">
         <View style={{ flex: 1, gap: 4 }}>
           {supporter ? <Pill label="Supporter" tone="sun" symbol="sun.max.fill" small /> : null}
-          <Txt variant="bodyStrong">{supporter ? 'You keep Handful free for nonprofits' : 'Keep Handful free for nonprofits'}</Txt>
+          <Txt variant="bodyStrong">
+            {supporter ? 'You keep Handful free for nonprofits' : 'Keep Handful free for nonprofits'}
+          </Txt>
           <Txt variant="caption">
             {supporter
               ? 'Thank you. Nonprofits pay nothing, and gifts carry no platform fee.'
@@ -177,7 +203,8 @@ export default function ImpactScreen() {
 
 function Stat({ value, label, accent, leaf }: { value: string; label: string; accent?: boolean; leaf?: boolean }) {
   return (
-    <View style={[styles.stat, accent && { backgroundColor: color.sunSoft }, leaf && { backgroundColor: color.leafSoft }]}>
+    <View
+      style={[styles.stat, accent && { backgroundColor: color.sunSoft }, leaf && { backgroundColor: color.leafSoft }]}>
       <Txt variant="bigNumber" color={leaf ? color.leaf : color.ink}>
         {value}
       </Txt>
@@ -213,7 +240,14 @@ const styles = StyleSheet.create({
   updateDelivered: { borderWidth: 1.5, borderColor: color.leafSoft },
   unread: { width: 10, height: 10, borderRadius: 5, backgroundColor: color.sun },
   items: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  itemChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 11, paddingVertical: 7, borderRadius: radius.pill },
+  itemChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: radius.pill,
+  },
   gift: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
   giftBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line },
   supporter: { flexDirection: 'row', alignItems: 'center', gap: 12 },

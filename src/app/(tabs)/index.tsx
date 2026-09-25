@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AlmostCard, CauseCard } from '@/components/CauseCard';
 import { CauseRow } from '@/components/CauseRow';
@@ -13,11 +12,11 @@ import { Wordmark } from '@/components/Wordmark';
 import { CATEGORIES } from '@/data/categories';
 import type { CategoryId } from '@/data/types';
 import { tap } from '@/lib/haptics';
+import { devScroll } from '@/lib/devScroll';
 import { useStore } from '@/store/useStore';
 import { color, radius, space } from '@/theme/tokens';
 
 export default function CausesScreen() {
-  const insets = useSafeAreaInsets();
   const causes = useStore((s) => s.causes);
   const [filter, setFilter] = useState<CategoryId | 'all'>('all');
 
@@ -34,19 +33,27 @@ export default function CausesScreen() {
 
   return (
     <ScrollView
+      contentOffset={devScroll()}
       style={{ flex: 1, backgroundColor: color.paper }}
-      contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 120 }}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ paddingTop: 8, paddingBottom: 48 }}
       showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <Wordmark />
-        <Pressable onPress={() => router.push('/about')} accessibilityRole="button" accessibilityLabel="About this demo">
+        <Pressable
+          onPress={() => router.push('/about')}
+          accessibilityRole="button"
+          accessibilityLabel="About this demo">
           <Pill label="Demo" tone="demo" symbol="info.circle" />
         </Pressable>
       </View>
 
       <Animated.View entering={FadeInDown.duration(500)} style={styles.hero}>
         <Txt variant="display">
-          Give to something <Txt variant="display" italic>real.</Txt>
+          Give to something{' '}
+          <Txt variant="display" italic>
+            real.
+          </Txt>
         </Txt>
         <Txt variant="callout" style={{ maxWidth: 330 }}>
           Small, specific needs, verified by local nonprofits. See what it pays for, and see it delivered.
@@ -82,7 +89,13 @@ export default function CausesScreen() {
           contentContainerStyle={{ paddingHorizontal: space.lg, gap: 8, paddingBottom: space.md }}>
           <Chip label="All" active={filter === 'all'} onPress={() => setFilter('all')} />
           {cats.map((c) => (
-            <Chip key={c.id} label={c.label} symbol={c.symbol} active={filter === c.id} onPress={() => setFilter(c.id)} />
+            <Chip
+              key={c.id}
+              label={c.label}
+              symbol={c.symbol}
+              active={filter === c.id}
+              onPress={() => setFilter(c.id)}
+            />
           ))}
         </ScrollView>
         <View style={styles.list}>
@@ -134,7 +147,17 @@ export default function CausesScreen() {
   );
 }
 
-function Chip({ label, symbol, active, onPress }: { label: string; symbol?: string; active: boolean; onPress: () => void }) {
+function Chip({
+  label,
+  symbol,
+  active,
+  onPress,
+}: {
+  label: string;
+  symbol?: string;
+  active: boolean;
+  onPress: () => void;
+}) {
   return (
     <Pressable
       onPress={() => {
@@ -188,8 +211,6 @@ const styles = StyleSheet.create({
     marginHorizontal: space.lg,
     padding: space.md,
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: color.line,
-    borderStyle: 'dashed',
+    backgroundColor: color.paperDeep,
   },
 });

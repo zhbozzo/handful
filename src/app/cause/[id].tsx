@@ -1,7 +1,7 @@
 import { BlurView } from 'expo-blur';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import { StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
@@ -11,8 +11,10 @@ import { Icon } from '@/components/Icon';
 import { OrgLine } from '@/components/OrgLine';
 import { Pill } from '@/components/Pill';
 import { ProgressBar } from '@/components/Progress';
+import { ScrollHeader } from '@/components/ScrollHeader';
 import { Timeline } from '@/components/Timeline';
 import { Txt } from '@/components/Txt';
+import { devScroll } from '@/lib/devScroll';
 import { categoryById } from '@/data/categories';
 import { orgById } from '@/data/seed';
 import { ago, money, pct, plural } from '@/lib/format';
@@ -25,6 +27,10 @@ export default function CauseScreen() {
   const cause = useCause(id);
   const gave = useStore((s) => s.contributions.filter((c) => c.causeId === id).reduce((sum, c) => sum + c.amount, 0));
   const insets = useSafeAreaInsets();
+  const scrollY = useSharedValue(devScroll()?.y ?? 0);
+  const onScroll = useAnimatedScrollHandler((e) => {
+    scrollY.value = e.contentOffset.y;
+  });
 
   if (!cause) return null;
 
@@ -36,7 +42,12 @@ export default function CauseScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: color.paper }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 140 + insets.bottom }} showsVerticalScrollIndicator={false}>
+      <Animated.ScrollView
+        contentOffset={devScroll()}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        contentContainerStyle={{ paddingBottom: 140 + insets.bottom }}
+        showsVerticalScrollIndicator={false}>
         <CoverArt cause={cause} height={300 + insets.top} rounded={0} />
 
         <View style={styles.body}>
@@ -44,7 +55,11 @@ export default function CauseScreen() {
             <View style={styles.pills}>
               <Pill label={cat.label} symbol={cat.symbol} />
               {!open ? (
-                <Pill label={statusLabel[cause.status]} tone={delivered ? 'leaf' : 'sun'} symbol={delivered ? 'checkmark' : undefined} />
+                <Pill
+                  label={statusLabel[cause.status]}
+                  tone={delivered ? 'leaf' : 'sun'}
+                  symbol={delivered ? 'checkmark' : undefined}
+                />
               ) : null}
               <Pill label="Demo cause" tone="demo" />
             </View>
@@ -115,8 +130,8 @@ export default function CauseScreen() {
               </View>
             </View>
             <Txt variant="caption" style={{ paddingHorizontal: 4 }}>
-              Estimated prices. The receipt shows what was actually spent — anything left over moves to the
-              nonprofit’s next open cause.
+              Estimated prices. The receipt shows what was actually spent — anything left over moves to the nonprofit’s
+              next open cause.
             </Txt>
           </Section>
 
@@ -138,16 +153,9 @@ export default function CauseScreen() {
             </View>
           </Section>
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
-      <Pressable
-        onPress={() => router.back()}
-        style={[styles.back, { top: insets.top + 8 }]}
-        accessibilityRole="button"
-        accessibilityLabel="Back">
-        <BlurView intensity={50} tint="light" style={StyleSheet.absoluteFill} />
-        <Icon name="chevron.left" size={17} color={color.ink} weight="bold" />
-      </Pressable>
+      <ScrollHeader scrollY={scrollY} title={cause.title} showAt={300} />
 
       <Animated.View entering={FadeIn.delay(250)} style={[styles.bar, { paddingBottom: insets.bottom + 10 }]}>
         <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFill} />
@@ -165,7 +173,9 @@ export default function CauseScreen() {
                   label={`Complete it · ${money(left)}`}
                   kind="sun"
                   style={{ flex: 1.4 }}
-                  onPress={() => router.push({ pathname: '/give/[id]', params: { id: cause.id, amount: String(left) } })}
+                  onPress={() =>
+                    router.push({ pathname: '/give/[id]', params: { id: cause.id, amount: String(left) } })
+                  }
                 />
               </>
             ) : (
@@ -176,7 +186,13 @@ export default function CauseScreen() {
               />
             )
           ) : delivered ? (
-            <Button label="See the proof" kind="leaf" symbol="checkmark.seal.fill" style={{ flex: 1 }} onPress={() => router.push(`/proof/${cause.id}`)} />
+            <Button
+              label="See the proof"
+              kind="leaf"
+              symbol="checkmark.seal.fill"
+              style={{ flex: 1 }}
+              onPress={() => router.push(`/proof/${cause.id}`)}
+            />
           ) : (
             <View style={styles.fundedNote}>
               <Icon name="clock.fill" size={16} color={color.leaf} />
@@ -202,7 +218,17 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Row({ symbol, tint, title, children }: { symbol: string; tint: string; title: string; children: React.ReactNode }) {
+function Row({
+  symbol,
+  tint,
+  title,
+  children,
+}: {
+  symbol: string;
+  tint: string;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <View style={{ flexDirection: 'row', gap: 12 }}>
       <Icon name={symbol} size={20} color={tint} />
@@ -215,7 +241,14 @@ function Row({ symbol, tint, title, children }: { symbol: string; tint: string; 
 }
 
 const styles = StyleSheet.create({
-  body: { padding: space.lg, gap: space.xl, marginTop: -space.xl, backgroundColor: color.paper, borderTopLeftRadius: 28, borderTopRightRadius: 28 },
+  body: {
+    padding: space.lg,
+    gap: space.xl,
+    marginTop: -space.xl,
+    backgroundColor: color.paper,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+  },
   pills: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 5, flexWrap: 'wrap' },
   card: { backgroundColor: color.card, borderRadius: radius.lg, padding: space.md, ...shadow.card },
@@ -224,17 +257,6 @@ const styles = StyleSheet.create({
   itemBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line },
   itemIcon: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   totalRow: { borderTopWidth: 1, borderTopColor: color.lineStrong, marginTop: 2 },
-  back: {
-    position: 'absolute',
-    left: space.md,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.5)',
-  },
   bar: {
     position: 'absolute',
     left: 0,

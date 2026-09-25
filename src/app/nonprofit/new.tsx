@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
@@ -31,7 +31,7 @@ const EXAMPLE = {
   beneficiary: 'individual' as Beneficiary,
   area: 'Santiago Centro',
   rows: [
-    { id: 'a', label: 'Warm winter coat (second-hand)', amount: '15' },
+    { id: 'a', label: 'Winter coat', amount: '15' },
     { id: 'b', label: 'Gloves + beanie', amount: '6' },
     { id: 'c', label: 'Thermal socks ×2', amount: '5' },
   ],
@@ -40,7 +40,7 @@ const EXAMPLE = {
 };
 
 const ROW_SYMBOLS: Partial<Record<CategoryId, string[]>> = {
-  clothing: ['tshirt.fill', 'hand.raised.fill', 'snowflake'],
+  clothing: ['tshirt.fill', 'snowflake', 'thermometer.medium'],
   food: ['fork.knife', 'cup.and.saucer.fill', 'carrot.fill'],
 };
 
@@ -49,7 +49,9 @@ export default function NewCause() {
   const createCause = useStore((s) => s.createCause);
   const org = orgById(STUDIO_ORG_ID);
 
-  const [step, setStep] = useState(0);
+  // Dev/QA: /nonprofit/new?step=2&example=1 opens a later step pre-filled.
+  const dev = useLocalSearchParams<{ step?: string; example?: string }>();
+  const [step, setStep] = useState(__DEV__ && dev.step ? Number(dev.step) : 0);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<CategoryId>('food');
   const [beneficiary, setBeneficiary] = useState<Beneficiary>('individual');
@@ -59,6 +61,7 @@ export default function NewCause() {
     { id: 'r2', label: '', amount: '' },
   ]);
   const [summary, setSummary] = useState('');
+  const [devFilled, setDevFilled] = useState(false);
   const [photo, setPhoto] = useState<PickedPhoto | null>(null);
   const [cover, setCover] = useState<string | undefined>();
   const [consent, setConsent] = useState({ consentObtained: false, noExactLocation: false, imagesReviewed: false });
@@ -96,6 +99,16 @@ export default function NewCause() {
 
   const close = () => router.back();
 
+  if (__DEV__ && dev.example && !devFilled) {
+    setDevFilled(true);
+    setTitle(EXAMPLE.title);
+    setCategory(EXAMPLE.category);
+    setBeneficiary(EXAMPLE.beneficiary);
+    setArea(EXAMPLE.area);
+    setRows(EXAMPLE.rows);
+    setSummary(EXAMPLE.summary);
+  }
+
   function publish() {
     const cause = createCause({
       title: title.trim(),
@@ -121,7 +134,12 @@ export default function NewCause() {
 
   if (published) {
     return (
-      <View style={[styles.screen, styles.done, { paddingTop: insets.top + space.xxl, paddingBottom: insets.bottom + space.lg }]}>
+      <View
+        style={[
+          styles.screen,
+          styles.done,
+          { paddingTop: insets.top + space.xxl, paddingBottom: insets.bottom + space.lg },
+        ]}>
         <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.doneBadge}>
           <Icon name="checkmark" size={40} color={color.white} weight="heavy" />
         </Animated.View>
@@ -153,8 +171,19 @@ export default function NewCause() {
     <KeyboardAvoidingView behavior="padding" style={styles.screen}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingTop: insets.top + space.sm, paddingHorizontal: space.lg, paddingBottom: space.xl, gap: space.xl }}>
-        <FlowHeader step={step} total={TITLES.length} title={TITLES[step]} onClose={close} onBack={step > 0 ? () => setStep(step - 1) : undefined} />
+        contentContainerStyle={{
+          paddingTop: insets.top + space.sm,
+          paddingHorizontal: space.lg,
+          paddingBottom: space.xl,
+          gap: space.xl,
+        }}>
+        <FlowHeader
+          step={step}
+          total={TITLES.length}
+          title={TITLES[step]}
+          onClose={close}
+          onBack={step > 0 ? () => setStep(step - 1) : undefined}
+        />
 
         {step === 0 ? (
           <Animated.View entering={FadeIn} style={{ gap: space.lg }}>
@@ -198,7 +227,14 @@ export default function NewCause() {
                 })}
               </View>
             </View>
-            <Field label="What’s needed?" placeholder="e.g. Winter coat + gloves" value={title} onChangeText={setTitle} maxLength={48} hint="Name the help, not the person." />
+            <Field
+              label="What’s needed?"
+              placeholder="e.g. Winter coat + gloves"
+              value={title}
+              onChangeText={setTitle}
+              maxLength={48}
+              hint="Name the help, not the person."
+            />
             <Button label="Fill with an example" kind="ghost" compact symbol="wand.and.stars" onPress={fillExample} />
           </Animated.View>
         ) : null}
@@ -221,7 +257,9 @@ export default function NewCause() {
                   </Txt>
                   <TextInput
                     value={r.amount}
-                    onChangeText={(t) => setRows(rows.map((x) => (x.id === r.id ? { ...x, amount: t.replace(/[^0-9]/g, '') } : x)))}
+                    onChangeText={(t) =>
+                      setRows(rows.map((x) => (x.id === r.id ? { ...x, amount: t.replace(/[^0-9]/g, '') } : x)))
+                    }
                     keyboardType="number-pad"
                     placeholder="0"
                     placeholderTextColor={color.ink3}
@@ -265,11 +303,24 @@ export default function NewCause() {
               maxLength={280}
               hint={`${summary.length}/280 · describe the need, not the person`}
             />
-            <Field label="General area" placeholder="Neighborhood or city" value={area} onChangeText={setArea} maxLength={40} hint="Never a street, a shelter name or where someone sleeps." />
+            <Field
+              label="General area"
+              placeholder="Neighborhood or city"
+              value={area}
+              onChangeText={setArea}
+              maxLength={40}
+              hint="Never a street, a shelter name or where someone sleeps."
+            />
             <View style={[styles.checkCard, issues.length ? styles.checkWarn : styles.checkOk]}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Icon name={issues.length ? 'exclamationmark.shield.fill' : 'checkmark.shield.fill'} size={18} color={issues.length ? color.sunDeep : color.leaf} />
-                <Txt variant="bodyStrong">{issues.length ? 'Privacy check: fix before publishing' : 'Privacy check: looks good'}</Txt>
+                <Icon
+                  name={issues.length ? 'exclamationmark.shield.fill' : 'checkmark.shield.fill'}
+                  size={18}
+                  color={issues.length ? color.sunDeep : color.leaf}
+                />
+                <Txt variant="bodyStrong">
+                  {issues.length ? 'Privacy check: fix before publishing' : 'Privacy check: looks good'}
+                </Txt>
               </View>
               {issues.length ? (
                 issues.map((i) => (
@@ -309,10 +360,25 @@ export default function NewCause() {
                   Optional. Show the items or the setting — not the person. Every photo goes through Privacy Shield on
                   this phone before it can be posted.
                 </Txt>
-                {cover ? <CoverArt cause={{ category, items, coverUri: cover }} height={220} /> : <CoverArt cause={{ category, items }} height={220} />}
-                <Button label="Choose a photo" kind="shield" symbol="photo.on.rectangle" onPress={() => choose(false)} />
-                {cameraAvailable() ? <Button label="Take a photo" kind="secondary" symbol="camera.fill" onPress={() => choose(true)} /> : null}
-                <Button label={cover ? 'Continue' : 'Skip — use this illustration'} kind="ghost" onPress={() => setStep(4)} />
+                {cover ? (
+                  <CoverArt cause={{ category, items, coverUri: cover }} height={220} />
+                ) : (
+                  <CoverArt cause={{ category, items }} height={220} />
+                )}
+                <Button
+                  label="Choose a photo"
+                  kind="shield"
+                  symbol="photo.on.rectangle"
+                  onPress={() => choose(false)}
+                />
+                {cameraAvailable() ? (
+                  <Button label="Take a photo" kind="secondary" symbol="camera.fill" onPress={() => choose(true)} />
+                ) : null}
+                <Button
+                  label={cover ? 'Continue' : 'Skip — use this illustration'}
+                  kind="ghost"
+                  onPress={() => setStep(4)}
+                />
               </>
             )}
           </Animated.View>
@@ -370,7 +436,14 @@ export default function NewCause() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.paper },
   done: { alignItems: 'center', paddingHorizontal: space.lg, gap: space.lg },
-  doneBadge: { width: 96, height: 96, borderRadius: 48, backgroundColor: color.leaf, alignItems: 'center', justifyContent: 'center' },
+  doneBadge: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: color.leaf,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   cats: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   cat: {
     flexDirection: 'row',
@@ -397,7 +470,13 @@ const styles = StyleSheet.create({
   },
   amountBox: { flexDirection: 'row', alignItems: 'center', gap: 4, width: 96 },
   amountInput: { flex: 1, textAlign: 'right', fontWeight: '700' },
-  goalRow: { flexDirection: 'row', alignItems: 'center', paddingTop: space.sm, borderTopWidth: 1, borderTopColor: color.lineStrong },
+  goalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: space.sm,
+    borderTopWidth: 1,
+    borderTopColor: color.lineStrong,
+  },
   checkCard: { padding: space.md, borderRadius: radius.lg, gap: 6 },
   checkOk: { backgroundColor: color.leafSoft },
   checkWarn: { backgroundColor: color.sunSoft },

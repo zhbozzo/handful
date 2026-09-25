@@ -24,7 +24,11 @@ export function OrgLine({ org, size = 'md', sub }: { org: Organization; size?: '
       <OrgAvatar org={org} size={small ? 22 : 30} />
       <View style={{ flexShrink: 1 }}>
         <View style={styles.nameRow}>
-          <Txt variant={small ? 'caption' : 'bodyStrong'} color={color.ink} numberOfLines={1} style={small ? { fontWeight: '600' } : null}>
+          <Txt
+            variant={small ? 'caption' : 'bodyStrong'}
+            color={color.ink}
+            numberOfLines={1}
+            style={small ? { fontWeight: '600' } : null}>
             {org.name}
           </Txt>
           <Icon name="checkmark.seal.fill" size={small ? 13 : 15} color={color.leaf} />

@@ -1,8 +1,6 @@
-export const money = (n: number) =>
-  Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`;
+export const money = (n: number) => (Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`);
 
-export const pct = (raised: number, goal: number) =>
-  goal <= 0 ? 0 : Math.min(100, Math.round((raised / goal) * 100));
+export const pct = (raised: number, goal: number) => (goal <= 0 ? 0 : Math.min(100, Math.round((raised / goal) * 100)));
 
 export function ago(ts: number, now = Date.now()) {
   const m = Math.max(0, Math.round((now - ts) / 60_000));

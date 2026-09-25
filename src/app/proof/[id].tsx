@@ -1,16 +1,18 @@
 import { Image } from 'expo-image';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { StyleSheet, View } from 'react-native';
+import Animated, { FadeInDown, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CoverArt } from '@/components/CoverArt';
 import { Icon } from '@/components/Icon';
 import { OrgLine } from '@/components/OrgLine';
 import { Pill } from '@/components/Pill';
+import { ScrollHeader } from '@/components/ScrollHeader';
 import { Timeline } from '@/components/Timeline';
 import { Txt } from '@/components/Txt';
+import { devScroll } from '@/lib/devScroll';
 import { categoryById } from '@/data/categories';
 import { orgById } from '@/data/seed';
 import { money, when } from '@/lib/format';
@@ -25,6 +27,10 @@ export default function ProofScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const cause = useCause(id);
   const insets = useSafeAreaInsets();
+  const scrollY = useSharedValue(devScroll()?.y ?? 0);
+  const onScroll = useAnimatedScrollHandler((e) => {
+    scrollY.value = e.contentOffset.y;
+  });
   const gave = useStore((s) => s.contributions.filter((c) => c.causeId === id).reduce((sum, c) => sum + c.amount, 0));
   const inbox = useStore((s) => s.inbox);
   const markInboxRead = useStore((s) => s.markInboxRead);
@@ -43,15 +49,27 @@ export default function ProofScreen() {
   const deliveredAt = cause.timeline.find((t) => t.status === 'delivered')?.at ?? Date.now();
   const photo = ev.photoUri ? { uri: ev.photoUri } : ev.photoAsset ? DEMO_PHOTOS[ev.photoAsset] : undefined;
   const privacyBits = [
-    ev.privacy.facesBlurred > 0 ? `${ev.privacy.facesBlurred} face${ev.privacy.facesBlurred > 1 ? 's' : ''} blurred` : null,
-    ev.privacy.textBlurred > 0 ? `${ev.privacy.textBlurred} text area${ev.privacy.textBlurred > 1 ? 's' : ''} hidden` : null,
+    ev.privacy.facesBlurred > 0
+      ? `${ev.privacy.facesBlurred} face${ev.privacy.facesBlurred > 1 ? 's' : ''} blurred`
+      : null,
+    ev.privacy.textBlurred > 0
+      ? `${ev.privacy.textBlurred} text area${ev.privacy.textBlurred > 1 ? 's' : ''} hidden`
+      : null,
     ev.privacy.locationRemoved ? 'location removed' : null,
   ].filter(Boolean);
 
   return (
     <View style={{ flex: 1, backgroundColor: color.paper }}>
-      <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + 56, paddingBottom: insets.bottom + 48, paddingHorizontal: space.lg, gap: space.xl }}
+      <Animated.ScrollView
+        contentOffset={devScroll()}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        contentContainerStyle={{
+          paddingTop: insets.top + 56,
+          paddingBottom: insets.bottom + 48,
+          paddingHorizontal: space.lg,
+          gap: space.xl,
+        }}
         showsVerticalScrollIndicator={false}>
         <Animated.View entering={FadeInDown.duration(450)} style={{ gap: space.sm }}>
           <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -154,15 +172,9 @@ export default function ProofScreen() {
             ? 'Posted from the nonprofit studio in this demo.'
             : 'Demo evidence from a fictional nonprofit.'}
         </Txt>
-      </ScrollView>
+      </Animated.ScrollView>
 
-      <Pressable
-        onPress={() => router.back()}
-        style={[styles.back, { top: insets.top + 8 }]}
-        accessibilityRole="button"
-        accessibilityLabel="Back">
-        <Icon name="chevron.left" size={17} color={color.ink} weight="bold" />
-      </Pressable>
+      <ScrollHeader scrollY={scrollY} title="Delivered" showAt={90} />
     </View>
   );
 }
@@ -188,16 +200,5 @@ const styles = StyleSheet.create({
   receipt: { gap: 8 },
   receiptHead: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
   line: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  total: { borderTopWidth: 1, borderTopColor: color.lineStrong, paddingTop: 8, marginTop: 2, borderStyle: 'dashed' },
-  back: {
-    position: 'absolute',
-    left: space.md,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: color.card,
-    ...shadow.card,
-  },
+  total: { borderTopWidth: 1, borderTopColor: color.lineStrong, paddingTop: 8, marginTop: 2 },
 });

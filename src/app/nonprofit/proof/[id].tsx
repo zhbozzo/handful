@@ -30,7 +30,11 @@ export default function PostProof() {
   const [step, setStep] = useState(0);
   const [store, setStore] = useState('Neighborhood supermarket');
   const [lines, setLines] = useState(() =>
-    (cause?.items ?? []).map((i) => ({ id: i.id, label: i.label, amount: (i.amount - (i.amount >= 5 ? 0.3 : 0.1)).toFixed(2) })),
+    (cause?.items ?? []).map((i) => ({
+      id: i.id,
+      label: i.label,
+      amount: (i.amount - (i.amount >= 5 ? 0.3 : 0.1)).toFixed(2),
+    })),
   );
   const [photo, setPhoto] = useState<PickedPhoto | null>(null);
   const [safe, setSafe] = useState<{ uri: string; report: PhotoReport } | null>(null);
@@ -43,7 +47,11 @@ export default function PostProof() {
   const org = orgById(cause.orgId);
   const spent = lines.reduce((s, l) => s + (Number(l.amount) || 0), 0);
   const leftover = cause.raised - spent;
-  const canNext = [spent > 0 && spent <= cause.raised + 0.001 && store.trim().length > 1, !!safe, note.trim().length > 5 && confirmed][step];
+  const canNext = [
+    spent > 0 && spent <= cause.raised + 0.001 && store.trim().length > 1,
+    !!safe,
+    note.trim().length > 5 && confirmed,
+  ][step];
 
   async function choose(fromCamera: boolean) {
     const p = fromCamera ? await takePhoto() : await pickFromLibrary();
@@ -70,7 +78,12 @@ export default function PostProof() {
 
   if (posted) {
     return (
-      <View style={[styles.screen, styles.done, { paddingTop: insets.top + space.xxl, paddingBottom: insets.bottom + space.lg }]}>
+      <View
+        style={[
+          styles.screen,
+          styles.done,
+          { paddingTop: insets.top + space.xxl, paddingBottom: insets.bottom + space.lg },
+        ]}>
         <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.doneBadge}>
           <Icon name="checkmark.seal.fill" size={44} color={color.white} />
         </Animated.View>
@@ -102,8 +115,19 @@ export default function PostProof() {
     <KeyboardAvoidingView behavior="padding" style={styles.screen}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingTop: insets.top + space.sm, paddingHorizontal: space.lg, paddingBottom: space.xl, gap: space.xl }}>
-        <FlowHeader step={step} total={TITLES.length} title={TITLES[step]} onClose={() => router.back()} onBack={step > 0 ? () => setStep(step - 1) : undefined} />
+        contentContainerStyle={{
+          paddingTop: insets.top + space.sm,
+          paddingHorizontal: space.lg,
+          paddingBottom: space.xl,
+          gap: space.xl,
+        }}>
+        <FlowHeader
+          step={step}
+          total={TITLES.length}
+          title={TITLES[step]}
+          onClose={() => router.back()}
+          onBack={step > 0 ? () => setStep(step - 1) : undefined}
+        />
 
         <View style={styles.causeRow}>
           <CoverThumb cause={cause} size={44} />
@@ -131,7 +155,9 @@ export default function PostProof() {
                   </Txt>
                   <TextInput
                     value={l.amount}
-                    onChangeText={(t) => setLines(lines.map((x) => (x.id === l.id ? { ...x, amount: t.replace(/[^0-9.]/g, '') } : x)))}
+                    onChangeText={(t) =>
+                      setLines(lines.map((x) => (x.id === l.id ? { ...x, amount: t.replace(/[^0-9.]/g, '') } : x)))
+                    }
                     keyboardType="decimal-pad"
                     style={styles.amount}
                   />
@@ -184,8 +210,15 @@ export default function PostProof() {
                     </Txt>
                   </View>
                 ) : null}
-                <Button label="Choose delivery photo" kind="shield" symbol="photo.on.rectangle" onPress={() => choose(false)} />
-                {cameraAvailable() ? <Button label="Take a photo" kind="secondary" symbol="camera.fill" onPress={() => choose(true)} /> : null}
+                <Button
+                  label="Choose delivery photo"
+                  kind="shield"
+                  symbol="photo.on.rectangle"
+                  onPress={() => choose(false)}
+                />
+                {cameraAvailable() ? (
+                  <Button label="Take a photo" kind="secondary" symbol="camera.fill" onPress={() => choose(true)} />
+                ) : null}
               </>
             )}
           </Animated.View>
@@ -193,7 +226,14 @@ export default function PostProof() {
 
         {step === 2 ? (
           <Animated.View entering={FadeIn} style={{ gap: space.lg }}>
-            <Field label="Note to donors" value={note} onChangeText={setNote} multiline maxLength={200} hint="Short and factual. Donors read this with the receipt." />
+            <Field
+              label="Note to donors"
+              value={note}
+              onChangeText={setNote}
+              multiline
+              maxLength={200}
+              hint="Short and factual. Donors read this with the receipt."
+            />
             <Check
               checked={confirmed}
               onToggle={() => setConfirmed(!confirmed)}
@@ -207,7 +247,13 @@ export default function PostProof() {
       {step !== 1 || !photo ? (
         <View style={[styles.footer, { paddingBottom: insets.bottom + space.sm }]}>
           {step === 2 ? (
-            <Button label="Post proof to donors" kind="leaf" symbol="paperplane.fill" disabled={!canNext} onPress={post} />
+            <Button
+              label="Post proof to donors"
+              kind="leaf"
+              symbol="paperplane.fill"
+              disabled={!canNext}
+              onPress={post}
+            />
           ) : (
             <Button label="Continue" disabled={!canNext} onPress={() => setStep(step + 1)} />
           )}
@@ -220,8 +266,22 @@ export default function PostProof() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.paper },
   done: { alignItems: 'center', paddingHorizontal: space.lg, gap: space.lg },
-  doneBadge: { width: 96, height: 96, borderRadius: 48, backgroundColor: color.leaf, alignItems: 'center', justifyContent: 'center' },
-  causeRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: space.sm, borderRadius: radius.lg, backgroundColor: color.card },
+  doneBadge: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: color.leaf,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  causeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: space.sm,
+    borderRadius: radius.lg,
+    backgroundColor: color.card,
+  },
   card: { backgroundColor: color.card, borderRadius: radius.lg, paddingHorizontal: space.md },
   line: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10 },
   lineBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line },
@@ -238,6 +298,13 @@ const styles = StyleSheet.create({
     color: color.ink,
   },
   sum: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4 },
-  safeRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: space.md, borderRadius: radius.lg, backgroundColor: color.leafSoft },
+  safeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: space.md,
+    borderRadius: radius.lg,
+    backgroundColor: color.leafSoft,
+  },
   footer: { paddingHorizontal: space.lg, paddingTop: space.sm, backgroundColor: color.paper },
 });

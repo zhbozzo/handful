@@ -1,6 +1,5 @@
 import { router } from 'expo-router';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { CoverThumb } from '@/components/CoverArt';
@@ -10,11 +9,11 @@ import { Pill } from '@/components/Pill';
 import { Txt } from '@/components/Txt';
 import { orgById, STUDIO_ORG_ID } from '@/data/seed';
 import { money } from '@/lib/format';
+import { devScroll } from '@/lib/devScroll';
 import { useStore } from '@/store/useStore';
 import { color, radius, shadow, space } from '@/theme/tokens';
 
 export default function StudioScreen() {
-  const insets = useSafeAreaInsets();
   const causes = useStore((s) => s.causes);
   const resetDemo = useStore((s) => s.resetDemo);
   const org = orgById(STUDIO_ORG_ID);
@@ -24,8 +23,10 @@ export default function StudioScreen() {
 
   return (
     <ScrollView
+      contentOffset={devScroll()}
       style={{ flex: 1, backgroundColor: color.paper }}
-      contentContainerStyle={{ paddingTop: insets.top + space.md, paddingBottom: 120, paddingHorizontal: space.lg, gap: space.xl }}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ paddingTop: space.sm, paddingBottom: 48, paddingHorizontal: space.lg, gap: space.xl }}
       showsVerticalScrollIndicator={false}>
       <View style={{ gap: space.sm }}>
         <Pill label="Nonprofit view · demo" tone="shield" symbol="building.2.fill" />
@@ -63,11 +64,11 @@ export default function StudioScreen() {
             <View key={c.id} style={styles.row}>
               <CoverThumb cause={c} size={48} />
               <View style={{ flex: 1, gap: 2 }}>
-                <Txt variant="bodyStrong" numberOfLines={1}>
+                <Txt variant="bodyStrong" numberOfLines={2}>
                   {c.title}
                 </Txt>
                 <Txt variant="caption" numberOfLines={1}>
-                  {orgById(c.orgId).name} · {money(c.raised)} raised
+                  {money(c.raised)} raised · {c.status === 'purchased' ? 'receipt posted' : 'buy the items'}
                 </Txt>
               </View>
               <Button label="Post proof" kind="leaf" compact onPress={() => router.push(`/nonprofit/proof/${c.id}`)} />
@@ -76,23 +77,29 @@ export default function StudioScreen() {
         )}
       </View>
 
-      <View style={{ gap: space.sm }}>
-        <Txt variant="micro">Your open causes</Txt>
-        {mine.map((c) => (
-          <Pressable key={c.id} onPress={() => router.push(`/cause/${c.id}`)} style={styles.row} accessibilityRole="button">
-            <CoverThumb cause={c} size={48} />
-            <View style={{ flex: 1, gap: 2 }}>
-              <Txt variant="bodyStrong" numberOfLines={1}>
-                {c.title}
-              </Txt>
-              <Txt variant="caption">
-                {money(c.raised)} of {money(c.goal)} · {c.donors} donors
-              </Txt>
-            </View>
-            <Icon name="chevron.right" size={13} color={color.ink3} />
-          </Pressable>
-        ))}
-      </View>
+      {mine.length > 0 ? (
+        <View style={{ gap: space.sm }}>
+          <Txt variant="micro">Your open causes</Txt>
+          {mine.map((c) => (
+            <Pressable
+              key={c.id}
+              onPress={() => router.push(`/cause/${c.id}`)}
+              style={styles.row}
+              accessibilityRole="button">
+              <CoverThumb cause={c} size={48} />
+              <View style={{ flex: 1, gap: 2 }}>
+                <Txt variant="bodyStrong" numberOfLines={1}>
+                  {c.title}
+                </Txt>
+                <Txt variant="caption">
+                  {money(c.raised)} of {money(c.goal)} · {c.donors} donors
+                </Txt>
+              </View>
+              <Icon name="chevron.right" size={13} color={color.ink3} />
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
 
       <Button
         label="Reset demo data"
@@ -121,7 +128,14 @@ const styles = StyleSheet.create({
     backgroundColor: color.ink,
     ...shadow.lift,
   },
-  heroIcon: { width: 46, height: 46, borderRadius: 23, backgroundColor: color.sun, alignItems: 'center', justifyContent: 'center' },
+  heroIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: color.sun,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

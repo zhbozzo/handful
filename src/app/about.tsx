@@ -3,14 +3,35 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
+import { devScroll } from '@/lib/devScroll';
 import { color, radius, space } from '@/theme/tokens';
 
 const FLOW = [
-  { symbol: 'checkmark.seal.fill', title: 'A verified nonprofit spots a need', body: 'Only vetted nonprofits can post. Never anonymous individuals.' },
-  { symbol: 'list.bullet.rectangle.fill', title: 'They break it into a small cause', body: 'Items, prices and a goal — usually under $60.' },
-  { symbol: 'circle.circle.fill', title: 'People fund it, often in a day', body: 'Anyone can give a few dollars, or complete what’s left.' },
-  { symbol: 'receipt.fill', title: 'The nonprofit buys the items', body: 'Money goes to the nonprofit, never to an individual.' },
-  { symbol: 'checkmark.shield.fill', title: 'Proof, without exposure', body: 'Receipt + a delivery photo processed by Privacy Shield.' },
+  {
+    symbol: 'checkmark.seal.fill',
+    title: 'A verified nonprofit spots a need',
+    body: 'Only vetted nonprofits can post. Never anonymous individuals.',
+  },
+  {
+    symbol: 'list.bullet.rectangle.fill',
+    title: 'They break it into a small cause',
+    body: 'Items, prices and a goal — usually under $60.',
+  },
+  {
+    symbol: 'circle.circle.fill',
+    title: 'People fund it, often in a day',
+    body: 'Anyone can give a few dollars, or complete what’s left.',
+  },
+  {
+    symbol: 'receipt.fill',
+    title: 'The nonprofit buys the items',
+    body: 'Money goes to the nonprofit, never to an individual.',
+  },
+  {
+    symbol: 'checkmark.shield.fill',
+    title: 'Proof, without exposure',
+    body: 'Receipt + a delivery photo processed by Privacy Shield.',
+  },
 ];
 
 const DEMO = [
@@ -24,8 +45,14 @@ export default function AboutSheet() {
   const insets = useSafeAreaInsets();
   return (
     <ScrollView
+      contentOffset={devScroll()}
       style={{ backgroundColor: color.paper }}
-      contentContainerStyle={{ padding: space.lg, paddingTop: space.xxl, paddingBottom: insets.bottom + space.xl, gap: space.xl }}>
+      contentContainerStyle={{
+        padding: space.lg,
+        paddingTop: space.xxl,
+        paddingBottom: insets.bottom + space.xl,
+        gap: space.xl,
+      }}>
       <View style={{ gap: space.sm }}>
         <Txt variant="title">
           How Handful{' '}
@@ -79,5 +106,12 @@ export default function AboutSheet() {
 const styles = StyleSheet.create({
   card: { backgroundColor: color.card, borderRadius: radius.lg, padding: space.md, gap: 16 },
   step: { flexDirection: 'row', gap: 12 },
-  num: { width: 32, height: 32, borderRadius: 10, backgroundColor: color.paperDeep, alignItems: 'center', justifyContent: 'center' },
+  num: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: color.paperDeep,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
