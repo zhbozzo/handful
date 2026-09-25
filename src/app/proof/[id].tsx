@@ -55,7 +55,7 @@ export default function ProofScreen() {
     ev.privacy.textBlurred > 0
       ? `${ev.privacy.textBlurred} text area${ev.privacy.textBlurred > 1 ? 's' : ''} hidden`
       : null,
-    ev.privacy.locationRemoved ? 'location removed' : null,
+    ev.privacy.locationRemoved ? 'GPS removed' : null,
   ].filter(Boolean);
 
   return (
@@ -94,8 +94,8 @@ export default function ProofScreen() {
             )}
             <View style={styles.shieldTag}>
               <Icon name="checkmark.shield.fill" size={14} color={color.shield} />
-              <Txt variant="caption" color={color.shield} style={{ fontWeight: '700' }}>
-                Privacy Shield · {privacyBits.join(' · ') || 'reviewed'}
+              <Txt variant="caption" color={color.shield} style={{ fontWeight: '700', flexShrink: 1 }} numberOfLines={1}>
+                {privacyBits.join(' · ') || 'Reviewed by Privacy Shield'}
               </Txt>
             </View>
           </View>
@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 12,
     bottom: 12,
+    maxWidth: '92%',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,

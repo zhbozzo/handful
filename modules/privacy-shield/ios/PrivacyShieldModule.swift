@@ -33,12 +33,16 @@ public class PrivacyShieldModule: Module {
       textRequest.usesLanguageCorrection = false
       textRequest.minimumTextHeight = 0.012
       let documentRequest = VNDetectDocumentSegmentationRequest()
+      // Scene labels (e.g. "tent", "bedroom") let JS warn when a photo shows where someone sleeps.
+      let sceneRequest = VNClassifyImageRequest()
 
       let requests: [VNRequest] = [faceRequest, textRequest, documentRequest]
       requests.forEach(Self.preferCPUOnSimulator)
 
       let handler = VNImageRequestHandler(cgImage: cgImage, orientation: .up, options: [:])
       try handler.perform(requests)
+      // Scene classification is advisory: run it on its own so a failure never blocks redaction.
+      try? handler.perform([sceneRequest])
 
       let faces: [[String: Any]] = (faceRequest.results ?? []).map { obs in
         var box = Self.box(obs.boundingBox)
@@ -62,12 +66,18 @@ public class PrivacyShieldModule: Module {
           return box
         }
 
+      let scene: [[String: Any]] = (sceneRequest.results ?? [])
+        .filter { $0.confidence > 0.15 }
+        .prefix(12)
+        .map { ["label": $0.identifier, "confidence": Double($0.confidence)] }
+
       return [
         "width": cgImage.width,
         "height": cgImage.height,
         "faces": faces,
         "texts": texts,
         "documents": documents,
+        "scene": scene,
         "metadata": metadata,
         "durationMs": Int(Date().timeIntervalSince(started) * 1000),
       ]

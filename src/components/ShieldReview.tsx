@@ -42,6 +42,7 @@ const KIND_SYMBOL: Record<Finding['kind'], string> = {
   email: 'envelope.fill',
   document: 'doc.text.fill',
   location: 'location.slash.fill',
+  setting: 'tent.fill',
 };
 
 type Phase = 'scanning' | 'review' | 'protecting' | 'done' | 'error';
@@ -171,7 +172,10 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
                 <View
                   style={[
                     styles.boxTag,
-                    { width: f.label.length * 6.4 + 14, backgroundColor: f.kind === 'face' ? color.shield : color.sunDeep },
+                    {
+                      width: f.label.length * 6.4 + 14,
+                      backgroundColor: f.kind === 'face' ? color.shield : color.sunDeep,
+                    },
                   ]}>
                   <Txt variant="micro" color={color.white} style={{ fontSize: 9 }} numberOfLines={1}>
                     {f.label}
@@ -216,7 +220,7 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
             <Txt variant="headline">
               {findings.length === 0
                 ? 'Nothing identifying found.'
-                : `${findings.length} thing${findings.length > 1 ? 's' : ''} to protect`}
+                : `${findings.length} thing${findings.length > 1 ? 's' : ''} to review`}
             </Txt>
             <Txt variant="caption">
               Checked on this device in {ms} ms · {safeText} other text area{safeText === 1 ? '' : 's'} look safe ·
@@ -244,7 +248,9 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
                     <Txt variant="bodyStrong">{f.label}</Txt>
                     <Txt variant="caption">{f.detail}</Txt>
                   </View>
-                  {f.locked ? (
+                  {f.advisory ? (
+                    <Icon name="exclamationmark.triangle.fill" size={15} color={color.sunDeep} />
+                  ) : f.locked ? (
                     <Icon name="lock.fill" size={14} color={color.ink3} />
                   ) : (
                     <Switch

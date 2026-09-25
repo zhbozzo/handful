@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 
 const enabled = Platform.OS === 'ios' || Platform.OS === 'android';
@@ -15,14 +16,24 @@ if (enabled) {
   });
 }
 
-/** Opens the proof screen when the donor taps the "Delivered" notification. */
-export function listenForNotificationTaps(): () => void {
-  if (!enabled) return () => {};
-  const sub = Notifications.addNotificationResponseReceivedListener((response) => {
-    const url = response.notification.request.content.data?.url;
-    if (typeof url === 'string') router.push(url as never);
-  });
-  return () => sub.remove();
+/**
+ * Opens the proof screen when the donor taps the "Delivered" notification —
+ * whether the app was open, in the background, or launched by the tap.
+ */
+export function useNotificationTaps() {
+  const last = Notifications.useLastNotificationResponse();
+  const handled = useRef<string | null>(null);
+  useEffect(() => {
+    if (!enabled || !last || last.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return;
+    const id = last.notification.request.identifier;
+    if (handled.current === id) return;
+    handled.current = id;
+    const url = last.notification.request.content.data?.url;
+    if (typeof url !== 'string') return;
+    // The tap can arrive while a modal (e.g. the nonprofit flow) is on screen: close it first.
+    if (router.canDismiss()) router.dismissAll();
+    setTimeout(() => router.push(url as never), 400);
+  }, [last]);
 }
 
 export async function notificationsGranted(): Promise<boolean> {

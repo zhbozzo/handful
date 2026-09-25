@@ -42,7 +42,10 @@ describe('buildFindings', () => {
   });
 
   it('leaves ordinary text alone', () => {
-    const { findings, safeText } = buildFindings({ ...base, texts: [text('VOLUNTEER'), text('Food aid'), text('DONATE')] });
+    const { findings, safeText } = buildFindings({
+      ...base,
+      texts: [text('VOLUNTEER'), text('Food aid'), text('DONATE')],
+    });
     expect(findings).toHaveLength(0);
     expect(safeText).toBe(3);
   });
@@ -63,6 +66,18 @@ describe('buildFindings', () => {
     expect(buildFindings({ ...base, metadata: { hasGPS: true } }).findings[0].kind).toBe('location');
     expect(buildFindings(base, true).findings[0]).toMatchObject({ kind: 'location', locked: true });
     expect(buildFindings(base).findings).toHaveLength(0);
+  });
+});
+
+describe('scene check', () => {
+  it('warns when the photo looks like where someone sleeps', () => {
+    const { findings } = buildFindings({ ...base, scene: [{ label: 'tent', confidence: 0.82 }] });
+    expect(findings).toEqual([expect.objectContaining({ kind: 'setting', advisory: true, protect: false })]);
+  });
+
+  it('ignores low-confidence or unrelated scene labels', () => {
+    expect(buildFindings({ ...base, scene: [{ label: 'tent', confidence: 0.1 }] }).findings).toHaveLength(0);
+    expect(buildFindings({ ...base, scene: [{ label: 'grocery_store', confidence: 0.9 }] }).findings).toHaveLength(0);
   });
 });
 

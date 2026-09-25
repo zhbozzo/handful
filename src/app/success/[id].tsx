@@ -207,7 +207,7 @@ export default function SuccessScreen() {
         <Icon name="lock.fill" size={11} color={color.ink3} />
         <Txt variant="caption" color={color.ink3} align="center" style={{ flexShrink: 1 }}>
           {contribution.rail === 'revenuecat-test-store'
-            ? `RevenueCat Test Store · ${contribution.productId} · no real money was charged`
+            ? 'RevenueCat Test Store · no real money was charged'
             : 'Offline demo checkout · no money moved'}
         </Txt>
       </Animated.View>

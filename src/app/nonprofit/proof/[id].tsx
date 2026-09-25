@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Asset } from 'expo-asset';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
@@ -23,12 +23,22 @@ import { color, font, radius, space } from '@/theme/tokens';
 const TITLES = ['Receipt', 'Delivery photo', 'Note & post'];
 
 export default function PostProof() {
-  const { id, devPhoto, auto } = useLocalSearchParams<{ id: string; devPhoto?: string; auto?: string }>();
+  const { id, devPhoto, auto, step: devStep } = useLocalSearchParams<{
+    id: string;
+    devPhoto?: string;
+    auto?: string;
+    step?: string;
+  }>();
   const cause = useCause(id);
   const postProof = useStore((s) => s.postProof);
   const insets = useSafeAreaInsets();
 
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(__DEV__ && devStep ? Number(devStep) : 0);
+  // A new step starts at the top, with no leftover scroll momentum that would swallow the next tap.
+  const scrollRef = useRef<ScrollView>(null);
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [step]);
   const [store, setStore] = useState('Neighborhood supermarket');
   const [lines, setLines] = useState(() =>
     (cause?.items ?? []).map((i) => ({
@@ -39,10 +49,14 @@ export default function PostProof() {
   );
   const [photo, setPhoto] = useState<PickedPhoto | null>(null);
 
-  // Dev/QA only: ?devPhoto=1 opens the photo step with the bundled demo photo (no picker taps).
+  // Dev/QA only: ?devPhoto=1 (or =tent) opens the photo step with a bundled demo photo (no picker taps).
   useEffect(() => {
     if (!__DEV__ || !devPhoto) return;
-    Asset.fromModule(require('@/assets/demo/delivery-with-gps.jpg'))
+    const source =
+      devPhoto === 'tent'
+        ? require('@/assets/demo/tent-ai-generated.jpg')
+        : require('@/assets/demo/delivery-with-gps.jpg');
+    Asset.fromModule(source)
       .downloadAsync()
       .then((a) => {
         setStep(1);
@@ -126,7 +140,9 @@ export default function PostProof() {
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.screen}>
       <ScrollView
+        ref={scrollRef}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
         contentContainerStyle={{
           paddingTop: insets.top + space.sm,
           paddingHorizontal: space.lg,
@@ -154,7 +170,7 @@ export default function PostProof() {
         </View>
 
         {step === 0 ? (
-          <Animated.View entering={FadeIn} style={{ gap: space.md }}>
+          <View style={{ gap: space.md }}>
             <Field label="Where did you buy it?" value={store} onChangeText={setStore} maxLength={40} />
             <View style={styles.card}>
               {lines.map((l, i) => (
@@ -189,11 +205,11 @@ export default function PostProof() {
             <Txt variant="caption" color={color.ink3}>
               In production the receipt photo is attached and checked. This demo records the line items.
             </Txt>
-          </Animated.View>
+          </View>
         ) : null}
 
         {step === 1 ? (
-          <Animated.View entering={FadeIn} style={{ gap: space.lg }}>
+          <View style={{ gap: space.lg }}>
             {photo ? (
               <ShieldReview
                 key={photo.uri}
@@ -234,11 +250,11 @@ export default function PostProof() {
                 ) : null}
               </>
             )}
-          </Animated.View>
+          </View>
         ) : null}
 
         {step === 2 ? (
-          <Animated.View entering={FadeIn} style={{ gap: space.lg }}>
+          <View style={{ gap: space.lg }}>
             <Field
               label="Note to donors"
               value={note}
@@ -253,9 +269,12 @@ export default function PostProof() {
               label="Delivered as described"
               detail="The items on the receipt reached the person or family this cause was for."
             />
-          </Animated.View>
+          </View>
         ) : null}
       </ScrollView>
+
+      {/* Keeps scrolled content from running under the status bar / Dynamic Island. */}
+      <View pointerEvents="none" style={[styles.statusFade, { height: insets.top }]} />
 
       {step !== 1 || !photo ? (
         <View style={[styles.footer, { paddingBottom: insets.bottom + space.sm }]}>
@@ -320,4 +339,5 @@ const styles = StyleSheet.create({
     backgroundColor: color.leafSoft,
   },
   footer: { paddingHorizontal: space.lg, paddingTop: space.sm, backgroundColor: color.paper },
+  statusFade: { position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: color.paper },
 });

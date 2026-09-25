@@ -165,6 +165,7 @@ xcrun simctl launch --terminate-running-process booted app.handful.demo -handful
 
 - Nine demo causes from six fictional nonprofits in Santiago and Valparaíso, Chile ([`src/data/seed.ts`](src/data/seed.ts)). Names are invented; any resemblance to a real organization is unintended.
 - Beneficiaries are never named; one cause names a dog (Toby). Locations are neighborhoods, never addresses.
+- Demo photos: two Pexels photos (Pexels License) and one **AI-generated** image (`assets/demo/tent-ai-generated.jpg`, not a real person) used only to show Privacy Shield working. GPS tags on demo photos were added on purpose so the metadata stripping can be seen.
 - Verification checks, consent and receipts are simulated and labeled as such in the UI.
 - **Your impact starts at zero.** It only reflects gifts you make in the app — no seeded “impact”.
 - **Nonprofit studio → Reset demo data** restores the starting state.

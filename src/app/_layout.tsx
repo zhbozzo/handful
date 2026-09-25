@@ -11,7 +11,7 @@ import { LogBox, Platform, Settings } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { runDevLaunchAction } from '@/lib/devLaunch';
-import { listenForNotificationTaps } from '@/lib/notifications';
+import { useNotificationTaps } from '@/lib/notifications';
 import { configurePurchases, listenToCustomerInfo, refreshSupporter } from '@/lib/purchases';
 import { useHydrated, useStore } from '@/store/useStore';
 import { color } from '@/theme/tokens';
@@ -54,7 +54,7 @@ export default function RootLayout() {
     return listenToCustomerInfo(setSupporter);
   }, [setSupporter]);
 
-  useEffect(() => listenForNotificationTaps(), []);
+  useNotificationTaps();
 
   const devRan = useRef(false);
   useEffect(() => {

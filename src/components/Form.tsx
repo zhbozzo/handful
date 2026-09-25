@@ -66,6 +66,9 @@ export function Field({ label, hint, style, ...props }: TextInputProps & { label
       </Txt>
       <TextInput
         placeholderTextColor={color.ink3}
+        // Multiline fields here are short notes: Return closes the keyboard instead of adding a line.
+        returnKeyType={props.multiline ? 'done' : props.returnKeyType}
+        submitBehavior={props.multiline ? 'blurAndSubmit' : props.submitBehavior}
         {...props}
         style={[styles.input, props.multiline && styles.multiline, style]}
       />

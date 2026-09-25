@@ -48,7 +48,7 @@ We went through the product screen by screen with the questions below, and chang
 ## Do photos respect dignity?
 
 - The one bundled proof photo shows hands passing groceries — no faces.
-- The Privacy Shield demo photo is a licensed stock photo of adult models (Pexels License); it exists to show the blur working.
+- The Privacy Shield demo photos are a licensed stock photo of adult models (Pexels License) and an AI-generated image of a fictional person in a tent — never a real person in need. They exist to show the blur working.
 
 ## Does Privacy Shield actually reduce risk?
 

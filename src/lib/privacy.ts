@@ -5,7 +5,7 @@
  */
 import PrivacyShield, { type AnalysisResult, type Box, type RedactRegion } from '@modules/privacy-shield';
 
-export type FindingKind = 'face' | 'plate' | 'id' | 'address' | 'phone' | 'email' | 'document' | 'location';
+export type FindingKind = 'face' | 'plate' | 'id' | 'address' | 'phone' | 'email' | 'document' | 'location' | 'setting';
 
 export type Finding = {
   id: string;
@@ -17,6 +17,22 @@ export type Finding = {
   protect: boolean;
   /** Can't be switched off (faces, location). */
   locked: boolean;
+  /** Can't be fixed by blurring: shown as a warning the nonprofit must consider. */
+  advisory?: boolean;
+};
+
+/** Scene labels that suggest the photo shows where someone sleeps or lives. */
+const SLEEP_PLACES: Record<string, string> = {
+  tent: 'a tent',
+  camping: 'a camp',
+  sleeping_bag: 'a sleeping bag',
+  bed: 'a bed',
+  bedroom: 'a bedroom',
+  mattress: 'a mattress',
+  hammock: 'a hammock',
+  shack: 'a shack',
+  hut: 'a hut',
+  shelter: 'a shelter',
 };
 
 export const shieldAvailable = () => !!PrivacyShield;
@@ -122,6 +138,19 @@ export function buildFindings(result: AnalysisResult, extraGPS = false): { findi
     }
   });
 
+  const place = (result.scene ?? []).find((l) => l.confidence >= 0.3 && SLEEP_PLACES[l.label]);
+  if (place) {
+    findings.push({
+      id: 'setting',
+      kind: 'setting',
+      label: 'May show where someone sleeps',
+      detail: `Looks like ${SLEEP_PLACES[place.label]}. Prefer a photo of the items.`,
+      protect: false,
+      locked: true,
+      advisory: true,
+    });
+  }
+
   if (result.metadata.hasGPS || extraGPS) {
     findings.push({
       id: 'gps',
@@ -158,7 +187,7 @@ export type PhotoReport = { facesBlurred: number; textBlurred: number; locationR
 
 export const reportFor = (findings: Finding[]): PhotoReport => ({
   facesBlurred: findings.filter((f) => f.kind === 'face' && f.protect).length,
-  textBlurred: findings.filter((f) => f.kind !== 'face' && f.kind !== 'location' && f.protect).length,
+  textBlurred: findings.filter((f) => f.box && f.kind !== 'face' && f.protect).length,
   locationRemoved: true,
 });
 

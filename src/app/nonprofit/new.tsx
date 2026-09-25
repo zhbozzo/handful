@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
@@ -52,6 +52,11 @@ export default function NewCause() {
   // Dev/QA: /nonprofit/new?step=2&example=1 opens a later step pre-filled.
   const dev = useLocalSearchParams<{ step?: string; example?: string }>();
   const [step, setStep] = useState(__DEV__ && dev.step ? Number(dev.step) : 0);
+  // A new step starts at the top, with no leftover scroll momentum that would swallow the next tap.
+  const scrollRef = useRef<ScrollView>(null);
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [step]);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<CategoryId>('food');
   const [beneficiary, setBeneficiary] = useState<Beneficiary>('individual');
@@ -170,7 +175,9 @@ export default function NewCause() {
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.screen}>
       <ScrollView
+        ref={scrollRef}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
         contentContainerStyle={{
           paddingTop: insets.top + space.sm,
           paddingHorizontal: space.lg,
@@ -186,7 +193,7 @@ export default function NewCause() {
         />
 
         {step === 0 ? (
-          <Animated.View entering={FadeIn} style={{ gap: space.lg }}>
+          <View style={{ gap: space.lg }}>
             <View style={{ gap: 8 }}>
               <Txt variant="caption" color={color.ink} style={{ fontWeight: '600' }}>
                 Who is this helping?
@@ -236,11 +243,11 @@ export default function NewCause() {
               hint="Name the help, not the person."
             />
             <Button label="Fill with an example" kind="ghost" compact symbol="wand.and.stars" onPress={fillExample} />
-          </Animated.View>
+          </View>
         ) : null}
 
         {step === 1 ? (
-          <Animated.View entering={FadeIn} style={{ gap: space.md }}>
+          <View style={{ gap: space.md }}>
             <Txt variant="callout">List what you’ll buy and what it costs. Donors see exactly this.</Txt>
             {rows.map((r, i) => (
               <View key={r.id} style={styles.budgetRow}>
@@ -289,11 +296,11 @@ export default function NewCause() {
             <Txt variant="caption" color={goal > 100 ? color.error : color.ink3}>
               Keep it small: causes up to $100 get funded fastest — most are under $60.
             </Txt>
-          </Animated.View>
+          </View>
         ) : null}
 
         {step === 2 ? (
-          <Animated.View entering={FadeIn} style={{ gap: space.lg }}>
+          <View style={{ gap: space.lg }}>
             <Field
               label="Short story"
               placeholder="What’s the need, and what will you do with the money?"
@@ -332,11 +339,11 @@ export default function NewCause() {
                 <Txt variant="caption">No full names, exact places, phone numbers or health details found.</Txt>
               )}
             </View>
-          </Animated.View>
+          </View>
         ) : null}
 
         {step === 3 ? (
-          <Animated.View entering={FadeIn} style={{ gap: space.lg }}>
+          <View style={{ gap: space.lg }}>
             {photo ? (
               <ShieldReview
                 key={photo.uri}
@@ -381,11 +388,11 @@ export default function NewCause() {
                 />
               </>
             )}
-          </Animated.View>
+          </View>
         ) : null}
 
         {step === 4 ? (
-          <Animated.View entering={FadeIn} style={{ gap: space.lg }}>
+          <View style={{ gap: space.lg }}>
             <View style={styles.preview}>
               <CoverArt cause={{ category, items, coverUri: cover }} height={150} rounded={0} />
               <View style={{ padding: space.md, gap: 8 }}>
@@ -416,9 +423,12 @@ export default function NewCause() {
                 detail="No identifiable faces, children or documents."
               />
             </View>
-          </Animated.View>
+          </View>
         ) : null}
       </ScrollView>
+
+      {/* Keeps scrolled content from running under the status bar / Dynamic Island. */}
+      <View pointerEvents="none" style={[styles.statusFade, { height: insets.top }]} />
 
       {step !== 3 || !photo ? (
         <View style={[styles.footer, { paddingBottom: insets.bottom + space.sm }]}>
@@ -482,4 +492,5 @@ const styles = StyleSheet.create({
   checkWarn: { backgroundColor: color.sunSoft },
   preview: { backgroundColor: color.card, borderRadius: radius.lg, overflow: 'hidden' },
   footer: { paddingHorizontal: space.lg, paddingTop: space.sm, backgroundColor: color.paper },
+  statusFade: { position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: color.paper },
 });

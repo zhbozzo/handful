@@ -14,12 +14,16 @@ export type PhotoMetadata = {
   takenAt?: string;
 };
 
+export type SceneLabel = { label: string; confidence: number };
+
 export type AnalysisResult = {
   width: number;
   height: number;
   faces: FaceObservation[];
   texts: TextObservation[];
   documents: DocumentObservation[];
+  /** Apple Vision scene classification (top labels). */
+  scene?: SceneLabel[];
   metadata: PhotoMetadata;
   durationMs: number;
 };
