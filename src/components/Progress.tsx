@@ -21,7 +21,7 @@ type BarProps = { value: number; height?: number; track?: string; fill?: string;
 export function ProgressBar({ value, height = 8, track = color.paperDeep, fill = color.sun, delay = 120 }: BarProps) {
   const v = useSharedValue(0);
   useEffect(() => {
-    v.value = withDelay(delay, withTiming(Math.max(0, Math.min(1, value)), { duration: 900, easing: ease }));
+    v.set(withDelay(delay, withTiming(Math.max(0, Math.min(1, value)), { duration: 900, easing: ease })));
   }, [value, delay, v]);
   const style = useAnimatedStyle(() => ({ width: `${v.value * 100}%` }));
   return (
@@ -62,7 +62,7 @@ export function Ring({
   const c = 2 * Math.PI * r;
   const v = useSharedValue(from);
   useEffect(() => {
-    v.value = withDelay(delay, withTiming(Math.max(0, Math.min(1, value)), { duration, easing: ease }));
+    v.set(withDelay(delay, withTiming(Math.max(0, Math.min(1, value)), { duration, easing: ease })));
   }, [value, delay, duration, v]);
   const props = useAnimatedProps(() => ({ strokeDashoffset: c * (1 - v.value) }));
 

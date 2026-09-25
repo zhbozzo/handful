@@ -46,7 +46,7 @@ const ID_WORDS =
   /\b(rut|run|dni|c[ée]dula|pasaporte|passport|identidad|identity|licencia|license|nacimiento|birth|ssn|nombre|name|apellido|surname)\b/i;
 const ID_NUMBER = [/\b\d{1,2}\.?\d{3}\.?\d{3}\s?-\s?[\dkK]\b/, /\b\d{3}-\d{2}-\d{4}\b/, /\b\d{8,}\b/];
 const ADDRESS =
-  /\b(calle|avenida|av\.|pasaje|psje\.?|street|st\.|avenue|ave\.|road|rd\.|depto\.?|dpto\.?|apt\.?|block|villa|poblaci[óo]n|n[°º]\s?\d+)\b|#\s?\d{1,5}\b/i;
+  /\b(calle|avenida|pasaje|street|avenue|road|block|villa|poblaci[óo]n)\b|\b(av|avda|psje|st|ave|rd|depto|dpto|apt)\.|\bn[°º]\s?\d+|#\s?\d{1,5}\b/i;
 const PHONE = /(\+?\d[\d\s\-().]{7,}\d)/;
 const EMAIL = /[^\s@]+@[^\s@]+\.[a-z]{2,}/i;
 

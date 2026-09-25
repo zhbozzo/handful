@@ -21,8 +21,8 @@ function usePressScale() {
   const style = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
   return {
     style,
-    onPressIn: () => (s.value = withSpring(0.98, { damping: 20, stiffness: 400 })),
-    onPressOut: () => (s.value = withSpring(1, { damping: 14, stiffness: 260 })),
+    onPressIn: () => s.set(withSpring(0.98, { damping: 20, stiffness: 400 })),
+    onPressOut: () => s.set(withSpring(1, { damping: 14, stiffness: 260 })),
   };
 }
 

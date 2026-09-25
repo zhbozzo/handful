@@ -46,7 +46,7 @@ export default function ProofScreen() {
   const cat = categoryById(cause.category);
   const spent = ev.receipt.reduce((s, r) => s + r.amount, 0);
   const leftover = Math.max(0, cause.raised - spent);
-  const deliveredAt = cause.timeline.find((t) => t.status === 'delivered')?.at ?? Date.now();
+  const deliveredAt = cause.timeline.find((t) => t.status === 'delivered')?.at ?? cause.createdAt;
   const photo = ev.photoUri ? { uri: ev.photoUri } : ev.photoAsset ? DEMO_PHOTOS[ev.photoAsset] : undefined;
   const privacyBits = [
     ev.privacy.facesBlurred > 0

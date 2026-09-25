@@ -34,7 +34,7 @@ const RING_MS = 1300;
 function Glow({ delay }: { delay: number }) {
   const v = useSharedValue(0);
   useEffect(() => {
-    v.value = withDelay(delay, withTiming(1, { duration: 900, easing: Easing.out(Easing.cubic) }));
+    v.set(withDelay(delay, withTiming(1, { duration: 900, easing: Easing.out(Easing.cubic) })));
   }, [delay, v]);
   const style = useAnimatedStyle(() => ({
     opacity: v.value * 0.45,
@@ -47,7 +47,7 @@ function Check({ delay }: { delay: number }) {
   const len = 60;
   const v = useSharedValue(len);
   useEffect(() => {
-    v.value = withDelay(delay, withTiming(0, { duration: 420, easing: Easing.out(Easing.cubic) }));
+    v.set(withDelay(delay, withTiming(0, { duration: 420, easing: Easing.out(Easing.cubic) })));
   }, [delay, v]);
   const props = useAnimatedProps(() => ({ strokeDashoffset: v.value }));
   return (

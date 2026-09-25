@@ -48,13 +48,16 @@ type Phase = 'scanning' | 'review' | 'protecting' | 'done' | 'error';
 
 export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetake, autoProtectMs }: Props) {
   const { width: screenW } = useWindowDimensions();
-  const [phase, setPhase] = useState<Phase>('scanning');
+  const available = shieldAvailable();
+  const [phase, setPhase] = useState<Phase>(available ? 'scanning' : 'error');
   const [findings, setFindings] = useState<Finding[]>([]);
   const [safeText, setSafeText] = useState(0);
   const [ms, setMs] = useState(0);
   const [safeUri, setSafeUri] = useState<string | null>(null);
   const [peek, setPeek] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    available ? null : 'Privacy Shield runs on-device with Apple Vision, so it needs the iOS app build.',
+  );
 
   const maxW = screenW - space.lg * 2;
   const maxH = 400;
@@ -64,17 +67,13 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
 
   const beam = useSharedValue(0);
   useEffect(() => {
-    beam.value = withRepeat(withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }), -1, true);
+    beam.set(withRepeat(withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }), -1, true));
   }, [beam]);
   const beamStyle = useAnimatedStyle(() => ({ transform: [{ translateY: beam.value * (dispH - 60) }] }));
 
   useEffect(() => {
     let alive = true;
-    if (!shieldAvailable()) {
-      setPhase('error');
-      setError('Privacy Shield runs on-device with Apple Vision, so it needs the iOS app build.');
-      return;
-    }
+    if (!available) return;
     const started = Date.now();
     analyzePhoto(uri, pickerHasGPS)
       .then(async (r) => {
@@ -97,7 +96,7 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
     return () => {
       alive = false;
     };
-  }, [uri, pickerHasGPS]);
+  }, [uri, pickerHasGPS, available]);
 
   async function protect() {
     setPhase('protecting');

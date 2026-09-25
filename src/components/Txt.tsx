@@ -25,6 +25,7 @@ type Props = TextProps & {
 export function Txt({ variant = 'body', color: c, align, italic, style, ...rest }: Props) {
   return (
     <Text
+      maxFontSizeMultiplier={variant === 'display' || variant === 'title' || variant === 'bigNumber' ? 1.2 : 1.35}
       {...rest}
       style={[
         styles[variant],

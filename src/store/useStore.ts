@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -152,10 +152,8 @@ export const useCause = (id: string | undefined) => useStore((s) => s.causes.fin
 
 /** True once persisted state has been read from storage. */
 export function useHydrated() {
-  const [hydrated, setHydrated] = useState(() => useStore.persist.hasHydrated());
-  useEffect(() => {
-    if (useStore.persist.hasHydrated()) setHydrated(true);
-    return useStore.persist.onFinishHydration(() => setHydrated(true));
-  }, []);
-  return hydrated;
+  return useSyncExternalStore(
+    (onChange) => useStore.persist.onFinishHydration(onChange),
+    () => useStore.persist.hasHydrated(),
+  );
 }

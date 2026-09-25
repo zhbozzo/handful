@@ -58,10 +58,10 @@ export function Button({
         accessibilityState={{ disabled: !!inactive, busy: !!loading }}
         disabled={inactive}
         onPressIn={() => {
-          scale.value = withSpring(0.97, { damping: 20, stiffness: 400 });
+          scale.set(withSpring(0.97, { damping: 20, stiffness: 400 }));
         }}
         onPressOut={() => {
-          scale.value = withSpring(1, { damping: 14, stiffness: 300 });
+          scale.set(withSpring(1, { damping: 14, stiffness: 300 }));
         }}
         onPress={() => {
           press();
