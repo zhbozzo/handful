@@ -97,9 +97,9 @@ export default function SuccessScreen() {
         contentOffset={devScroll()}
         contentContainerStyle={{
           alignItems: 'center',
-          gap: space.lg,
+          gap: space.md,
           paddingHorizontal: space.lg,
-          paddingTop: 36,
+          paddingTop: 28,
           paddingBottom: space.lg,
         }}
         showsVerticalScrollIndicator={false}>
@@ -108,8 +108,8 @@ export default function SuccessScreen() {
           <Ring
             value={now}
             from={before}
-            size={164}
-            stroke={14}
+            size={148}
+            stroke={13}
             fill={done ? color.sun : color.sun}
             duration={RING_MS}
             delay={250}>
@@ -126,7 +126,7 @@ export default function SuccessScreen() {
         <Animated.View
           entering={FadeInDown.delay(done ? RING_MS : 700).duration(500)}
           style={{ gap: space.sm, alignItems: 'center' }}>
-          <Txt variant="display" align="center">
+          <Txt variant="display" align="center" style={{ fontSize: 42, lineHeight: 44 }}>
             {done ? (
               <>
                 You completed{'\n'}
@@ -145,7 +145,7 @@ export default function SuccessScreen() {
           </Txt>
           <Txt variant="callout" align="center" style={{ maxWidth: 320 }}>
             {done
-              ? `${cause.title} is fully funded. ${org.name} buys everything next and posts the receipt and a privacy-safe delivery photo.`
+              ? `${org.name} buys the items next, then posts the receipt and a privacy-safe photo.`
               : `${cause.title} is now ${pct(cause.raised, cause.goal)}% funded — ${money(left)} to go.`}
           </Txt>
         </Animated.View>
@@ -189,15 +189,6 @@ export default function SuccessScreen() {
             </Pressable>
           </Animated.View>
         ) : null}
-
-        <Animated.View entering={FadeIn.delay(done ? RING_MS + 900 : 1300)} style={styles.receipt}>
-          <Icon name="lock.fill" size={11} color={color.ink3} />
-          <Txt variant="caption" color={color.ink3} align="center" style={{ flexShrink: 1 }}>
-            {contribution.rail === 'revenuecat-test-store'
-              ? `RevenueCat Test Store · ${contribution.productId} · no real money was charged`
-              : 'Offline demo checkout · no money moved'}
-          </Txt>
-        </Animated.View>
       </ScrollView>
 
       <View style={styles.actions}>
@@ -212,6 +203,14 @@ export default function SuccessScreen() {
         />
         <Button label="Done" style={{ flex: 1 }} onPress={() => router.dismissAll()} />
       </View>
+      <Animated.View entering={FadeIn.delay(done ? RING_MS + 900 : 1300)} style={styles.receipt}>
+        <Icon name="lock.fill" size={11} color={color.ink3} />
+        <Txt variant="caption" color={color.ink3} align="center" style={{ flexShrink: 1 }}>
+          {contribution.rail === 'revenuecat-test-store'
+            ? `RevenueCat Test Store · ${contribution.productId} · no real money was charged`
+            : 'Offline demo checkout · no money moved'}
+        </Txt>
+      </Animated.View>
     </View>
   );
 }
@@ -219,7 +218,7 @@ export default function SuccessScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.paper },
   ringWrap: { alignItems: 'center', justifyContent: 'center' },
-  glow: { position: 'absolute', width: 224, height: 224, borderRadius: 112, backgroundColor: color.sunSoft },
+  glow: { position: 'absolute', width: 204, height: 204, borderRadius: 102, backgroundColor: color.sunSoft },
   card: {
     alignSelf: 'stretch',
     backgroundColor: color.card,
@@ -227,9 +226,16 @@ const styles = StyleSheet.create({
     padding: space.md,
     gap: 4,
   },
-  item: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 5 },
-  itemIcon: { width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
-  receipt: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: space.md },
+  item: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 3 },
+  itemIcon: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  receipt: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingHorizontal: space.md,
+    paddingTop: 10,
+  },
   notify: {
     flexDirection: 'row',
     alignItems: 'center',

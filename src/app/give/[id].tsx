@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Platform, Pressable, Settings, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -28,6 +28,14 @@ export default function GiveSheet() {
   const [amount, setAmount] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Dev/QA only: `-handfulAutoGive 1` presses the main button once the sheet is up.
+  useEffect(() => {
+    if (!__DEV__ || Platform.OS !== 'ios' || Settings.get('handfulAutoGive') !== '1') return;
+    const t = setTimeout(() => give(), 1500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!cause || cause.status !== 'open') return null;
 

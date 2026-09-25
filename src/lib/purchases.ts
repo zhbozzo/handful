@@ -15,6 +15,8 @@ import Purchases, {
   type PurchasesPackage,
 } from 'react-native-purchases';
 
+import { Platform, Settings } from 'react-native';
+
 import type { Contribution } from '@/data/types';
 
 const API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY?.trim() || undefined;
@@ -52,10 +54,13 @@ function readError(e: unknown): { cancelled: boolean; message: string } {
   return { cancelled, message: err?.message ?? 'Something went wrong. Nothing was charged.' };
 }
 
+/** Dev/QA only (`-handfulOffline 1` launch argument): skip the SDK to test navigation without taps. */
+const devOffline = () => __DEV__ && Platform.OS === 'ios' && Settings.get('handfulOffline') === '1';
+
 export async function purchaseGift(amount: number): Promise<GiftResult> {
   const productId = giftProductId(amount);
 
-  if (!configurePurchases()) {
+  if (devOffline() || !configurePurchases()) {
     // No RevenueCat key in .env: keep the app usable for anyone cloning the repo,
     // and label the contribution as an offline demo everywhere it appears.
     await wait(700);
