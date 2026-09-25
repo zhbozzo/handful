@@ -1,13 +1,14 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, Settings, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
+import { GiftMeter } from '@/components/GiftMeter';
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
-import { money, pct } from '@/lib/format';
+import { money } from '@/lib/format';
 import { success, tap, warn } from '@/lib/haptics';
 import { isTestStoreKey, MAX_GIFT, purchaseGift, revenueCatEnabled } from '@/lib/purchases';
 import { useCause, useStore } from '@/store/useStore';
@@ -40,7 +41,6 @@ export default function GiveSheet() {
   if (!cause || cause.status !== 'open') return null;
 
   const completes = amount >= left;
-  const after = Math.min(cause.goal, cause.raised + amount);
   const covers = cause.items.find((i) => i.amount === amount);
 
   async function give() {
@@ -108,7 +108,8 @@ export default function GiveSheet() {
         </Pressable>
       ) : null}
 
-      <Animated.View layout={LinearTransition} style={styles.summary}>
+      <View style={styles.meterCard}>
+        <GiftMeter raised={cause.raised} goal={cause.goal} gift={amount} />
         <Txt variant="caption" color={color.ink2}>
           {completes
             ? 'Your gift closes the goal. The nonprofit buys the items and posts proof.'
@@ -116,11 +117,7 @@ export default function GiveSheet() {
               ? `${money(amount)} covers the ${covers.label.toLowerCase()}.`
               : 'Every dollar goes to the items on the list.'}
         </Txt>
-        <Txt variant="caption" color={color.ink} style={{ fontWeight: '700' }}>
-          After your gift:{' '}
-          {completes ? '100% funded' : `${pct(after, cause.goal)}% · ${money(cause.goal - after)} to go`}
-        </Txt>
-      </Animated.View>
+      </View>
 
       {error ? (
         <Animated.View entering={FadeIn} style={styles.error}>
@@ -206,7 +203,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   radioOn: { backgroundColor: color.sun, borderColor: color.sun },
-  summary: { gap: 4, paddingHorizontal: 4 },
+  meterCard: { gap: 12, padding: space.md, borderRadius: radius.lg, backgroundColor: color.card },
   error: {
     flexDirection: 'row',
     gap: 8,

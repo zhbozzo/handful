@@ -23,11 +23,12 @@ import { color, font, radius, space } from '@/theme/tokens';
 const TITLES = ['Receipt', 'Delivery photo', 'Note & post'];
 
 export default function PostProof() {
-  const { id, devPhoto, auto, step: devStep } = useLocalSearchParams<{
+  const { id, devPhoto, auto, hold, step: devStep } = useLocalSearchParams<{
     id: string;
     devPhoto?: string;
     auto?: string;
     step?: string;
+    hold?: string;
   }>();
   const cause = useCause(id);
   const postProof = useStore((s) => s.postProof);
@@ -219,6 +220,7 @@ export default function PostProof() {
                 pickerHasGPS={photo.hasGPS}
                 onRetake={() => setPhoto(null)}
                 autoProtectMs={__DEV__ && auto ? Number(auto) : undefined}
+                minScanMs={__DEV__ && hold ? 60000 : undefined}
                 onDone={(out) => {
                   setSafe(out);
                   setPhoto(null);

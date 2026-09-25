@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { statusLabel } from '@/components/CauseCard';
+import { CountUp } from '@/components/CountUp';
 import { CoverArt } from '@/components/CoverArt';
 import { Icon } from '@/components/Icon';
 import { OrgLine } from '@/components/OrgLine';
@@ -82,7 +83,7 @@ export default function CauseScreen() {
 
           <Animated.View entering={FadeInDown.delay(60).duration(450)} style={[styles.card, { gap: 12 }]}>
             <View style={styles.amountRow}>
-              <Txt variant="bigNumber">{money(cause.raised)}</Txt>
+              <CountUp variant="bigNumber" value={cause.raised} from={0} duration={1000} format={money} />
               <Txt variant="callout" style={{ marginBottom: 6 }}>
                 of {money(cause.goal)}
               </Txt>

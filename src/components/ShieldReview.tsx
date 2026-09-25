@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Switch, useWindowDimensions, View } from 'react-native';
 import Animated, {
@@ -31,7 +32,11 @@ type Props = {
   onRetake: () => void;
   /** Dev/QA only: tap "Protect" automatically after N ms in review. */
   autoProtectMs?: number;
+  /** Minimum time the scan is on screen, so it reads as a scan even when Vision is instant. */
+  minScanMs?: number;
 };
+
+const BEAM = 90;
 
 const KIND_SYMBOL: Record<Finding['kind'], string> = {
   face: 'face.dashed',
@@ -47,7 +52,16 @@ const KIND_SYMBOL: Record<Finding['kind'], string> = {
 
 type Phase = 'scanning' | 'review' | 'protecting' | 'done' | 'error';
 
-export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetake, autoProtectMs }: Props) {
+export function ShieldReview({
+  uri,
+  width,
+  height,
+  pickerHasGPS,
+  onDone,
+  onRetake,
+  autoProtectMs,
+  minScanMs = 2200,
+}: Props) {
   const { width: screenW } = useWindowDimensions();
   const available = shieldAvailable();
   const [phase, setPhase] = useState<Phase>(available ? 'scanning' : 'error');
@@ -70,7 +84,16 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
   useEffect(() => {
     beam.set(withRepeat(withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }), -1, true));
   }, [beam]);
-  const beamStyle = useAnimatedStyle(() => ({ transform: [{ translateY: beam.value * (dispH - 60) }] }));
+  const beamStyle = useAnimatedStyle(() => ({ transform: [{ translateY: beam.value * (dispH - BEAM) }] }));
+
+  // One bright sweep across the photo the moment the protected version lands.
+  const sheen = useSharedValue(-1);
+  useEffect(() => {
+    if (phase === 'done') sheen.set(withTiming(1, { duration: 900, easing: Easing.inOut(Easing.cubic) }));
+  }, [phase, sheen]);
+  const sheenStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: sheen.value * dispW * 1.2 }, { rotate: '18deg' }],
+  }));
 
   useEffect(() => {
     let alive = true;
@@ -79,7 +102,7 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
     analyzePhoto(uri, pickerHasGPS)
       .then(async (r) => {
         // Let the scan read as a scan, even when Vision is instant.
-        const wait = Math.max(0, 1500 - (Date.now() - started));
+        const wait = Math.max(0, minScanMs - (Date.now() - started));
         await new Promise((res) => setTimeout(res, wait));
         if (!alive) return;
         setFindings(r.findings);
@@ -97,7 +120,7 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
     return () => {
       alive = false;
     };
-  }, [uri, pickerHasGPS, available]);
+  }, [uri, pickerHasGPS, available, minScanMs]);
 
   async function protect() {
     setPhase('protecting');
@@ -146,9 +169,31 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
 
         {phase === 'scanning' ? (
           <>
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(75,63,209,0.12)' }]} />
-            <Animated.View style={[styles.beam, beamStyle]} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(40,32,120,0.18)' }]} />
+            <Animated.View style={[styles.beam, beamStyle]}>
+              <LinearGradient
+                colors={['rgba(120,110,255,0)', 'rgba(120,110,255,0.28)', 'rgba(170,165,255,0.55)']}
+                style={StyleSheet.absoluteFill}
+              />
+              <View style={styles.beamLine} />
+            </Animated.View>
+            {(['tl', 'tr', 'bl', 'br'] as const).map((c) => (
+              <View key={c} style={[styles.corner, styles[c]]} />
+            ))}
           </>
+        ) : null}
+
+        {phase === 'done' ? (
+          <Animated.View
+            pointerEvents="none"
+            style={[styles.sheen, { height: dispH * 1.6, top: -dispH * 0.3 }, sheenStyle]}>
+            <LinearGradient
+              colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.45)', 'rgba(255,255,255,0)']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={StyleSheet.absoluteFill}
+            />
+          </Animated.View>
         ) : null}
 
         {phase === 'review' || phase === 'protecting'
@@ -208,9 +253,14 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
       {phase === 'scanning' ? (
         <View style={styles.statusRow}>
           <Icon name="shield.lefthalf.filled" size={18} color={color.shield} />
-          <Txt variant="bodyStrong" color={color.shield}>
-            Privacy Shield is checking this photo…
-          </Txt>
+          <View style={{ gap: 2 }}>
+            <Txt variant="bodyStrong" color={color.shield}>
+              Privacy Shield is checking this photo…
+            </Txt>
+            <Txt variant="caption" color={color.ink3}>
+              Faces · text · documents · location — on this iPhone
+            </Txt>
+          </View>
         </View>
       ) : null}
 
@@ -315,15 +365,21 @@ export function ShieldReview({ uri, width, height, pickerHasGPS, onDone, onRetak
 
 const styles = StyleSheet.create({
   frame: { alignSelf: 'center', borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.paperDeep },
-  beam: {
+  beamLine: {
     position: 'absolute',
     left: 0,
     right: 0,
-    height: 60,
-    backgroundColor: 'rgba(75,63,209,0.18)',
-    borderBottomWidth: 2,
-    borderBottomColor: 'rgba(120,110,255,0.9)',
+    bottom: 0,
+    height: 2,
+    backgroundColor: 'rgba(200,196,255,0.95)',
   },
+  corner: { position: 'absolute', width: 26, height: 26, borderColor: 'rgba(255,255,255,0.95)' },
+  tl: { top: 12, left: 12, borderTopWidth: 3, borderLeftWidth: 3, borderTopLeftRadius: 10 },
+  tr: { top: 12, right: 12, borderTopWidth: 3, borderRightWidth: 3, borderTopRightRadius: 10 },
+  bl: { bottom: 12, left: 12, borderBottomWidth: 3, borderLeftWidth: 3, borderBottomLeftRadius: 10 },
+  br: { bottom: 12, right: 12, borderBottomWidth: 3, borderRightWidth: 3, borderBottomRightRadius: 10 },
+  sheen: { position: 'absolute', left: -120, width: 90 },
+  beam: { position: 'absolute', left: 0, right: 0, height: BEAM },
   box: { position: 'absolute', borderWidth: 2.5 },
   faceBox: { borderColor: color.shield, borderRadius: 999, backgroundColor: 'rgba(75,63,209,0.16)' },
   textBox: { borderColor: color.sunDeep, borderRadius: 6, backgroundColor: 'rgba(244,166,42,0.15)' },

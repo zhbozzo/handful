@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/Button';
+import { CountUp } from '@/components/CountUp';
 import { CoverThumb } from '@/components/CoverArt';
 import { Icon } from '@/components/Icon';
 import { Pill } from '@/components/Pill';
@@ -70,14 +71,14 @@ export default function ImpactScreen() {
       ) : (
         <>
           <Animated.View entering={FadeInDown.duration(450)} style={styles.grid}>
-            <Stat value={money(stats.total)} label="given" />
-            <Stat value={String(stats.helped)} label={stats.helped === 1 ? 'cause helped' : 'causes helped'} />
+            <Stat value={stats.total} money label="given" />
+            <Stat value={stats.helped} label={stats.helped === 1 ? 'cause helped' : 'causes helped'} />
             <Stat
-              value={String(stats.completed)}
+              value={stats.completed}
               label={stats.completed === 1 ? 'cause you completed' : 'causes you completed'}
               accent
             />
-            <Stat value={String(stats.delivered)} label="delivered with proof" leaf />
+            <Stat value={stats.delivered} label="delivered with proof" leaf />
           </Animated.View>
 
           {inbox.length > 0 ? (
@@ -201,13 +202,30 @@ export default function ImpactScreen() {
   );
 }
 
-function Stat({ value, label, accent, leaf }: { value: string; label: string; accent?: boolean; leaf?: boolean }) {
+function Stat({
+  value,
+  label,
+  accent,
+  leaf,
+  money: isMoney,
+}: {
+  value: number;
+  label: string;
+  accent?: boolean;
+  leaf?: boolean;
+  money?: boolean;
+}) {
   return (
     <View
       style={[styles.stat, accent && { backgroundColor: color.sunSoft }, leaf && { backgroundColor: color.leafSoft }]}>
-      <Txt variant="bigNumber" color={leaf ? color.leaf : color.ink}>
-        {value}
-      </Txt>
+      <CountUp
+        variant="bigNumber"
+        value={value}
+        from={0}
+        duration={900}
+        format={isMoney ? money : String}
+        color={leaf ? color.leaf : color.ink}
+      />
       <Txt variant="caption" color={leaf ? color.leaf : color.ink2}>
         {label}
       </Txt>
