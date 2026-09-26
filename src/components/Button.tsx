@@ -78,7 +78,7 @@ export function Button({
         ) : (
           <View style={styles.row}>
             {symbol ? <Icon name={symbol} size={compact ? 14 : 17} color={k.fg} weight="bold" /> : null}
-            <Txt variant="bodyStrong" color={k.fg} style={compact ? { fontSize: 15 } : null}>
+            <Txt variant="bodyStrong" color={k.fg} style={[{ fontWeight: '700' }, compact ? { fontSize: 15 } : null]}>
               {label}
             </Txt>
             {trailing}

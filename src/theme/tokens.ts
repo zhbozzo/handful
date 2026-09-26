@@ -53,13 +53,41 @@ export const radius = {
   pill: 999,
 } as const;
 
+/**
+ * One family for everything — words and numbers — so the app reads as one voice.
+ * Figtree is loaded per weight, so a weight is a family name, not a fontWeight.
+ */
 export const font = {
-  display: 'InstrumentSerif_400Regular',
-  displayItalic: 'InstrumentSerif_400Regular_Italic',
-  text: Platform.select({ ios: 'System', default: undefined }),
-  rounded: Platform.select({ ios: 'ui-rounded', default: undefined }),
+  regular: 'Figtree_400Regular',
+  medium: 'Figtree_500Medium',
+  semibold: 'Figtree_600SemiBold',
+  bold: 'Figtree_700Bold',
+  extrabold: 'Figtree_800ExtraBold',
   mono: Platform.select({ ios: 'Menlo', default: 'monospace' }),
 } as const;
+
+const NAMED: Record<string, number> = {
+  thin: 100,
+  ultralight: 200,
+  light: 300,
+  normal: 400,
+  regular: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+  heavy: 800,
+  black: 900,
+};
+
+/** The file to use for a given weight (custom fonts don't synthesize fontWeight reliably). */
+export function fontFor(weight: string | number | undefined): string {
+  const w = typeof weight === 'number' ? weight : (NAMED[weight ?? 'normal'] ?? (Number(weight) || 400));
+  if (w >= 800) return font.extrabold;
+  if (w >= 700) return font.bold;
+  if (w >= 600) return font.semibold;
+  if (w >= 500) return font.medium;
+  return font.regular;
+}
 
 export const shadow = {
   card: {

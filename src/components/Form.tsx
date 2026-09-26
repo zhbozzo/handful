@@ -8,7 +8,14 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import Animated, { Easing, FadeInRight, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  FadeInRight,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { tap } from '@/lib/haptics';
 import { color, font, radius, space } from '@/theme/tokens';
@@ -145,6 +152,66 @@ export function Check({
   );
 }
 
+/**
+ * One confirmation for several commitments: a single tap confirms them all,
+ * and each line checks off in turn so it's clear what was agreed to.
+ */
+export function ConfirmAll({
+  checked,
+  onToggle,
+  title,
+  lines,
+}: {
+  checked: boolean;
+  onToggle: () => void;
+  title: string;
+  lines: string[];
+}) {
+  return (
+    <Pressable
+      onPress={() => {
+        tap();
+        onToggle();
+      }}
+      style={[styles.confirm, checked && styles.confirmOn]}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked }}
+      accessibilityLabel={`${title} ${lines.join('. ')}`}>
+      <View style={styles.confirmHead}>
+        <Txt variant="bodyStrong" style={{ flex: 1 }}>
+          {title}
+        </Txt>
+        <View style={[styles.box, checked && styles.boxOn, { marginTop: 0 }]}>
+          {checked ? <Icon name="checkmark" size={13} color={color.white} weight="heavy" /> : null}
+        </View>
+      </View>
+      {lines.map((line, i) => (
+        <ConfirmLine key={line} text={line} on={checked} delay={i * 90} />
+      ))}
+    </Pressable>
+  );
+}
+
+function ConfirmLine({ text, on, delay }: { text: string; on: boolean; delay: number }) {
+  const v = useSharedValue(on ? 1 : 0);
+  useEffect(() => {
+    v.set(withDelay(on ? delay : 0, withTiming(on ? 1 : 0, { duration: 220 })));
+  }, [on, delay, v]);
+  const dot = useAnimatedStyle(() => ({ opacity: v.value, transform: [{ scale: 0.6 + 0.4 * v.value }] }));
+  return (
+    <View style={styles.confirmLine}>
+      <View style={styles.confirmDot}>
+        <Animated.View style={[StyleSheet.absoluteFill, styles.confirmDotOn, dot]}>
+          <Icon name="checkmark" size={9} color={color.white} weight="heavy" />
+        </Animated.View>
+      </View>
+      <Txt variant="caption" color={color.ink2} style={{ flex: 1, fontSize: 12, lineHeight: 16 }}>
+        {text}
+      </Txt>
+    </View>
+  );
+}
+
 export function Segmented<T extends string>({
   options,
   value,
@@ -201,7 +268,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 16,
-    fontFamily: font.text,
+    fontFamily: font.medium,
     color: color.ink,
   },
   multiline: { minHeight: 120, textAlignVertical: 'top' },
@@ -217,6 +284,27 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   boxOn: { backgroundColor: color.leaf, borderColor: color.leaf },
+  confirm: {
+    paddingHorizontal: space.md,
+    paddingVertical: 12,
+    gap: 7,
+    borderRadius: radius.lg,
+    backgroundColor: color.card,
+    borderWidth: 1.5,
+    borderColor: color.line,
+  },
+  confirmOn: { borderColor: color.leaf, backgroundColor: '#F4FAF6' },
+  confirmHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  confirmLine: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  confirmDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: color.lineStrong,
+    overflow: 'hidden',
+  },
+  confirmDotOn: { backgroundColor: color.leaf, alignItems: 'center', justifyContent: 'center' },
   segment: { flexDirection: 'row', gap: 8 },
   segmentItem: {
     flex: 1,

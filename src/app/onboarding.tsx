@@ -117,7 +117,7 @@ export default function Onboarding() {
                     <Txt variant="display">
                       {title[0]}
                       {'\n'}
-                      <Txt variant="display" italic>
+                      <Txt variant="display" accent>
                         {title[1]}
                       </Txt>
                     </Txt>

@@ -68,7 +68,7 @@ export default function AboutSheet() {
       <View style={{ gap: space.sm }}>
         <Txt variant="title">
           How Handful{' '}
-          <Txt variant="title" italic>
+          <Txt variant="title" accent>
             works
           </Txt>
         </Txt>

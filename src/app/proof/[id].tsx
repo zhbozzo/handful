@@ -78,7 +78,7 @@ export default function ProofScreen() {
           </View>
           <Txt variant="display">
             It got{' '}
-            <Txt variant="display" italic>
+            <Txt variant="display" accent>
               there.
             </Txt>
           </Txt>
@@ -155,7 +155,7 @@ export default function ProofScreen() {
 
         <Animated.View entering={FadeInDown.delay(260).duration(450)} style={{ gap: space.sm }}>
           <OrgLine org={org} sub="Note from the team" />
-          <Txt variant="headline" italic style={{ fontSize: 23, lineHeight: 30 }}>
+          <Txt variant="headline" accent style={{ fontSize: 23, lineHeight: 30 }}>
             “{ev.note}”
           </Txt>
         </Animated.View>

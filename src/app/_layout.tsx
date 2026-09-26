@@ -1,8 +1,11 @@
 import {
-  InstrumentSerif_400Regular,
-  InstrumentSerif_400Regular_Italic,
+  Figtree_400Regular,
+  Figtree_500Medium,
+  Figtree_600SemiBold,
+  Figtree_700Bold,
+  Figtree_800ExtraBold,
   useFonts,
-} from '@expo-google-fonts/instrument-serif';
+} from '@expo-google-fonts/figtree';
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -45,7 +48,13 @@ const sheet = {
 };
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({ InstrumentSerif_400Regular, InstrumentSerif_400Regular_Italic });
+  const [fontsLoaded] = useFonts({
+    Figtree_400Regular,
+    Figtree_500Medium,
+    Figtree_600SemiBold,
+    Figtree_700Bold,
+    Figtree_800ExtraBold,
+  });
   const hydrated = useHydrated();
   const setSupporter = useStore((s) => s.setSupporter);
 

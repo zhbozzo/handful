@@ -82,7 +82,7 @@ export default function CausesScreen() {
           <Animated.View style={[styles.hero, heroStyle]}>
             <Txt variant="display">
               Give to something{' '}
-              <Txt variant="display" italic>
+              <Txt variant="display" accent>
                 real.
               </Txt>
             </Txt>

@@ -192,14 +192,14 @@ export default function SupporterSheet() {
               {supporter ? (
                 <>
                   Thank you for{'\n'}
-                  <Txt variant="display" italic style={{ fontSize: 38, lineHeight: 40 }}>
+                  <Txt variant="display" accent style={{ fontSize: 38, lineHeight: 40 }}>
                     keeping it free.
                   </Txt>
                 </>
               ) : (
                 <>
                   Keep Handful{' '}
-                  <Txt variant="display" italic style={{ fontSize: 38, lineHeight: 40 }}>
+                  <Txt variant="display" accent style={{ fontSize: 38, lineHeight: 40 }}>
                     free.
                   </Txt>
                 </>

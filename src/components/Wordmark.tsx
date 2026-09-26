@@ -22,7 +22,7 @@ export function Wordmark({ size = 30 }: { size?: number }) {
       accessibilityRole="header"
       accessibilityLabel="Handful">
       <Mark size={size * 0.95} />
-      <Txt variant="title" style={{ fontSize: size, lineHeight: size * 1.1, letterSpacing: -0.4 }}>
+      <Txt variant="title" style={{ fontSize: size, lineHeight: size * 1.1, letterSpacing: -size * 0.04 }}>
         handful
       </Txt>
     </View>

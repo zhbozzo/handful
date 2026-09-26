@@ -195,14 +195,14 @@ export default function SuccessScreen() {
             {done ? (
               <>
                 You completed{'\n'}
-                <Txt variant="display" italic>
+                <Txt variant="display" accent>
                   this cause.
                 </Txt>
               </>
             ) : (
               <>
                 Your {money(contribution.amount)}{' '}
-                <Txt variant="display" italic>
+                <Txt variant="display" accent>
                   is in.
                 </Txt>
               </>
