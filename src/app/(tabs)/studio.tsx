@@ -56,7 +56,7 @@ export default function StudioScreen() {
               Post a new cause
             </Txt>
             <Txt variant="caption" color="rgba(255,255,255,0.7)">
-              Need → budget → story → photo → Privacy Shield → publish
+              Three quick steps · about two minutes
             </Txt>
           </View>
           <Icon name="chevron.right" size={15} color="rgba(255,255,255,0.7)" />

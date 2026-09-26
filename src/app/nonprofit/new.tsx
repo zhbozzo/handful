@@ -93,7 +93,7 @@ export default function NewCause() {
       symbol: guessSymbol(r.label, cat.symbol),
     }));
   const goal = items.reduce((s, i) => s + i.amount, 0);
-  const issues = checkStory(`${title}. ${summary}`);
+  const issues = checkStory(`${title}. ${summary}. ${area}`);
 
   const stepOk = [
     title.trim().length >= 4 && items.length > 0 && goal >= 3 && goal <= 100,

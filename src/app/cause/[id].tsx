@@ -116,10 +116,19 @@ export default function CauseScreen() {
               )}
             </View>
             <ProgressBar value={cause.raised / cause.goal} height={10} fill={open ? color.sun : color.leaf} />
-            <Txt variant="caption">
-              {pct(cause.raised, cause.goal)}% funded · {plural(cause.donors, 'donor')}
-              {gave > 0 ? ` · you gave ${money(gave)}` : ''}
-            </Txt>
+            {cause.raised === 0 ? (
+              <View style={styles.firstRow}>
+                <Icon name="sparkles" size={13} color={color.sunDeep} />
+                <Txt variant="caption" color={color.ink}>
+                  Just posted — be the first to give.
+                </Txt>
+              </View>
+            ) : (
+              <Txt variant="caption">
+                {pct(cause.raised, cause.goal)}% funded · {plural(cause.donors, 'donor')}
+                {gave > 0 ? ` · you gave ${money(gave)}` : ''}
+              </Txt>
+            )}
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(120).duration(450)} style={{ gap: space.sm }}>
@@ -262,6 +271,7 @@ function Row({
 }
 
 const styles = StyleSheet.create({
+  firstRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   body: {
     padding: space.lg,
     gap: space.xl,

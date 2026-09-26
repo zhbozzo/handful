@@ -82,6 +82,10 @@ export function CauseCard({ cause }: { cause: Cause }) {
                     <Txt variant="caption" color={color.leaf} style={{ fontWeight: '700' }}>
                       Fully funded
                     </Txt>
+                  ) : cause.raised === 0 ? (
+                    <Txt variant="caption" color={color.sunDeep} style={{ fontWeight: '700' }}>
+                      New · be first
+                    </Txt>
                   ) : (
                     <Txt variant="caption" color={color.sunDeep} style={{ fontWeight: '700' }}>
                       {money(left)} to go
