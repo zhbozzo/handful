@@ -46,6 +46,22 @@ const FLOW: { symbol: string; tint: keyof typeof TINTS; title: string; body: str
   },
 ];
 
+/** What happens when things don't go to plan — answered before anyone has to ask. */
+const RULES = [
+  {
+    q: 'Not fully funded in 30 days?',
+    a: 'Your gift moves to the same nonprofit’s next open cause, or to one you pick.',
+  },
+  {
+    q: 'Money left over after buying?',
+    a: 'It’s on the receipt, and it moves to the nonprofit’s next open cause.',
+  },
+  {
+    q: 'No proof within 7 days of funding?',
+    a: 'The nonprofit can’t post new causes until the receipt and photo are up.',
+  },
+];
+
 const DEMO = [
   'All nonprofits, causes, amounts and donor counts are fictional seed data.',
   'Gifts are RevenueCat Test Store purchases. No real money moves and nothing is delivered.',
@@ -94,6 +110,21 @@ export default function AboutSheet() {
         ))}
       </View>
 
+      <View style={{ gap: space.sm }}>
+        <Txt variant="micro">If things don’t go to plan</Txt>
+        <View style={[styles.card, { gap: 14 }]}>
+          {RULES.map((r, i) => (
+            <View key={r.q} style={[{ gap: 2 }, i > 0 && styles.ruleBorder]}>
+              <Txt variant="bodyStrong">{r.q}</Txt>
+              <Txt variant="caption">{r.a}</Txt>
+            </View>
+          ))}
+        </View>
+        <Txt variant="caption" color={color.ink3} style={{ paddingHorizontal: 4 }}>
+          Rules for the production service. The demo shows the receipt and leftover flow.
+        </Txt>
+      </View>
+
       <View style={[styles.card, { backgroundColor: color.sunSoft, gap: 10 }]}>
         <Txt variant="micro" color={color.sunDeep}>
           This is a demo
@@ -119,6 +150,7 @@ export default function AboutSheet() {
 }
 
 const styles = StyleSheet.create({
+  ruleBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line, paddingTop: 14 },
   card: { backgroundColor: color.card, borderRadius: radius.lg, padding: space.md, gap: 0 },
   step: { flexDirection: 'row', gap: 12 },
   rail: { flex: 1, width: 2, borderRadius: 1, backgroundColor: color.line, marginVertical: 4 },

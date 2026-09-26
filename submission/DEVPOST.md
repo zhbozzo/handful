@@ -79,7 +79,7 @@ When organizations do try to show impact, it often goes wrong in the other direc
 - **Clear, useful idea:** small, specific, verified needs with proof — solving the “where does my money go?” problem for donors and the “how do we ask for $18?” problem for small nonprofits.
 - **Working app:** a real iOS build with the full loop — browse, complete a cause, Test Store purchase, impact, nonprofit posting, Privacy Shield, proof, donor update.
 - **Thoughtful RevenueCat use:** consumables for the prototype’s gift flow, and a subscription + entitlement + offering for the part RevenueCat should power in production, with the reasoning written down.
-- **Care in the build:** native Swift module, design system, motion and haptics, accessibility labels, 35 unit tests on the privacy rules and the gift/proof state machine (one caught a real bug in address detection), strict TypeScript, ESLint with React Compiler rules, CI, honest demo labeling, and a README that says what isn’t built yet.
+- **Care in the build:** native Swift module, design system, motion and haptics, accessibility labels, 41 unit tests on the privacy rules and the gift/proof state machine (one caught a real bug in address detection), strict TypeScript, ESLint with React Compiler rules, CI, honest demo labeling, and a README that says what isn’t built yet.
 
 ## Privacy approach
 
