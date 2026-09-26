@@ -80,11 +80,13 @@ export default function GiveSheet() {
         </Txt>
       </View>
 
-      <View style={styles.options}>
-        {options.map((p) => (
-          <Amount key={p} value={p} active={amount === p} onPress={() => setAmount(p)} />
-        ))}
-      </View>
+      {options.length > 1 ? (
+        <View style={styles.options}>
+          {options.map((p) => (
+            <Amount key={p} value={p} active={amount === p} onPress={() => setAmount(p)} />
+          ))}
+        </View>
+      ) : null}
 
       {canComplete ? (
         <Pressable
@@ -104,6 +106,20 @@ export default function GiveSheet() {
           </View>
           <Txt variant="number" style={{ fontSize: 20 }}>
             {money(left)}
+          </Txt>
+        </Pressable>
+      ) : null}
+
+      {options.length === 1 ? (
+        <Pressable
+          onPress={() => {
+            tap();
+            setAmount(amount === options[0] ? left : options[0]);
+          }}
+          accessibilityRole="button"
+          style={styles.altLink}>
+          <Txt variant="caption" color={color.ink} style={{ fontWeight: '600', textDecorationLine: 'underline' }}>
+            {amount === options[0] ? `Complete it with ${money(left)} instead` : `Or give ${money(options[0])} instead`}
           </Txt>
         </Pressable>
       ) : null}
@@ -203,6 +219,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   radioOn: { backgroundColor: color.sun, borderColor: color.sun },
+  altLink: { alignSelf: 'center', paddingVertical: 2 },
   meterCard: { gap: 12, padding: space.md, borderRadius: radius.lg, backgroundColor: color.card },
   error: {
     flexDirection: 'row',
