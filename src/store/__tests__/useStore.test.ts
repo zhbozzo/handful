@@ -116,5 +116,8 @@ describe('payouts', () => {
       note: 'Delivered tonight.',
     });
     expect(cause('hot-meal-tonight').payout?.amount).toBe(c.goal);
+    // Steps stay in order even when proof follows funding within seconds.
+    const at = cause('hot-meal-tonight').timeline.map((t) => t.at);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
   });
 });

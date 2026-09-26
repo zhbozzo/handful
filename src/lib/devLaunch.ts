@@ -3,7 +3,7 @@
  * from the command line without the "Open in Handful?" deep-link prompt.
  *
  *   xcrun simctl launch --terminate-running-process booted app.handful.demo -handfulDev "go:/cause/hot-meal-tonight"
- *   … -handfulDev reset | onboarding | shield | shield:1200 | gift:hot-meal-tonight:4 | history | rcfresh
+ *   … -handfulDev reset | onboarding | shield | shield:1200 | gift:hot-meal-tonight:4 | history | thanks | rcfresh
  *
  * iOS puts `-key value` launch arguments into NSUserDefaults, which React Native's
  * Settings API reads.
@@ -46,7 +46,7 @@ export function runDevLaunchAction() {
         pathname: '/success/[id]',
         params: { id: causeId, gift: contribution.id, completed: completed ? '1' : '0' },
       });
-    } else if (cmd === 'history') {
+    } else if (cmd === 'history' || cmd === 'thanks') {
       // history — a few offline-labelled gifts (one to an already-delivered cause) to review Your impact
       s.resetDemo();
       s.finishOnboarding();
@@ -82,6 +82,21 @@ export function runDevLaunchAction() {
         ],
       }));
       router.navigate('/impact');
+      if (cmd === 'thanks') {
+        // thanks — the nonprofit just posted proof for a cause you completed (Your impact shows it first)
+        useStore.getState().postProof('hot-meal-tonight', {
+          photoAsset: 'groceries',
+          privacy: { facesBlurred: 0, textBlurred: 0, locationRemoved: true },
+          store: 'Neighborhood supermarket',
+          receipt: [
+            { label: 'Hot meal', amount: 5.7 },
+            { label: 'Hygiene essentials', amount: 4.7 },
+            { label: 'Warm socks', amount: 3.9 },
+            { label: 'Water + snacks', amount: 2.9 },
+          ],
+          note: 'Delivered tonight on the round — hot, and the socks went on right away. Thank you.',
+        });
+      }
     } else if (cmd === 'rc') {
       // rc — log what RevenueCat returns for the gift products and the supporter offering
       import('react-native-purchases').then(async ({ default: Purchases, PRODUCT_CATEGORY }) => {

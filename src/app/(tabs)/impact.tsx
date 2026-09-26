@@ -19,7 +19,7 @@ import { Txt } from '@/components/Txt';
 import { categoryById } from '@/data/categories';
 import { proofPhoto } from '@/data/photos';
 import { orgById } from '@/data/seed';
-import type { Cause, CauseItem, CauseStatus } from '@/data/types';
+import type { Cause, CauseItem, CauseStatus, InboxItem } from '@/data/types';
 import { ago, money, when } from '@/lib/format';
 import { getRevenueCatUserId } from '@/lib/purchases';
 import { devScroll } from '@/lib/devScroll';
@@ -66,7 +66,16 @@ export default function ImpactScreen() {
     .sort((a, b) => (b.timeline.at(-1)?.at ?? 0) - (a.timeline.at(-1)?.at ?? 0));
   const givenTo = (id: string) => contributions.filter((g) => g.causeId === id).reduce((sum, g) => sum + g.amount, 0);
   // Every cause you gave to, like tracking an order: the ones still moving first.
-  const tracked = sortForTracking(causes.filter((c) => contributions.some((g) => g.causeId === c.id)));
+  // New thank-yous: proof posted since you last looked — shown first, like a notification.
+  const fresh = inbox
+    .filter((i) => i.kind === 'delivered' && !i.read)
+    .map((i) => ({ item: i, cause: causes.find((c) => c.id === i.causeId) }))
+    .filter((x): x is { item: InboxItem; cause: Cause } => !!x.cause);
+  const freshIds = new Set(fresh.map((x) => x.cause.id));
+  const tracked = sortForTracking(
+    causes.filter((c) => contributions.some((g) => g.causeId === c.id)),
+    (id) => freshIds.has(id),
+  );
 
   const empty = contributions.length === 0;
 
@@ -82,6 +91,24 @@ export default function ImpactScreen() {
           <Txt variant="title">Your impact</Txt>
           <Txt variant="callout">Only what you actually did. No estimates, no made-up numbers.</Txt>
         </View>
+
+        {fresh.map(({ item, cause }, i) => (
+          <Animated.View
+            key={item.id}
+            entering={FadeInDown.delay(120 + i * 90)
+              .springify()
+              .damping(15)}>
+            <FreshThanks
+              cause={cause}
+              at={item.at}
+              gave={givenTo(cause.id)}
+              onOpen={() => {
+                markInboxRead(item.id);
+                router.push(`/proof/${cause.id}`);
+              }}
+            />
+          </Animated.View>
+        ))}
 
         {empty ? (
           <Animated.View entering={FadeInDown.duration(450)} style={[styles.card, styles.empty]}>
@@ -130,7 +157,7 @@ export default function ImpactScreen() {
                 </View>
                 {tracked.map((c, i) => (
                   <Animated.View key={c.id} entering={FadeInDown.delay(120 + i * 70).duration(420)}>
-                    <TrackedCause cause={c} gave={givenTo(c.id)} />
+                    <TrackedCause cause={c} gave={givenTo(c.id)} isNew={freshIds.has(c.id)} />
                   </Animated.View>
                 ))}
               </View>
@@ -147,51 +174,6 @@ export default function ImpactScreen() {
                     <ThankYou cause={c} gave={givenTo(c.id)} />
                   </Animated.View>
                 ))}
-              </View>
-            ) : null}
-
-            {inbox.length > 0 ? (
-              <View style={{ gap: space.sm }}>
-                <Txt variant="micro">Updates</Txt>
-                {inbox.map((u) => {
-                  const cause = causes.find((c) => c.id === u.causeId);
-                  if (!cause) return null;
-                  const delivered = u.kind === 'delivered';
-                  return (
-                    <PressableScale
-                      key={u.id}
-                      onPress={() => {
-                        markInboxRead(u.id);
-                        router.push(delivered ? `/proof/${cause.id}` : `/cause/${cause.id}`);
-                      }}
-                      style={[styles.update, delivered && styles.updateDelivered]}
-                      accessibilityRole="button">
-                      <CoverThumb cause={cause} size={48} />
-                      <View style={{ flex: 1, gap: 2 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                          {delivered ? <Icon name="checkmark.seal.fill" size={13} color={color.leaf} /> : null}
-                          <Txt variant="micro" color={delivered ? color.leaf : color.sunDeep}>
-                            {delivered ? 'Delivered' : 'You completed it'}
-                          </Txt>
-                          <Txt variant="caption" color={color.ink3}>
-                            · {ago(u.at)}
-                          </Txt>
-                        </View>
-                        <Txt variant="bodyStrong" numberOfLines={1}>
-                          {cause.title}
-                        </Txt>
-                        <Txt variant="caption">
-                          {delivered ? 'See the receipt and delivery photo' : 'Proof arrives once it’s delivered'}
-                        </Txt>
-                      </View>
-                      {!u.read ? (
-                        <View style={styles.unread} />
-                      ) : (
-                        <Icon name="chevron.right" size={13} color={color.ink3} />
-                      )}
-                    </PressableScale>
-                  );
-                })}
               </View>
             ) : null}
 
@@ -383,18 +365,18 @@ function CollectionHero({ total, items, split }: { total: number; items: Collect
 /** Where each dollar you gave is right now. */
 function MoneyBar({ split }: { split: MoneySplit }) {
   const parts = [
-    { key: 'delivered', value: split.delivered, color: color.leaf, label: 'delivered' },
-    { key: 'onTheWay', value: split.onTheWay, color: color.sun, label: 'on the way' },
-    { key: 'funding', value: split.funding, color: '#E3D7C2', label: 'still funding' },
-  ].filter((p) => p.value > 0);
+    { key: 'delivered', amount: split.delivered, color: color.leaf, label: 'delivered' },
+    { key: 'onTheWay', amount: split.onTheWay, color: color.sun, label: 'on the way' },
+    { key: 'funding', amount: split.funding, color: '#E3D7C2', label: 'still funding' },
+  ].filter((p) => p.amount > 0);
   return (
     <View
       style={{ gap: 8 }}
       accessible
-      accessibilityLabel={`Where your money is: ${parts.map((p) => `${money(p.value)} ${p.label}`).join(', ')}`}>
+      accessibilityLabel={`Where your money is: ${parts.map((p) => `${money(p.amount)} ${p.label}`).join(', ')}`}>
       <View style={styles.moneyBar}>
         {parts.map((p) => (
-          <View key={p.key} style={{ flex: p.value, backgroundColor: p.color }} />
+          <View key={p.key} style={{ flex: p.amount, backgroundColor: p.color }} />
         ))}
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: 14, rowGap: 4 }}>
@@ -403,7 +385,7 @@ function MoneyBar({ split }: { split: MoneySplit }) {
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: p.color }} />
             <Txt variant="caption" color={color.ink} style={{ fontSize: 12 }}>
               <Txt variant="caption" color={color.ink} style={{ fontSize: 12, fontWeight: '700' }}>
-                {money(p.value)}
+                {money(p.amount)}
               </Txt>{' '}
               {p.label}
             </Txt>
@@ -414,15 +396,67 @@ function MoneyBar({ split }: { split: MoneySplit }) {
   );
 }
 
+/** A thank-you that just arrived: it reads like the push notification, and opens the result. */
+function FreshThanks({ cause, at, gave, onOpen }: { cause: Cause; at: number; gave: number; onOpen: () => void }) {
+  const photo = proofPhoto(cause.evidence);
+  const org = orgById(cause.orgId);
+  return (
+    <PressableScale
+      onPress={() => {
+        tap();
+        onOpen();
+      }}
+      scaleTo={0.98}
+      style={styles.fresh}
+      accessibilityRole="button"
+      accessibilityLabel={`New: ${cause.title} was delivered. ${org.name} posted a thank-you photo. Open.`}>
+      <View style={styles.freshTop}>
+        <View style={styles.freshDot} />
+        <Txt variant="micro" color={color.leaf}>
+          Delivered
+        </Txt>
+        <Txt variant="caption" color={color.ink3} style={{ fontSize: 12 }}>
+          · {ago(at)}
+        </Txt>
+        <View style={{ flex: 1 }} />
+        <Txt variant="caption" color={color.ink3} style={{ fontSize: 12 }}>
+          You gave {money(gave)}
+        </Txt>
+      </View>
+      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+        {photo ? (
+          <Image source={photo} style={styles.freshPhoto} contentFit="cover" transition={200} />
+        ) : (
+          <CoverThumb cause={cause} size={64} />
+        )}
+        <View style={{ flex: 1, gap: 3 }}>
+          <Txt variant="bodyStrong" numberOfLines={2}>
+            {cause.title}
+          </Txt>
+          <Txt variant="caption" numberOfLines={2}>
+            {org.name} posted the receipt and a thank-you photo.
+          </Txt>
+        </View>
+      </View>
+      <View style={styles.freshCta}>
+        <Txt variant="caption" color={color.white} style={{ fontWeight: '700' }}>
+          See the result
+        </Txt>
+        <Icon name="arrow.right" size={12} color={color.white} weight="bold" />
+      </View>
+    </PressableScale>
+  );
+}
+
 /** One cause you gave to: where it is on Funded → Bought → Delivered, and what happens next. */
-function TrackedCause({ cause, gave }: { cause: Cause; gave: number }) {
+function TrackedCause({ cause, gave, isNew = false }: { cause: Cause; gave: number; isNew?: boolean }) {
   const t = trackCause(cause);
   const delivered = cause.status === 'delivered';
   return (
     <PressableScale
       onPress={() => router.push(delivered ? `/proof/${cause.id}` : `/cause/${cause.id}`)}
       scaleTo={0.98}
-      style={styles.tracked}
+      style={[styles.tracked, isNew && styles.trackedNew]}
       accessibilityRole="button"
       accessibilityLabel={`${cause.title}. You gave ${money(gave)}. ${t.label}. ${t.next}`}>
       <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
@@ -440,7 +474,12 @@ function TrackedCause({ cause, gave }: { cause: Cause; gave: number }) {
             {money(cause.raised)} of {money(cause.goal)}
           </Txt>
         </View>
-        <Pill label={t.label} tone={delivered ? 'leaf' : cause.status === 'open' ? 'neutral' : 'sun'} small />
+        <Pill
+          label={isNew ? 'New' : t.label}
+          tone={isNew ? 'sun' : delivered ? 'leaf' : cause.status === 'open' ? 'neutral' : 'sun'}
+          symbol={isNew ? 'sparkles' : undefined}
+          small
+        />
       </View>
       {cause.status === 'open' ? (
         <ProgressBar value={cause.raised / cause.goal} height={5} />
@@ -595,6 +634,28 @@ const styles = StyleSheet.create({
     height: 260,
     borderRadius: 130,
     backgroundColor: 'rgba(255,255,255,0.55)',
+  },
+  trackedNew: { borderWidth: 1.5, borderColor: color.sun },
+  fresh: {
+    gap: 12,
+    padding: space.md,
+    borderRadius: radius.lg,
+    backgroundColor: color.card,
+    borderWidth: 1.5,
+    borderColor: color.leafSoft,
+    ...shadow.lift,
+  },
+  freshTop: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  freshDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: color.sun },
+  freshPhoto: { width: 64, height: 64, borderRadius: 14, backgroundColor: color.paperDeep },
+  freshCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    height: 40,
+    borderRadius: radius.pill,
+    backgroundColor: color.leaf,
   },
   tracked: { gap: 12, padding: space.md, backgroundColor: color.card, borderRadius: radius.lg, ...shadow.card },
   trackedNext: {

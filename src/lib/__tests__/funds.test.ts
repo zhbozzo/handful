@@ -60,10 +60,10 @@ describe('trackCause', () => {
     expect(trackCause(byId('family-groceries'))).toMatchObject({ done: 3, finished: true });
   });
 
-  it('puts causes still moving first and delivered last', () => {
-    const order = sortForTracking([byId('family-groceries'), byId('bus-fare'), byId('winter-blanket')]).map(
-      (c) => c.id,
-    );
-    expect(order).toEqual(['winter-blanket', 'bus-fare', 'family-groceries']);
+  it('puts results first: new thank-yous, then delivered, then on the way, then collecting', () => {
+    const list = [byId('bus-fare'), byId('winter-blanket'), byId('family-groceries')];
+    expect(sortForTracking(list).map((c) => c.id)).toEqual(['family-groceries', 'winter-blanket', 'bus-fare']);
+    const fresh = { ...byId('hot-meal-tonight'), status: 'delivered' as const };
+    expect(sortForTracking([...list, fresh], (id) => id === 'hot-meal-tonight')[0].id).toBe('hot-meal-tonight');
   });
 });

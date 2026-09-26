@@ -120,12 +120,15 @@ export const useStore = create<State & Actions>()(
           causes: s.causes.map((c) => {
             if (c.id !== causeId) return c;
             const hasPurchase = c.timeline.some((t) => t.status === 'purchased');
+            // Backfilled steps never land before the moment the cause was funded.
+            const fundedAt = c.timeline.find((t) => t.status === 'funded')?.at ?? 0;
+            const after = (offset: number) => Math.min(now, Math.max(now - offset, fundedAt + 1000));
             return {
               ...c,
               status: 'delivered',
               evidence,
               // Buying the items means the money was released, even if nobody tapped Withdraw first.
-              payout: c.payout ?? { amount: c.raised, at: now - 120_000, account: STUDIO_ACCOUNT },
+              payout: c.payout ?? { amount: c.raised, at: after(120_000), account: STUDIO_ACCOUNT },
               timeline: [
                 ...c.timeline,
                 ...(hasPurchase
@@ -133,7 +136,7 @@ export const useStore = create<State & Actions>()(
                   : [
                       {
                         status: 'purchased' as const,
-                        at: now - 90_000,
+                        at: after(90_000),
                         note: `Receipt uploaded · $${spent.toFixed(2)} spent`,
                       },
                     ]),

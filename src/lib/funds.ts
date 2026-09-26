@@ -75,7 +75,7 @@ export type Tracking = {
   done: number;
   label: string;
   next: string;
-  /** Needs nothing from anyone but time — sorted after causes still moving. */
+  /** Delivered: the result is ready to see. */
   finished: boolean;
 };
 
@@ -107,8 +107,13 @@ export function trackCause(cause: Cause): Tracking {
   }
 }
 
-/** Causes still moving first (closest to delivery first), then the ones waiting for gifts, then delivered. */
-export function sortForTracking(causes: Cause[]): Cause[] {
-  const rank = (c: Cause) => (c.status === 'purchased' ? 0 : c.status === 'funded' ? 1 : c.status === 'open' ? 2 : 3);
-  return [...causes].sort((a, b) => rank(a) - rank(b));
+/**
+ * Results first: causes with a new thank-you, then other delivered ones (newest first),
+ * then what is still on its way, then what is still collecting.
+ */
+export function sortForTracking(causes: Cause[], isNew: (id: string) => boolean = () => false): Cause[] {
+  const rank = (c: Cause) =>
+    isNew(c.id) ? 0 : c.status === 'delivered' ? 1 : c.status === 'purchased' ? 2 : c.status === 'funded' ? 3 : 4;
+  const deliveredAt = (c: Cause) => c.timeline.find((t) => t.status === 'delivered')?.at ?? 0;
+  return [...causes].sort((a, b) => rank(a) - rank(b) || deliveredAt(b) - deliveredAt(a));
 }
