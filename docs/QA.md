@@ -52,3 +52,5 @@ Legend: ✅ pass · ⚠️ pass with note · ❌ fail (fixed / open)
 | 28 | VoiceOver labels on buttons, cards, progress | |
 | 29 | Keyboard never covers inputs / Continue button | |
 | 30 | No yellow/red boxes, no console errors | ⚠️ no errors; one react-native-screens form-sheet layout warning in dev |
+| 31 | Cause page: donor stack + last 3 gifts, anonymous; amounts add up to what was raised | ✅ (unit-tested; caught a negative amount before release) |
+| 32 | Share from a cause and from the success screen | ✅ native share sheet, text only |

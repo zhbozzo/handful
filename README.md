@@ -56,9 +56,13 @@ flowchart LR
 |---|---|---|---|
 | ![](submission/screenshots/07c-proof-post.png) | ![](submission/screenshots/08-proof.png) | ![](submission/screenshots/08c-delivered-notification.png) | ![](submission/screenshots/08b-proof-tent.png) |
 
-| Your impact | Gift history (RevenueCat) | Supporter | Nonprofit studio |
+| Who else gave (anonymous) | Your impact | Gift history (RevenueCat) | Supporter |
 |---|---|---|---|
-| ![](submission/screenshots/09-impact.png) | ![](submission/screenshots/09b-impact-history.png) | ![](submission/screenshots/10-supporter.png) | ![](submission/screenshots/11-studio.png) |
+| ![](submission/screenshots/02b-cause-activity.png) | ![](submission/screenshots/09-impact.png) | ![](submission/screenshots/09b-impact-history.png) | ![](submission/screenshots/10-supporter.png) |
+
+## What we learned from existing giving apps
+
+Before the last design pass we looked at how GoFundMe, DonorsChoose, charity: water, ShareTheMeal and Kiva handle the same moments. Handful keeps their evidence-backed patterns — progress with visible recent gifts, a share prompt right after giving, a line-item budget, a delivery update — and drops the ones that cost dignity or trust: photos of people in need, countdowns, named donor leaderboards, preselected tips. Details and sources: [docs/MARKET.md](docs/MARKET.md).
 
 ## How RevenueCat is used
 

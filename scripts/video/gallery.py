@@ -13,7 +13,7 @@ OUT = ROOT / "submission/gallery"
 
 ITEMS = [
     ("01-home.png", "Real needs", "Give to something real.", "Small, specific needs from verified nonprofits."),
-    ("04b-give-amounts.png", "Giving", "See your gift land first.", "What others gave, your share, what’s left."),
+    ("04b-give-amounts.png", "Giving", "See your gift land first.", "No platform fee. No tip. No surprise total."),
     ("06-shield-review.png", "Privacy Shield", "Faces and location found on the phone.", "Apple Vision, before anything is posted."),
     ("06b-shield-protected.png", "Privacy Shield", "Protected before it’s posted.", "Faces blurred, metadata stripped, nothing uploaded."),
     ("08-proof.png", "Proof", "It got there.", "Receipt, leftover and a privacy-safe photo."),
