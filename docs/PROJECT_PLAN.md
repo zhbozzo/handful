@@ -8,16 +8,16 @@ Peace Prize / Design Award require a published store app — out of scope for Ne
 
 - [x] Concept, name, design system, architecture
 - [x] Vertical slice: Home → Cause → Complete → gift → Success → Impact
-- [x] Nonprofit flow: Create cause → Story check → Photo → Privacy Shield → Publish
-- [x] Proof flow: Receipt → Delivery photo (Privacy Shield) → Post → donor update
+- [x] Nonprofit flow (3 steps): need & budget → story & photo (Privacy Shield) → review & one confirmation
+- [x] Proof flow (2 steps): receipt → photo + note → post → donor update
 - [x] Supporter membership (RevenueCat subscription + entitlement)
 - [x] App icon 1024×1024
 - [x] iOS dev build running in the Simulator (iPhone 16, iOS 26.5)
 - [x] RevenueCat Test Store project `proje8b43c37`: 20 consumables, `supporter` entitlement + offering (verified from the app)
 - [x] Privacy Shield verified on a real photo (2 faces + GPS found, blurred, metadata stripped)
-- [ ] QA pass (see docs/QA.md) — tap-dependent steps pending simulator access
+- [x] QA pass (see docs/QA.md) — a few steps marked ⚠️ where a dev shortcut was used
 - [x] Ethical review (see docs/ETHICS.md)
-- [x] Screenshots 1179×2556 (no frame) — success screen after a real Test Store purchase pending
+- [x] Screenshots 1179×2556 (no frame), from a real Test Store + Privacy Shield run
 - [ ] Demo video < 2 min (script: docs/VIDEO.md; pipeline tested: scripts/video/build.py)
 - [x] README, LICENSE, .env.example, secret scan (clean), unit tests, lint, CI
 - [ ] Public GitHub repo with license visible
