@@ -1,21 +1,20 @@
 """Title cards, caption panels and frame assets for the demo video (1920x1080).
 
-Uses the app's own fonts: Instrument Serif (bundled via @expo-google-fonts) and
-SF Pro from macOS for small labels.
+Uses the app's own type: Figtree (bundled via @expo-google-fonts). Headlines are ExtraBold;
+the accent line of a headline is set in the deep sun color, as in the app.
 """
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
-FONT_DIR = ROOT / "node_modules/@expo-google-fonts/instrument-serif"
-SERIF = str(FONT_DIR / "400Regular/InstrumentSerif_400Regular.ttf")
-SERIF_ITALIC = str(FONT_DIR / "400Regular_Italic/InstrumentSerif_400Regular_Italic.ttf")
-SANS_CANDIDATES = [
-    "/System/Library/Fonts/SFNS.ttf",
-    "/System/Library/Fonts/Helvetica.ttc",
-]
-SANS = next((p for p in SANS_CANDIDATES if Path(p).exists()), None)
+FONT_DIR = ROOT / "node_modules/@expo-google-fonts/figtree"
+HEAVY = str(FONT_DIR / "800ExtraBold/Figtree_800ExtraBold.ttf")
+SANS = str(FONT_DIR / "500Medium/Figtree_500Medium.ttf")
+SANS_BOLD = str(FONT_DIR / "700Bold/Figtree_700Bold.ttf")
+# Kept for callers: a "serif" headline is now the heavy weight, "italic" means the accent color.
+SERIF = HEAVY
+SERIF_ITALIC = HEAVY
 
 W, H = 1920, 1080
 PAPER = (246, 243, 236)
@@ -30,8 +29,8 @@ def font(path, size):
     return ImageFont.truetype(path, size)
 
 
-def sans(size):
-    return ImageFont.truetype(SANS, size) if SANS else ImageFont.load_default()
+def sans(size, bold=False):
+    return ImageFont.truetype(SANS_BOLD if bold else SANS, size)
 
 
 def draw_mark(img, cx, cy, size, cup=INK, sun=SUN):
@@ -62,16 +61,16 @@ def title_card(path, lines, mark=False, footer=None):
     """Centered serif lines on paper. lines: [(text, italic, color?)]"""
     img = Image.new("RGBA", (W, H), PAPER + (255,))
     d = ImageDraw.Draw(img)
-    size = 108
-    fonts = [font(SERIF_ITALIC if it else SERIF, size) for _, it, *_ in lines]
-    total = len(lines) * int(size * 1.08)
+    size = 92
+    fonts = [font(HEAVY, size) for _ in lines]
+    total = len(lines) * int(size * 1.18)
     y = H / 2 - total / 2 + (40 if mark else 0)
     if mark:
         draw_mark(img, W / 2, y - 110, 120)
     for (text, it, *rest), f in zip(lines, fonts):
-        col = rest[0] if rest else INK
+        col = rest[0] if rest else (SUN_DEEP if it else INK)
         d.text((W / 2, y), text, font=f, fill=col, anchor="ma")
-        y += int(size * 1.08)
+        y += int(size * 1.18)
     if footer:
         d.text((W / 2, H - 90), footer, font=sans(26), fill=INK3, anchor="ma")
     img.convert("RGB").save(path)
@@ -80,10 +79,10 @@ def title_card(path, lines, mark=False, footer=None):
 def end_card(path):
     img = Image.new("RGBA", (W, H), PAPER + (255,))
     d = ImageDraw.Draw(img)
-    draw_mark(img, W / 2 - 205, 400, 132)
-    d.text((W / 2 - 125, 400), "handful", font=font(SERIF, 150), fill=INK, anchor="lm")
-    d.text((W / 2, 560), "Small gifts. Real needs.", font=font(SERIF, 64), fill=INK, anchor="ma")
-    d.text((W / 2, 636), "Proof that protects.", font=font(SERIF_ITALIC, 64), fill=INK, anchor="ma")
+    draw_mark(img, W / 2 - 215, 400, 132)
+    d.text((W / 2 - 135, 400), "handful", font=font(HEAVY, 140), fill=INK, anchor="lm")
+    d.text((W / 2, 560), "Small gifts. Real needs.", font=font(HEAVY, 60), fill=INK, anchor="ma")
+    d.text((W / 2, 636), "Proof that protects.", font=font(HEAVY, 60), fill=SUN_DEEP, anchor="ma")
     d.text((W / 2, 830), "Built with Expo + RevenueCat  ·  Shipaton 2026 · Next Gen", font=sans(28), fill=INK3, anchor="ma")
     d.text((W / 2, 874), "Demo data · fictional nonprofits · RevenueCat Test Store (no real money)", font=sans(24), fill=INK3, anchor="ma")
     img.convert("RGB").save(path)
@@ -93,7 +92,7 @@ def caption_panel(path, label, headline, sub=None, width=820):
     """Transparent panel placed right of the phone: small label, serif headline, optional sub."""
     img = Image.new("RGBA", (width, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    hf = font(SERIF, 84)
+    hf = font(HEAVY, 72)
     # wrap headline
     words, rows, cur = headline.split(), [], ""
     for w in words:
@@ -104,13 +103,13 @@ def caption_panel(path, label, headline, sub=None, width=820):
         else:
             cur = test
     rows.append(cur)
-    block_h = 50 + len(rows) * 92 + (80 if sub else 0)
+    block_h = 50 + len(rows) * 86 + (80 if sub else 0)
     y = H / 2 - block_h / 2
-    d.text((0, y), label.upper(), font=sans(24), fill=SUN_DEEP)
+    d.text((0, y), label.upper(), font=sans(24, bold=True), fill=SUN_DEEP)
     y += 50
     for r in rows:
         d.text((0, y), r, font=hf, fill=INK)
-        y += 92
+        y += 86
     if sub:
         y += 34
         sf = sans(30)
@@ -145,10 +144,10 @@ def thumbnail(path, ring_png=None):
     img.alpha_composite(ring, (cx - r - 10, cy - r - 10))
     # check
     d.line([(cx - 70, cy + 5), (cx - 20, cy + 55), (cx + 80, cy - 55)], fill=INK, width=30, joint="curve")
-    d.text((600, 250), "Only $4 left.", font=font(SERIF, 104), fill=INK)
-    d.text((600, 360), "Complete it.", font=font(SERIF_ITALIC, 104), fill=INK)
+    d.text((600, 250), "Only $4 left.", font=font(HEAVY, 86), fill=INK)
+    d.text((600, 360), "Complete it.", font=font(HEAVY, 86), fill=SUN_DEEP)
     draw_mark(img, 628, 560, 56)
-    d.text((666, 560), "handful", font=font(SERIF, 56), fill=INK, anchor="lm")
+    d.text((666, 560), "handful", font=font(HEAVY, 52), fill=INK, anchor="lm")
     img.convert("RGB").save(path)
 
 
