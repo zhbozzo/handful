@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, LinearTransition, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOut, LinearTransition, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
@@ -10,6 +10,7 @@ import { ConfirmAll, Field, FlowHeader, Segmented, StepIn } from '@/components/F
 import { Icon } from '@/components/Icon';
 import { OrgLine } from '@/components/OrgLine';
 import { Pill } from '@/components/Pill';
+import { PressableScale } from '@/components/PressableScale';
 import { ShieldReview } from '@/components/ShieldReview';
 import { Txt } from '@/components/Txt';
 import { CATEGORIES, categoryById } from '@/data/categories';
@@ -32,6 +33,47 @@ const COMMITMENTS = [
 ];
 
 type Row = { id: string; label: string; amount: string };
+
+/** One tap starts from a need nonprofits post again and again; everything stays editable. */
+const TEMPLATES: { label: string; symbol: string; title: string; rows: [string, number][] }[] = [
+  {
+    label: 'Hot meal',
+    symbol: 'fork.knife',
+    title: 'A hot meal + water tonight',
+    rows: [
+      ['Hot meal', 6],
+      ['Water + snacks', 3],
+    ],
+  },
+  {
+    label: 'Bus fare',
+    symbol: 'bus.fill',
+    title: 'Bus fare to an appointment',
+    rows: [
+      ['Round-trip bus fare', 4],
+      ['Snack for the wait', 2],
+    ],
+  },
+  {
+    label: 'Winter kit',
+    symbol: 'snowflake',
+    title: 'Warm socks + a blanket',
+    rows: [
+      ['Warm socks ×2', 5],
+      ['Fleece blanket', 12],
+    ],
+  },
+  {
+    label: 'Hygiene kit',
+    symbol: 'drop.fill',
+    title: 'A hygiene kit',
+    rows: [
+      ['Soap + shampoo', 5],
+      ['Toothbrush + paste', 3],
+      ['Deodorant', 3],
+    ],
+  },
+];
 
 const EXAMPLE = {
   title: 'Winter coat + gloves',
@@ -237,6 +279,39 @@ export default function NewCause() {
               maxLength={48}
               hint="Name the help, not the person."
             />
+            {!title && !rows.some((r) => r.label || r.amount) ? (
+              <Animated.View entering={FadeIn} exiting={FadeOut.duration(150)} style={{ gap: 8 }}>
+                <Txt variant="caption" color={color.ink3}>
+                  Or start from a common need
+                </Txt>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+                  style={{ marginHorizontal: -space.lg }}
+                  contentContainerStyle={{ paddingHorizontal: space.lg, gap: 8 }}>
+                  {TEMPLATES.map((t) => (
+                    <PressableScale
+                      key={t.label}
+                      scaleTo={0.94}
+                      onPress={() => {
+                        tap();
+                        setTitle(t.title);
+                        setPicked(null);
+                        setRows(t.rows.map(([label, amount], i) => ({ id: `t${i}`, label, amount: String(amount) })));
+                      }}
+                      style={styles.template}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Start from ${t.label}`}>
+                      <Icon name={t.symbol} size={13} color={color.sunDeep} />
+                      <Txt variant="caption" color={color.ink} style={{ fontWeight: '600' }}>
+                        {t.label}
+                      </Txt>
+                    </PressableScale>
+                  ))}
+                </ScrollView>
+              </Animated.View>
+            ) : null}
 
             <View style={{ gap: 8 }}>
               <Label text="Who is it for?" />
@@ -625,6 +700,15 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 8,
     paddingVertical: 3,
+    borderRadius: radius.pill,
+    backgroundColor: color.sunSoft,
+  },
+  template: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    height: 34,
     borderRadius: radius.pill,
     backgroundColor: color.sunSoft,
   },
