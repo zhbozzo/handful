@@ -280,7 +280,7 @@ export default function SupporterSheet() {
             ) : null}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
               <Icon name="lock.fill" size={10} color={color.ink3} />
-              <Txt variant="caption" color={color.ink3}>
+              <Txt variant="caption" color={color.ink3} style={{ fontSize: 12 }}>
                 {isTestStoreKey() ? 'RevenueCat Test Store · no charge' : 'Billed by the App Store'}
               </Txt>
             </View>
@@ -348,6 +348,6 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: color.line,
   },
-  legal: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16 },
+  legal: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14 },
   link: { fontWeight: '700', textDecorationLine: 'underline' },
 });
