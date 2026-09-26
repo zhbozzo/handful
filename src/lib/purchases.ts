@@ -103,6 +103,16 @@ export async function purchaseSupporter(
   }
 }
 
+/** App Review requires a way to restore a subscription bought on another install. */
+export async function restoreSupporter(): Promise<{ ok: true; active: boolean } | { ok: false; message: string }> {
+  if (!configurePurchases()) return { ok: false, message: 'RevenueCat is not configured in this build.' };
+  try {
+    return { ok: true, active: hasSupporter(await Purchases.restorePurchases()) };
+  } catch (e) {
+    return { ok: false, message: readError(e).message };
+  }
+}
+
 export async function refreshSupporter(): Promise<boolean | null> {
   if (!configurePurchases()) return null;
   try {

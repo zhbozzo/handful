@@ -17,6 +17,7 @@ import { ALMOST_CARD_WIDTH, AlmostCard, CauseCard } from '@/components/CauseCard
 import { CauseRow } from '@/components/CauseRow';
 import { Icon } from '@/components/Icon';
 import { Pill } from '@/components/Pill';
+import { PressableScale } from '@/components/PressableScale';
 import { Txt } from '@/components/Txt';
 import { Wordmark } from '@/components/Wordmark';
 import { CATEGORIES } from '@/data/categories';
@@ -246,7 +247,8 @@ function Chip({
   onPress: () => void;
 }) {
   return (
-    <Pressable
+    <PressableScale
+      scaleTo={0.94}
       onPress={() => {
         tap();
         onPress();
@@ -258,7 +260,7 @@ function Chip({
       <Txt variant="caption" color={active ? color.white : color.ink} style={{ fontWeight: '600' }}>
         {label}
       </Txt>
-    </Pressable>
+    </PressableScale>
   );
 }
 

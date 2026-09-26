@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { orgById } from '@/data/seed';
 import type { Cause } from '@/data/types';
@@ -8,6 +8,7 @@ import { color, radius, space } from '@/theme/tokens';
 
 import { CoverThumb } from './CoverArt';
 import { Icon } from './Icon';
+import { PressableScale } from './PressableScale';
 import { Txt } from './Txt';
 
 const lines: Record<Cause['status'], (c: Cause) => string> = {
@@ -21,9 +22,9 @@ export function CauseRow({ cause, onPress }: { cause: Cause; onPress?: () => voi
   const org = orgById(cause.orgId);
   const delivered = cause.status === 'delivered';
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress ?? (() => router.push(delivered ? `/proof/${cause.id}` : `/cause/${cause.id}`))}
-      style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}
+      style={styles.row}
       accessibilityRole="button"
       accessibilityLabel={`${cause.title}. ${lines[cause.status](cause)}`}>
       <CoverThumb cause={cause} size={54} />
@@ -42,7 +43,7 @@ export function CauseRow({ cause, onPress }: { cause: Cause; onPress?: () => voi
         </View>
       </View>
       <Icon name="chevron.right" size={13} color={color.ink3} />
-    </Pressable>
+    </PressableScale>
   );
 }
 

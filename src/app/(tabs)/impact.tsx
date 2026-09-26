@@ -9,6 +9,7 @@ import { CountUp } from '@/components/CountUp';
 import { CoverThumb } from '@/components/CoverArt';
 import { Icon } from '@/components/Icon';
 import { Pill } from '@/components/Pill';
+import { PressableScale } from '@/components/PressableScale';
 import { Txt } from '@/components/Txt';
 import { Mark } from '@/components/Wordmark';
 import { categoryById } from '@/data/categories';
@@ -98,17 +99,13 @@ export default function ImpactScreen() {
                 if (!cause) return null;
                 const delivered = u.kind === 'delivered';
                 return (
-                  <Pressable
+                  <PressableScale
                     key={u.id}
                     onPress={() => {
                       markInboxRead(u.id);
                       router.push(delivered ? `/proof/${cause.id}` : `/cause/${cause.id}`);
                     }}
-                    style={({ pressed }) => [
-                      styles.update,
-                      delivered && styles.updateDelivered,
-                      pressed && { opacity: 0.75 },
-                    ]}
+                    style={[styles.update, delivered && styles.updateDelivered]}
                     accessibilityRole="button">
                     <CoverThumb cause={cause} size={48} />
                     <View style={{ flex: 1, gap: 2 }}>
@@ -133,7 +130,7 @@ export default function ImpactScreen() {
                     ) : (
                       <Icon name="chevron.right" size={13} color={color.ink3} />
                     )}
-                  </Pressable>
+                  </PressableScale>
                 );
               })}
             </View>
@@ -176,7 +173,7 @@ export default function ImpactScreen() {
         </>
       )}
 
-      <Pressable
+      <PressableScale
         onPress={() => router.push('/supporter')}
         style={[styles.card, styles.supporter]}
         accessibilityRole="button">
@@ -192,7 +189,7 @@ export default function ImpactScreen() {
           </Txt>
         </View>
         <Icon name="chevron.right" size={14} color={color.ink3} />
-      </Pressable>
+      </PressableScale>
     </ScrollView>
   );
 }

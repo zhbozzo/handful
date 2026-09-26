@@ -86,7 +86,7 @@ export default function RootLayout() {
             options={{ presentation: 'fullScreenModal', animation: 'fade', gestureEnabled: false }}
           />
           <Stack.Screen name="proof/[id]" />
-          <Stack.Screen name="supporter" options={{ ...sheet, sheetAllowedDetents: [0.8] }} />
+          <Stack.Screen name="supporter" options={{ ...sheet, sheetAllowedDetents: [1] }} />
           <Stack.Screen name="about" options={{ ...sheet, sheetAllowedDetents: [0.75, 1] }} />
           <Stack.Screen name="nonprofit/new" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="nonprofit/proof/[id]" options={{ presentation: 'fullScreenModal' }} />
