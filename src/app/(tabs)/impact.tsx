@@ -181,7 +181,13 @@ export default function ImpactScreen() {
                 {contributions.map((g, i) => {
                   const cause = causes.find((c) => c.id === g.causeId);
                   return (
-                    <View key={g.id} style={[styles.gift, i > 0 && styles.giftBorder]}>
+                    <Pressable
+                      key={g.id}
+                      onPress={() =>
+                        cause && router.push(cause.status === 'delivered' ? `/proof/${cause.id}` : `/cause/${cause.id}`)
+                      }
+                      style={({ pressed }) => [styles.gift, i > 0 && styles.giftBorder, pressed && { opacity: 0.6 }]}
+                      accessibilityRole="button">
                       <View style={{ flex: 1, gap: 2 }}>
                         <Txt variant="bodyStrong" numberOfLines={1}>
                           {cause?.title ?? 'Cause'}
@@ -201,7 +207,7 @@ export default function ImpactScreen() {
                         </Txt>
                       </View>
                       <Txt variant="number">{money(g.amount)}</Txt>
-                    </View>
+                    </Pressable>
                   );
                 })}
               </View>

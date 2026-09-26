@@ -15,6 +15,7 @@ import { Txt } from '@/components/Txt';
 import { devScroll } from '@/lib/devScroll';
 import { categoryById } from '@/data/categories';
 import { proofPhoto } from '@/data/photos';
+import { shareCause } from '@/lib/share';
 import { orgById } from '@/data/seed';
 import { money, when } from '@/lib/format';
 import { useCause, useStore } from '@/store/useStore';
@@ -177,7 +178,7 @@ export default function ProofScreen() {
         </Txt>
       </Animated.ScrollView>
 
-      <ScrollHeader scrollY={scrollY} title="Delivered" showAt={90} />
+      <ScrollHeader scrollY={scrollY} title="Delivered" showAt={90} onShare={() => shareCause(cause)} />
     </View>
   );
 }
