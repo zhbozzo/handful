@@ -56,6 +56,8 @@ type Props = {
   padTop?: number;
   /** Label demo photos as illustrative (on the cause page). */
   photoTag?: boolean;
+  /** How much of the bottom edge is covered by content, so the label stays visible. */
+  bottomInset?: number;
 };
 
 /** Bigger covers hold fewer, larger items; four items share the space. */
@@ -134,6 +136,7 @@ export function CoverArt({
   alive = true,
   padTop = 0,
   photoTag = false,
+  bottomInset = 0,
 }: Props) {
   const cat = categoryById(cause.category);
   const demoPhoto = cause.coverUri ? undefined : causePhoto(cause.id);
@@ -149,7 +152,7 @@ export function CoverArt({
           accessibilityLabel={`Photo of ${cause.items.map((i) => i.label).join(', ')}`}
         />
         {demoPhoto && photoTag ? (
-          <View style={styles.photoTag}>
+          <View style={[styles.photoTag, { bottom: 10 + bottomInset }]}>
             <Txt variant="caption" color={color.ink2} style={{ fontSize: 10, lineHeight: 13 }}>
               Illustrative photo
             </Txt>
@@ -256,7 +259,6 @@ const styles = StyleSheet.create({
   photoTag: {
     position: 'absolute',
     right: 10,
-    bottom: 10,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 999,

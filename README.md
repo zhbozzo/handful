@@ -40,7 +40,7 @@ flowchart LR
   V -->|"'Delivered ✓' update"| D
 ```
 
-**Show the help, not the suffering.** Covers are still lifes of the items being funded — a meal, socks, a bus fare — never a person.
+**Show the help, not the suffering.** Covers are still-life photos of the items being funded — a meal, socks, a bus fare — never a person. The demo photos are AI-generated (objects only, no people or text) and labelled “Illustrative photo”; causes without one get an illustration built from their budget.
 
 ## Screenshots
 

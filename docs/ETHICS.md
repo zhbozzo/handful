@@ -4,7 +4,7 @@ We went through the product screen by screen with the questions below, and chang
 
 ## Does this exploit vulnerable people?
 
-- **Covers never show people.** They are still lifes of the items being funded, generated from the budget. No stock photos of people in need.
+- **Covers never show people.** Demo causes use still-life photos of the items being funded (AI-generated for this demo with a prompt that forbids people, hands, faces, text and brands; labelled “Illustrative photo” on the cause page). A cause without a photo gets an illustration generated from its budget. No stock photos of people in need.
 - **Beneficiaries are never named.** One demo cause names a dog (Toby); that’s the only name in the app.
 - **Stories describe the need, not the misery.** We rewrote seed copy around what the person *asked for* and what will be bought (“asked for a hot meal and dry socks before tonight’s cold front”), not how bad things are.
 - **No urgency tricks.** No countdown timers, no “people are starving while…”, no red. “Only $4 left” is a fact about the budget, not pressure; there is always a plain “Give” option and no nagging after a gift.

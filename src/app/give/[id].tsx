@@ -5,6 +5,7 @@ import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withSequence, withS
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
+import { CoverThumb } from '@/components/CoverArt';
 import { GiftMeter } from '@/components/GiftMeter';
 import { Icon } from '@/components/Icon';
 import { PressableScale } from '@/components/PressableScale';
@@ -79,11 +80,14 @@ export default function GiveSheet() {
 
   return (
     <View style={[styles.sheet, { paddingBottom: insets.bottom + space.md }]}>
-      <View style={{ gap: 4 }}>
-        <Txt variant="micro">Give to</Txt>
-        <Txt variant="headline" numberOfLines={2}>
-          {cause.title}
-        </Txt>
+      <View style={styles.head}>
+        <CoverThumb cause={cause} size={52} />
+        <View style={{ flex: 1, gap: 2 }}>
+          <Txt variant="micro">Give to</Txt>
+          <Txt variant="headline" numberOfLines={2} style={{ fontSize: 19, lineHeight: 24 }}>
+            {cause.title}
+          </Txt>
+        </View>
       </View>
 
       {options.length > 1 ? (
@@ -214,6 +218,7 @@ function Amount({ value, active, onPress }: { value: number; active: boolean; on
 }
 
 const styles = StyleSheet.create({
+  head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   sheet: { flex: 1, padding: space.lg, paddingTop: space.xl, gap: space.md, backgroundColor: color.paper },
   options: { flexDirection: 'row', gap: 10 },
   amountSlot: { flex: 1 },
