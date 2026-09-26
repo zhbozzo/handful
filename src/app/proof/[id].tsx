@@ -159,9 +159,11 @@ export default function ProofScreen() {
 
         <Animated.View entering={FadeInDown.delay(260).duration(450)} style={{ gap: space.sm }}>
           <OrgLine org={org} sub="Note from the team" />
-          <Txt variant="headline" accent style={{ fontSize: 23, lineHeight: 30 }}>
-            “{ev.note}”
-          </Txt>
+          <View style={styles.quote}>
+            <Txt variant="headline" style={{ fontSize: 19, lineHeight: 27, fontWeight: '600' }}>
+              “{ev.note}”
+            </Txt>
+          </View>
         </Animated.View>
 
         <View style={{ gap: space.sm }}>
@@ -184,6 +186,7 @@ export default function ProofScreen() {
 }
 
 const styles = StyleSheet.create({
+  quote: { borderLeftWidth: 3, borderLeftColor: color.sun, paddingLeft: space.md, paddingVertical: 2 },
   card: { backgroundColor: color.card, borderRadius: radius.lg, padding: space.md, ...shadow.card },
   photoWrap: { borderRadius: radius.xl, overflow: 'hidden', ...shadow.lift },
   photo: { width: '100%', aspectRatio: 1, borderRadius: radius.xl, backgroundColor: color.paperDeep },
