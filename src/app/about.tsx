@@ -6,29 +6,41 @@ import { Txt } from '@/components/Txt';
 import { devScroll } from '@/lib/devScroll';
 import { color, radius, space } from '@/theme/tokens';
 
-const FLOW = [
+/** Same color language as the rest of the app: sun is action, leaf is trust, violet is privacy. */
+const TINTS = {
+  sun: { bg: color.sunSoft, fg: color.sunDeep },
+  leaf: { bg: color.leafSoft, fg: color.leaf },
+  shield: { bg: color.shieldSoft, fg: color.shield },
+} as const;
+
+const FLOW: { symbol: string; tint: keyof typeof TINTS; title: string; body: string }[] = [
   {
     symbol: 'checkmark.seal.fill',
+    tint: 'leaf',
     title: 'A verified nonprofit spots a need',
     body: 'Only vetted nonprofits can post. Never anonymous individuals.',
   },
   {
     symbol: 'list.bullet.rectangle.fill',
+    tint: 'sun',
     title: 'They break it into a small cause',
     body: 'Items, prices and a goal — usually under $60.',
   },
   {
     symbol: 'circle.circle.fill',
+    tint: 'sun',
     title: 'People fund it, often in a day',
     body: 'Anyone can give a few dollars, or complete what’s left.',
   },
   {
     symbol: 'receipt.fill',
+    tint: 'leaf',
     title: 'The nonprofit buys the items',
     body: 'Money goes to the nonprofit, never to an individual.',
   },
   {
     symbol: 'checkmark.shield.fill',
+    tint: 'shield',
     title: 'Proof, without exposure',
     body: 'Receipt + a delivery photo processed by Privacy Shield.',
   },
@@ -66,10 +78,13 @@ export default function AboutSheet() {
       <View style={styles.card}>
         {FLOW.map((f, i) => (
           <View key={f.title} style={styles.step}>
-            <View style={styles.num}>
-              <Icon name={f.symbol} size={16} color={color.ink} />
+            <View style={{ alignItems: 'center' }}>
+              <View style={[styles.num, { backgroundColor: TINTS[f.tint].bg }]}>
+                <Icon name={f.symbol} size={16} color={TINTS[f.tint].fg} />
+              </View>
+              {i < FLOW.length - 1 ? <View style={styles.rail} /> : null}
             </View>
-            <View style={{ flex: 1, gap: 2 }}>
+            <View style={{ flex: 1, gap: 2, paddingBottom: i < FLOW.length - 1 ? 18 : 0 }}>
               <Txt variant="bodyStrong">
                 {i + 1}. {f.title}
               </Txt>
@@ -104,8 +119,9 @@ export default function AboutSheet() {
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: color.card, borderRadius: radius.lg, padding: space.md, gap: 16 },
+  card: { backgroundColor: color.card, borderRadius: radius.lg, padding: space.md, gap: 0 },
   step: { flexDirection: 'row', gap: 12 },
+  rail: { flex: 1, width: 2, borderRadius: 1, backgroundColor: color.line, marginVertical: 4 },
   num: {
     width: 32,
     height: 32,
