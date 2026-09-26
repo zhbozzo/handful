@@ -1,4 +1,13 @@
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 import type { Cause, CauseStatus } from '@/data/types';
 import { when } from '@/lib/format';
@@ -48,6 +57,7 @@ export function Timeline({ cause }: { cause: Cause }) {
             accessible
             accessibilityLabel={`${step.title}: ${event ? when(event.at) : 'pending'}`}>
             <View style={styles.rail}>
+              {isNext ? <Pulse /> : null}
               <View style={[styles.dot, event ? styles.dotDone : isNext ? styles.dotNext : styles.dotTodo]}>
                 {event ? <Icon name="checkmark" size={11} color={color.white} weight="heavy" /> : null}
               </View>
@@ -75,7 +85,23 @@ export function Timeline({ cause }: { cause: Cause }) {
   );
 }
 
+/** A soft ring spreading from the step that's happening now. */
+function Pulse() {
+  const reduced = useReducedMotion();
+  const t = useSharedValue(0);
+  useEffect(() => {
+    if (reduced) return;
+    t.set(withRepeat(withTiming(1, { duration: 1800, easing: Easing.out(Easing.quad) }), -1));
+  }, [reduced, t]);
+  const style = useAnimatedStyle(() => ({
+    opacity: 0.55 * (1 - t.value),
+    transform: [{ scale: 1 + t.value * 0.9 }],
+  }));
+  return <Animated.View pointerEvents="none" style={[styles.pulse, style]} />;
+}
+
 const styles = StyleSheet.create({
+  pulse: { position: 'absolute', top: 0, width: 22, height: 22, borderRadius: 11, backgroundColor: color.sun },
   row: { flexDirection: 'row', gap: 14 },
   rail: { width: 22, alignItems: 'center' },
   dot: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
