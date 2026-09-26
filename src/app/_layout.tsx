@@ -10,7 +10,7 @@ import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
-import { LogBox, Platform, Settings } from 'react-native';
+import { LogBox, Platform, Settings, useWindowDimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { runDevLaunchAction } from '@/lib/devLaunch';
@@ -48,6 +48,8 @@ const sheet = {
 };
 
 export default function RootLayout() {
+  // With large accessibility text the gift sheet opens full height so the button is never cut off.
+  const { fontScale } = useWindowDimensions();
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_500Medium,
@@ -91,7 +93,10 @@ export default function RootLayout() {
             options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade' }}
           />
           <Stack.Screen name="cause/[id]" />
-          <Stack.Screen name="give/[id]" options={{ ...sheet, sheetAllowedDetents: [0.72, 1] }} />
+          <Stack.Screen
+            name="give/[id]"
+            options={{ ...sheet, sheetAllowedDetents: fontScale > 1.15 ? [1] : [0.72, 1] }}
+          />
           <Stack.Screen
             name="success/[id]"
             options={{ presentation: 'fullScreenModal', animation: 'fade', gestureEnabled: false }}
