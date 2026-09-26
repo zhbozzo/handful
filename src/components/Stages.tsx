@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { color } from '@/theme/tokens';
 
@@ -11,6 +11,9 @@ import { Txt } from './Txt';
  * `compact` shows only the dots and the next step's label, for narrow cards.
  */
 export function Stages({ labels, done, compact = false }: { labels: string[]; done: number; compact?: boolean }) {
+  // With large accessibility text all labels can't fit on one line; show just the next step.
+  const { fontScale } = useWindowDimensions();
+  const onlyNext = compact || fontScale > 1.15;
   return (
     <View
       style={styles.row}
@@ -26,7 +29,7 @@ export function Stages({ labels, done, compact = false }: { labels: string[]; do
               <View style={[styles.dot, isDone && styles.dotDone, isNext && styles.dotNext]}>
                 {isDone ? <Icon name="checkmark" size={9} color={color.white} weight="heavy" /> : null}
               </View>
-              {!compact || isNext ? (
+              {!onlyNext || isNext ? (
                 <Txt
                   variant="caption"
                   color={isDone ? color.leaf : isNext ? color.ink : color.ink3}
