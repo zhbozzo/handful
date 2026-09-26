@@ -7,7 +7,7 @@ Legend: ✅ pass · ⚠️ pass with note · ❌ fail (fixed / open)
 
 | # | Step | Expected | Result |
 |---|---|---|---|
-| 1 | Fresh install → launch | Splash (paper + mark) → onboarding | ⚠️ via `-handfulDev onboarding` (state reset), not a reinstall; splash fades into first screen |
+| 1 | Fresh install → launch | Plain paper splash → launch animation (hands draw, sun drops in, word writes, flies to header) → onboarding | ⚠️ via `-handfulDev onboarding` (state reset), not a reinstall; splash fades into first screen |
 | 2 | Onboarding: swipe + Continue ×2 → Start giving | Lands on Causes; onboarding never shows again | ✅ |
 | 3 | Causes: hero, Almost there carousel, chips, cards, On the way, Delivered, footer | All sections render; no clipped text; tab bar doesn’t cover content | ✅ |
 | 4 | Category chip filter | List filters; “All” restores | ✅ |
