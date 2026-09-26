@@ -1,6 +1,8 @@
+import { useRef } from 'react';
 import { View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
+import { reportLaunchTarget, useLaunching } from '@/lib/launch';
 import { color } from '@/theme/tokens';
 
 import { Txt } from './Txt';
@@ -16,9 +18,17 @@ export function Mark({ size = 28, cup = color.ink, sun = color.sun }: { size?: n
 }
 
 export function Wordmark({ size = 30 }: { size?: number }) {
+  // Hidden while the launch animation flies its own copy into this spot.
+  const launching = useLaunching();
+  const ref = useRef<View>(null);
   return (
     <View
-      style={{ flexDirection: 'row', alignItems: 'center', gap: size * 0.2 }}
+      ref={ref}
+      onLayout={() => {
+        if (launching)
+          ref.current?.measureInWindow((x, y, width, height) => reportLaunchTarget(size, { x, y, width, height }));
+      }}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: size * 0.2, opacity: launching ? 0 : 1 }}
       accessibilityRole="header"
       accessibilityLabel="Handful">
       <Mark size={size * 0.95} />

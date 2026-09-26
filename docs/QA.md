@@ -63,3 +63,5 @@ Legend: ✅ pass · ⚠️ pass with note · ❌ fail (fixed / open)
 | 39 | Proof flow for a cause whose receipt is already up starts at the thank-you photo | ✅ |
 | 40 | Published screen: Share cause (native sheet) / Manage cause | ✅ |
 | 41 | Large accessibility text on studio, manage and withdraw | ✅ stage tracker collapses to the next step |
+| 42 | Launch: the logo lands exactly on the header wordmark (home and onboarding), no jump; header sits below the status bar | ✅ frame-by-frame from a simulator recording (found and fixed a 29 pt safe-area offset) |
+| 43 | Your impact: a new thank-you shows first as a “Delivered · See the result” card; opening it clears it and the tab badge | ✅ |

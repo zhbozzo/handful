@@ -24,6 +24,7 @@ import { Wordmark } from '@/components/Wordmark';
 import { CATEGORIES } from '@/data/categories';
 import type { CategoryId } from '@/data/types';
 import { devScroll } from '@/lib/devScroll';
+import { useLaunchRise } from '@/lib/launch';
 import { plural } from '@/lib/format';
 import { tap } from '@/lib/haptics';
 import { useStore } from '@/store/useStore';
@@ -64,6 +65,9 @@ export default function CausesScreen() {
       { scale: interpolate(scrollY.value, [-120, 0], [1.06, 1], 'clamp') },
     ],
   }));
+  // As the launch logo lands in the header, the page settles in under it — a little staggered.
+  const heroRise = useLaunchRise(18, { fadeFrom: 0.7 });
+  const restRise = useLaunchRise(34);
   const barStyle = useAnimatedStyle(() => ({ opacity: interpolate(scrollY.value, [110, 170], [0, 1], 'clamp') }));
 
   return (
@@ -80,116 +84,120 @@ export default function CausesScreen() {
           <DemoPill />
         </View>
 
-        <Animated.View entering={FadeInDown.duration(600)}>
-          <Animated.View style={[styles.hero, heroStyle]}>
-            <Txt variant="display">
-              Give to something{' '}
-              <Txt variant="display" accent>
-                real.
+        <Animated.View style={heroRise}>
+          <Animated.View entering={FadeInDown.duration(600)}>
+            <Animated.View style={[styles.hero, heroStyle]}>
+              <Txt variant="display">
+                Give to something{' '}
+                <Txt variant="display" accent>
+                  real.
+                </Txt>
               </Txt>
-            </Txt>
-            <Txt variant="callout" style={{ maxWidth: 330 }}>
-              Small, specific needs, verified by local nonprofits. See what it pays for, and see it delivered.
-            </Txt>
+              <Txt variant="callout" style={{ maxWidth: 330 }}>
+                Small, specific needs, verified by local nonprofits. See what it pays for, and see it delivered.
+              </Txt>
+            </Animated.View>
           </Animated.View>
         </Animated.View>
 
-        {almost.length > 0 ? (
-          <Animated.View entering={FadeInDown.delay(90).duration(600)}>
+        <Animated.View style={restRise}>
+          {almost.length > 0 ? (
+            <Animated.View entering={FadeInDown.delay(90).duration(600)}>
+              <View style={styles.sectionHead}>
+                <Txt variant="micro">Almost there</Txt>
+                <Txt variant="caption">One small gift finishes these</Txt>
+              </View>
+              <Animated.ScrollView
+                horizontal
+                onScroll={onCarousel}
+                scrollEventThrottle={16}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: space.lg, gap: space.sm, paddingBottom: 26, paddingTop: 4 }}
+                decelerationRate="fast"
+                snapToInterval={CAROUSEL_STEP}>
+                {almost.map((c, i) => (
+                  <CarouselItem key={c.id} index={i} scrollX={scrollX}>
+                    <AlmostCard cause={c} />
+                  </CarouselItem>
+                ))}
+              </Animated.ScrollView>
+            </Animated.View>
+          ) : null}
+
+          <Animated.View entering={FadeInDown.delay(160).duration(600)}>
             <View style={styles.sectionHead}>
-              <Txt variant="micro">Almost there</Txt>
-              <Txt variant="caption">One small gift finishes these</Txt>
+              <Txt variant="micro">Open causes</Txt>
+              <Txt variant="caption">{plural(open.length, 'cause')}</Txt>
             </View>
-            <Animated.ScrollView
+            <ScrollView
               horizontal
-              onScroll={onCarousel}
-              scrollEventThrottle={16}
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: space.lg, gap: space.sm, paddingBottom: 26, paddingTop: 4 }}
-              decelerationRate="fast"
-              snapToInterval={CAROUSEL_STEP}>
-              {almost.map((c, i) => (
-                <CarouselItem key={c.id} index={i} scrollX={scrollX}>
-                  <AlmostCard cause={c} />
-                </CarouselItem>
+              contentContainerStyle={{ paddingHorizontal: space.lg, gap: 8, paddingBottom: space.md }}>
+              <Chip label="All" active={filter === 'all'} onPress={() => setFilter('all')} />
+              {cats.map((c) => (
+                <Chip
+                  key={c.id}
+                  label={c.label}
+                  symbol={c.symbol}
+                  active={filter === c.id}
+                  onPress={() => setFilter(c.id)}
+                />
               ))}
-            </Animated.ScrollView>
-          </Animated.View>
-        ) : null}
-
-        <Animated.View entering={FadeInDown.delay(160).duration(600)}>
-          <View style={styles.sectionHead}>
-            <Txt variant="micro">Open causes</Txt>
-            <Txt variant="caption">{plural(open.length, 'cause')}</Txt>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: space.lg, gap: 8, paddingBottom: space.md }}>
-            <Chip label="All" active={filter === 'all'} onPress={() => setFilter('all')} />
-            {cats.map((c) => (
-              <Chip
-                key={c.id}
-                label={c.label}
-                symbol={c.symbol}
-                active={filter === c.id}
-                onPress={() => setFilter(c.id)}
-              />
-            ))}
-          </ScrollView>
-          <View style={styles.list}>
-            {open.map((c, i) => (
-              <Animated.View
-                key={c.id}
-                entering={FadeInDown.delay(200 + Math.min(i, 5) * 70)
-                  .springify()
-                  .damping(18)}
-                layout={LinearTransition.springify().damping(20)}>
-                <CauseCard cause={c} />
-              </Animated.View>
-            ))}
-            {open.length === 0 ? (
-              <Txt variant="callout" align="center" style={{ paddingVertical: 32 }}>
-                Nothing open here right now.
-              </Txt>
-            ) : null}
-          </View>
-        </Animated.View>
-
-        {onTheWay.length > 0 ? (
-          <View style={{ marginTop: space.xxl }}>
-            <View style={styles.sectionHead}>
-              <Txt variant="micro">Funded · on the way</Txt>
-            </View>
-            <View style={[styles.list, { gap: 8 }]}>
-              {onTheWay.map((c) => (
-                <CauseRow key={c.id} cause={c} />
-              ))}
-            </View>
-          </View>
-        ) : null}
-
-        {delivered.length > 0 ? (
-          <View style={{ marginTop: space.xxl }}>
-            <View style={styles.sectionHead}>
-              <Txt variant="micro">It got there</Txt>
-              <Txt variant="caption">Receipts and photos from nonprofits</Txt>
-            </View>
+            </ScrollView>
             <View style={styles.list}>
-              {delivered.map((c) => (
-                <DeliveredCard key={c.id} cause={c} />
+              {open.map((c, i) => (
+                <Animated.View
+                  key={c.id}
+                  entering={FadeInDown.delay(200 + Math.min(i, 5) * 70)
+                    .springify()
+                    .damping(18)}
+                  layout={LinearTransition.springify().damping(20)}>
+                  <CauseCard cause={c} />
+                </Animated.View>
               ))}
+              {open.length === 0 ? (
+                <Txt variant="callout" align="center" style={{ paddingVertical: 32 }}>
+                  Nothing open here right now.
+                </Txt>
+              ) : null}
             </View>
-          </View>
-        ) : null}
+          </Animated.View>
 
-        <Pressable onPress={() => router.push('/about')} style={styles.footer} accessibilityRole="button">
-          <Icon name="info.circle" size={15} color={color.ink3} />
-          <Txt variant="caption" color={color.ink3} style={{ flex: 1 }}>
-            Every nonprofit and cause here is fictional demo data. Gifts run through RevenueCat’s Test Store — no real
-            money moves. How Handful works →
-          </Txt>
-        </Pressable>
+          {onTheWay.length > 0 ? (
+            <View style={{ marginTop: space.xxl }}>
+              <View style={styles.sectionHead}>
+                <Txt variant="micro">Funded · on the way</Txt>
+              </View>
+              <View style={[styles.list, { gap: 8 }]}>
+                {onTheWay.map((c) => (
+                  <CauseRow key={c.id} cause={c} />
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          {delivered.length > 0 ? (
+            <View style={{ marginTop: space.xxl }}>
+              <View style={styles.sectionHead}>
+                <Txt variant="micro">It got there</Txt>
+                <Txt variant="caption">Receipts and photos from nonprofits</Txt>
+              </View>
+              <View style={styles.list}>
+                {delivered.map((c) => (
+                  <DeliveredCard key={c.id} cause={c} />
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          <Pressable onPress={() => router.push('/about')} style={styles.footer} accessibilityRole="button">
+            <Icon name="info.circle" size={15} color={color.ink3} />
+            <Txt variant="caption" color={color.ink3} style={{ flex: 1 }}>
+              Every nonprofit and cause here is fictional demo data. Gifts run through RevenueCat’s Test Store — no real
+              money moves. How Handful works →
+            </Txt>
+          </Pressable>
+        </Animated.View>
       </Animated.ScrollView>
 
       <Animated.View

@@ -24,6 +24,7 @@ import { Txt } from '@/components/Txt';
 import { Wordmark } from '@/components/Wordmark';
 import { seedCauses } from '@/data/seed';
 import { money } from '@/lib/format';
+import { useLaunchRise } from '@/lib/launch';
 import { useStore } from '@/store/useStore';
 import { color, radius, shadow, space } from '@/theme/tokens';
 
@@ -53,6 +54,8 @@ const ORB = ['#FBE3B4', '#D3EADD', '#DEDAFA'];
 export default function Onboarding() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const pagerRise = useLaunchRise(22);
+  const footerRise = useLaunchRise(40);
   const { page: devPage } = useLocalSearchParams<{ page?: string }>();
   const startPage = __DEV__ && devPage ? Number(devPage) : 0;
   const [page, setPage] = useState(startPage);
@@ -95,45 +98,47 @@ export default function Onboarding() {
       <View style={{ paddingHorizontal: space.lg }}>
         <Wordmark size={26} />
       </View>
-      <Animated.ScrollView
-        ref={ref}
-        horizontal
-        pagingEnabled
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        contentOffset={{ x: startPage * width, y: 0 }}
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
-        style={{ flex: 1 }}>
-        {PAGES.map(({ title, body, Visual }, i) => (
-          <Page key={i} index={i} x={x} width={width}>
-            {(p) => (
-              <>
-                <View style={{ height: 300, justifyContent: 'center' }}>
-                  <Visual p={p} width={width} />
-                </View>
-                <View style={{ gap: space.sm }}>
-                  <Layer p={p} width={width} depth={0.1}>
-                    <Txt variant="display">
-                      {title[0]}
-                      {'\n'}
-                      <Txt variant="display" accent>
-                        {title[1]}
+      <Animated.View style={[{ flex: 1 }, pagerRise]}>
+        <Animated.ScrollView
+          ref={ref}
+          horizontal
+          pagingEnabled
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          contentOffset={{ x: startPage * width, y: 0 }}
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
+          style={{ flex: 1 }}>
+          {PAGES.map(({ title, body, Visual }, i) => (
+            <Page key={i} index={i} x={x} width={width}>
+              {(p) => (
+                <>
+                  <View style={{ height: 300, justifyContent: 'center' }}>
+                    <Visual p={p} width={width} />
+                  </View>
+                  <View style={{ gap: space.sm }}>
+                    <Layer p={p} width={width} depth={0.1}>
+                      <Txt variant="display">
+                        {title[0]}
+                        {'\n'}
+                        <Txt variant="display" accent>
+                          {title[1]}
+                        </Txt>
                       </Txt>
-                    </Txt>
-                  </Layer>
-                  <Layer p={p} width={width} depth={0.22}>
-                    <Txt variant="callout" style={{ fontSize: 17, lineHeight: 24 }}>
-                      {body}
-                    </Txt>
-                  </Layer>
-                </View>
-              </>
-            )}
-          </Page>
-        ))}
-      </Animated.ScrollView>
-      <View style={{ paddingHorizontal: space.lg, gap: space.md }}>
+                    </Layer>
+                    <Layer p={p} width={width} depth={0.22}>
+                      <Txt variant="callout" style={{ fontSize: 17, lineHeight: 24 }}>
+                        {body}
+                      </Txt>
+                    </Layer>
+                  </View>
+                </>
+              )}
+            </Page>
+          ))}
+        </Animated.ScrollView>
+      </Animated.View>
+      <Animated.View style={[{ paddingHorizontal: space.lg, gap: space.md }, footerRise]}>
         <View style={styles.dots}>
           {PAGES.map((_, i) => (
             <Dot key={i} index={i} x={x} width={width} />
@@ -143,7 +148,7 @@ export default function Onboarding() {
         <Txt variant="caption" color={color.ink3} align="center">
           Demo build · every nonprofit and cause is fictional · payments run in RevenueCat’s Test Store
         </Txt>
-      </View>
+      </Animated.View>
     </View>
   );
 }

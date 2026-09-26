@@ -18,6 +18,7 @@ import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg'
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { thud } from '@/lib/haptics';
+import { launchProgress as fly, launchTargets } from '@/lib/launch';
 import { color, font } from '@/theme/tokens';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -41,7 +42,7 @@ const LAND = DROP + 520;
 const MORPH = LAND + 420;
 const LETTERS = MORPH + 180;
 const FLY = LETTERS + 780;
-const FLY_MS = 520;
+const FLY_MS = 680;
 const SPARKS = 16;
 
 export function LaunchSplash({
@@ -51,6 +52,7 @@ export function LaunchSplash({
 }: {
   onReady: () => void;
   onDone: () => void;
+  /** Size of the header wordmark the lockup lands on (home 30, onboarding 26). */
   headerSize: number;
 }) {
   const { width: W, height: H } = useWindowDimensions();
@@ -66,7 +68,6 @@ export function LaunchSplash({
   const burst = useSharedValue(0);
   const morph = useSharedValue(0);
   const letters = useSharedValue(0);
-  const fly = useSharedValue(0);
   const skip = useSharedValue(0);
 
   // Start only once this view has actually been laid out and a couple of frames painted —
@@ -81,6 +82,7 @@ export function LaunchSplash({
     if (!painted) return;
     if (reduced) {
       skip.set(withTiming(1, { duration: 300 }));
+      fly.set(1);
       const t = setTimeout(onDone, 320);
       return () => clearTimeout(t);
     }
@@ -109,7 +111,7 @@ export function LaunchSplash({
             fly.set(
               withDelay(
                 FLY - LAND,
-                withTiming(1, { duration: FLY_MS, easing: Easing.inOut(Easing.cubic) }, (finished) => {
+                withTiming(1, { duration: FLY_MS, easing: Easing.bezier(0.65, 0, 0.25, 1) }, (finished) => {
                   if (finished) scheduleOnRN(onDone);
                 }),
               ),
@@ -121,7 +123,7 @@ export function LaunchSplash({
       timers.push(setTimeout(onDone, FLY + FLY_MS + 2500)); // safety net
     }
     return () => timers.forEach(clearTimeout);
-  }, [painted, reduced, draw, drop, squash, landed, wave, burst, morph, letters, fly, skip, onDone]);
+  }, [painted, reduced, draw, drop, squash, landed, wave, burst, morph, letters, skip, onDone]);
 
   const cx = W / 2;
   const cy = H / 2;
@@ -136,23 +138,27 @@ export function LaunchSplash({
   const markDY = cy - (boxTop + BOX / 2);
   const textLeft = cx - lockW / 2 + 1.15 * S;
 
-  // Header target: the wordmark at the top-left of the first screen.
-  const g = headerSize / S;
-  const headerCX = 20 + (lockW * g) / 2;
-  const headerCY = insets.top + (headerSize === 30 ? 8 : 12) + (headerSize * 1.1) / 2;
+  // Where the header wordmark sits if it hasn't reported its measured frame.
+  const guessTop = insets.top + (headerSize === 30 ? 8 : 12);
   const fallFrom = -(sunCY + 40); // the sun starts just above the top edge
 
   const bg = useAnimatedStyle(() => ({
-    opacity: Math.min(interpolate(fly.value, [0.94, 1], [1, 0], 'clamp'), 1 - skip.value),
+    opacity: Math.min(interpolate(fly.value, [0.3, 0.92], [1, 0], 'clamp'), 1 - skip.value),
   }));
-  const lockup = useAnimatedStyle(() => ({
-    opacity: Math.min(interpolate(fly.value, [0.98, 1], [1, 0], 'clamp'), 1 - skip.value),
-    transform: [
-      { translateX: fly.value * (headerCX - cx) },
-      { translateY: fly.value * (headerCY - cy) },
-      { scale: 1 + fly.value * (g - 1) },
-    ],
-  }));
+  const lockup = useAnimatedStyle(() => {
+    // Land exactly on the real header wordmark (measured by the wordmark itself).
+    const t = launchTargets.get()[headerSize];
+    const g = t ? t.height / (S * 1.1) : headerSize / S;
+    // Anchored on the left edge: the wordmark's box can be wider than its content.
+    const toX = (t ? t.x : 20) + (lockW * g) / 2;
+    const toY = t ? t.y + t.height / 2 : guessTop + (headerSize * 1.1) / 2;
+    const p = fly.get();
+    return {
+      // With nothing to land on (a deep link into another screen), it fades out on the way.
+      opacity: (1 - skip.get()) * (t ? 1 : interpolate(p, [0.4, 0.9], [1, 0], 'clamp')),
+      transform: [{ translateX: p * (toX - cx) }, { translateY: p * (toY - cy) }, { scale: 1 + p * (g - 1) }],
+    };
+  });
   const mark = useAnimatedStyle(() => ({
     transform: [
       { translateX: morph.value * markDX },
@@ -203,6 +209,7 @@ export function LaunchSplash({
       accessibilityHint="Tap to skip"
       onPress={() => {
         skip.set(withTiming(1, { duration: 180 }));
+        fly.set(withTiming(1, { duration: 180 }));
         setTimeout(onDone, 200);
       }}>
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.bg, bg]}>

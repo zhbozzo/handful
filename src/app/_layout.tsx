@@ -15,6 +15,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { runDevLaunchAction } from '@/lib/devLaunch';
 import { LaunchSplash } from '@/components/LaunchSplash';
+import { setLaunching } from '@/lib/launch';
 import { useNotificationTaps } from '@/lib/notifications';
 import { configurePurchases, listenToCustomerInfo, refreshSupporter } from '@/lib/purchases';
 import { useHydrated, useStore } from '@/store/useStore';
@@ -89,8 +90,10 @@ export default function RootLayout() {
   const hideNative = useCallback(() => {
     SplashScreen.hideAsync();
   }, []);
-  const finishLaunch = useCallback(() => setLaunched(true), []);
-
+  const finishLaunch = useCallback(() => {
+    setLaunching(false);
+    setLaunched(true);
+  }, []);
   if (!fontsLoaded || !hydrated) return null;
 
   return (
