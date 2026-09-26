@@ -207,6 +207,8 @@ type VisualProps = { p: SharedValue<number>; width: number };
 
 function NeedsVisual({ p, width }: VisualProps) {
   const picks = [sample[0], sample[1], sample[2]];
+  // Short names so nothing truncates on the first screen anyone sees.
+  const names = ['Hot meal + warm socks', 'Food for Toby', 'Bus fare to a clinic'];
   return (
     <View style={{ alignItems: 'center' }}>
       {picks.map((c, i) => (
@@ -219,7 +221,7 @@ function NeedsVisual({ p, width }: VisualProps) {
               <CoverThumb cause={c} size={46} />
               <View style={{ flex: 1, gap: 6 }}>
                 <Txt variant="bodyStrong" numberOfLines={1}>
-                  {c.title}
+                  {names[i]}
                 </Txt>
                 <ProgressBar value={c.raised / c.goal} height={6} delay={300 + i * 120} />
               </View>
