@@ -2,8 +2,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Asset } from 'expo-asset';
 import { Image } from 'expo-image';
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
@@ -12,6 +12,7 @@ import { Check, Field, FlowHeader, StepIn } from '@/components/Form';
 import { Icon } from '@/components/Icon';
 import { ShieldReview } from '@/components/ShieldReview';
 import { Txt } from '@/components/Txt';
+import { categoryById } from '@/data/categories';
 import { orgById } from '@/data/seed';
 import { money } from '@/lib/format';
 import { success } from '@/lib/haptics';
@@ -21,7 +22,7 @@ import type { PhotoReport } from '@/lib/privacy';
 import { useCause, useStore } from '@/store/useStore';
 import { color, font, radius, shadow, space } from '@/theme/tokens';
 
-const TITLES = ['Receipt', 'Delivery photo', 'Note & post'];
+const TITLES = ['Receipt', 'Delivery & post'];
 
 export default function PostProof() {
   const {
@@ -41,7 +42,7 @@ export default function PostProof() {
   const postProof = useStore((s) => s.postProof);
   const insets = useSafeAreaInsets();
 
-  const [step, setStep] = useState(__DEV__ && devStep ? Number(devStep) : 0);
+  const [step, setStep] = useState(__DEV__ && devStep ? Math.min(1, Number(devStep)) : 0);
   // A new step starts at the top, with no leftover scroll momentum that would swallow the next tap.
   const scrollRef = useRef<ScrollView>(null);
   useEffect(() => {
@@ -79,12 +80,16 @@ export default function PostProof() {
   if (!cause) return null;
 
   const org = orgById(cause.orgId);
+  const cat = categoryById(cause.category);
   const spent = lines.reduce((s, l) => s + (Number(l.amount) || 0), 0);
   const leftover = cause.raised - spent;
   const canNext = [
     spent > 0 && spent <= cause.raised + 0.001 && store.trim().length > 1,
-    !!safe,
-    note.trim().length > 5 && confirmed,
+    !!safe && note.trim().length > 5 && confirmed,
+  ][step];
+  const missing = [
+    store.trim().length <= 1 ? 'Add where you bought it' : spent > cause.raised + 0.001 ? 'More than was raised' : null,
+    !safe ? 'Add a delivery photo' : note.trim().length <= 5 ? 'Write a short note' : null,
   ][step];
 
   async function choose(fromCamera: boolean) {
@@ -213,6 +218,13 @@ export default function PostProof() {
             <View style={styles.card}>
               {lines.map((l, i) => (
                 <View key={l.id} style={[styles.line, i > 0 && styles.lineBorder]}>
+                  <View style={[styles.rowIcon, { backgroundColor: cat.tint }]}>
+                    <Icon
+                      name={cause.items.find((it) => it.id === l.id)?.symbol ?? cat.symbol}
+                      size={15}
+                      color={cat.ink}
+                    />
+                  </View>
                   <Txt variant="body" style={{ flex: 1 }}>
                     {l.label}
                   </Txt>
@@ -261,53 +273,71 @@ export default function PostProof() {
                 onDone={(out) => {
                   setSafe(out);
                   setPhoto(null);
-                  setStep(2);
                 }}
               />
             ) : (
               <>
-                <Txt variant="callout">
-                  A photo of the delivery: the items, hands, a bag handed over. Privacy Shield blurs faces and removes
-                  location before anyone else sees it.
-                </Txt>
                 {safe ? (
-                  <View style={styles.safeRow}>
-                    <Icon name="checkmark.shield.fill" size={20} color={color.leaf} />
-                    <Txt variant="bodyStrong" style={{ flex: 1 }}>
-                      Protected photo ready
+                  <Animated.View entering={FadeIn.duration(300)} style={styles.photoDone}>
+                    <Image source={{ uri: safe.uri }} style={styles.photoDoneImg} contentFit="cover" transition={200} />
+                    <View style={styles.previewChip}>
+                      <Icon name="checkmark.shield.fill" size={12} color={color.shield} />
+                      <Txt variant="caption" color={color.shield} style={{ fontWeight: '700', fontSize: 12 }}>
+                        {safe.report.facesBlurred > 0
+                          ? `${safe.report.facesBlurred} ${safe.report.facesBlurred === 1 ? 'face' : 'faces'} blurred · GPS removed`
+                          : 'GPS removed'}
+                      </Txt>
+                    </View>
+                    <Pressable
+                      onPress={() => choose(false)}
+                      style={styles.changePhoto}
+                      accessibilityRole="button"
+                      accessibilityLabel="Change photo">
+                      <Icon name="arrow.triangle.2.circlepath" size={14} color={color.ink} />
+                    </Pressable>
+                  </Animated.View>
+                ) : (
+                  <View style={styles.photoEmpty}>
+                    <View style={styles.photoEmptyIcon}>
+                      <Icon name="checkmark.shield.fill" size={22} color={color.shield} />
+                    </View>
+                    <Txt variant="bodyStrong" align="center">
+                      Add a delivery photo
                     </Txt>
+                    <Txt variant="caption" align="center" style={{ maxWidth: 280 }}>
+                      The items, hands, a bag handed over. Privacy Shield blurs faces and removes location on this phone
+                      first.
+                    </Txt>
+                    <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                      <Button
+                        label="Choose photo"
+                        kind="shield"
+                        compact
+                        symbol="photo.on.rectangle"
+                        onPress={() => choose(false)}
+                      />
+                      {cameraAvailable() ? (
+                        <Button
+                          label="Camera"
+                          kind="secondary"
+                          compact
+                          symbol="camera.fill"
+                          onPress={() => choose(true)}
+                        />
+                      ) : null}
+                    </View>
                   </View>
-                ) : null}
-                <Button
-                  label="Choose delivery photo"
-                  kind="shield"
-                  symbol="photo.on.rectangle"
-                  onPress={() => choose(false)}
+                )}
+                <Field
+                  label="Note to donors"
+                  value={note}
+                  onChangeText={setNote}
+                  multiline
+                  maxLength={200}
+                  hint="Short and factual. Donors read this with the receipt."
                 />
-                {cameraAvailable() ? (
-                  <Button label="Take a photo" kind="secondary" symbol="camera.fill" onPress={() => choose(true)} />
-                ) : null}
               </>
             )}
-          </StepIn>
-        ) : null}
-
-        {step === 2 ? (
-          <StepIn style={{ gap: space.lg }}>
-            <Field
-              label="Note to donors"
-              value={note}
-              onChangeText={setNote}
-              multiline
-              maxLength={200}
-              hint="Short and factual. Donors read this with the receipt."
-            />
-            <Check
-              checked={confirmed}
-              onToggle={() => setConfirmed(!confirmed)}
-              label="Delivered as described"
-              detail="The items on the receipt reached the person or family this cause was for."
-            />
           </StepIn>
         ) : null}
       </ScrollView>
@@ -317,7 +347,20 @@ export default function PostProof() {
 
       {step !== 1 || !photo ? (
         <View style={[styles.footer, { paddingBottom: insets.bottom + space.sm }]}>
-          {step === 2 ? (
+          {step === 1 ? (
+            <Check
+              checked={confirmed}
+              onToggle={() => setConfirmed(!confirmed)}
+              label="Delivered as described"
+              detail="The items on the receipt reached the people this cause was for."
+            />
+          ) : null}
+          {missing ? (
+            <Txt variant="caption" color={color.ink3} align="center">
+              {missing}
+            </Txt>
+          ) : null}
+          {step === 1 ? (
             <Button
               label="Post proof to donors"
               kind="leaf"
@@ -377,7 +420,8 @@ const styles = StyleSheet.create({
     backgroundColor: color.card,
   },
   card: { backgroundColor: color.card, borderRadius: radius.lg, paddingHorizontal: space.md },
-  line: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10 },
+  line: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10 },
+  rowIcon: { width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center', marginRight: 2 },
   lineBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line },
   amount: {
     width: 72,
@@ -391,14 +435,36 @@ const styles = StyleSheet.create({
     color: color.ink,
   },
   sum: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4 },
-  safeRow: {
-    flexDirection: 'row',
+  photoDone: { borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.paperDeep },
+  photoDoneImg: { height: 220 },
+  changePhoto: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(255,255,255,0.94)',
     alignItems: 'center',
-    gap: 10,
-    padding: space.md,
-    borderRadius: radius.lg,
-    backgroundColor: color.leafSoft,
+    justifyContent: 'center',
   },
-  footer: { paddingHorizontal: space.lg, paddingTop: space.sm, backgroundColor: color.paper },
+  photoEmpty: {
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: space.md,
+    paddingHorizontal: space.md,
+    borderRadius: radius.lg,
+    backgroundColor: color.card,
+  },
+  photoEmptyIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: color.shieldSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  footer: { paddingHorizontal: space.lg, paddingTop: space.sm, gap: 10, backgroundColor: color.paper },
   statusFade: { position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: color.paper },
 });

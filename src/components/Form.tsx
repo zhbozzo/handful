@@ -146,7 +146,11 @@ export function Check({
       </View>
       <View style={{ flex: 1, gap: 2 }}>
         <Txt variant="bodyStrong">{label}</Txt>
-        {detail ? <Txt variant="caption">{detail}</Txt> : null}
+        {detail ? (
+          <Txt variant="caption" style={{ fontSize: 12, lineHeight: 16 }}>
+            {detail}
+          </Txt>
+        ) : null}
       </View>
     </Pressable>
   );
@@ -272,7 +276,7 @@ const styles = StyleSheet.create({
     color: color.ink,
   },
   multiline: { minHeight: 120, textAlignVertical: 'top' },
-  check: { flexDirection: 'row', gap: 12, alignItems: 'flex-start', paddingVertical: 8 },
+  check: { flexDirection: 'row', gap: 12, alignItems: 'flex-start', paddingVertical: 4 },
   box: {
     width: 24,
     height: 24,
