@@ -40,9 +40,10 @@ When organizations do try to show impact, it often goes wrong in the other direc
 - **App:** Expo SDK 57 dev build, React Native 0.86 (New Architecture), Expo Router with native tabs, TypeScript, Reanimated 4 for motion, react-native-svg for the progress rings, SF Symbols, expo-haptics, Zustand + AsyncStorage for local state. No backend and no login — scope discipline.
 - **RevenueCat:** `react-native-purchases` 10 with RevenueCat’s **Test Store**.
   - Every gift is a consumable (`handful_gift_1` … `handful_gift_20`, whole-dollar tiers so “Complete it” always matches the exact remainder), bought with `getProducts` + `purchaseStoreProduct`. The transaction ID is stored with the gift and shown in the donor’s history.
-  - **Handful Supporter** is an auto-renewing subscription with an offering (`supporter`), a `$rc_monthly` package and a `supporter` entitlement read from `CustomerInfo`, with a live update listener.
+  - **Handful Supporter** is an auto-renewing subscription with an offering (`supporter`), a `$rc_monthly` package and a `supporter` entitlement read from `CustomerInfo`, with a live update listener. The paywall takes its price from the offering’s package and has **Restore purchases** (`restorePurchases`).
 - **Privacy Shield:** a local Expo module in Swift: `VNDetectFaceRectanglesRequest`, `VNRecognizeTextRequest`, `VNDetectDocumentSegmentationRequest`, ImageIO for metadata, Core Image (pixellate + Gaussian blur through a feathered mask) for redaction. Text classification (plates incl. Chilean formats, RUT and other ID numbers, addresses, phones, emails) happens in TypeScript.
-- **Design:** paper, ink and one warm accent. Instrument Serif for the human moments, SF Pro for everything functional. Covers are still lifes of the items being funded, generated from each cause’s budget — no stock photos of people in need.
+- **Design:** paper, ink and one warm accent. Instrument Serif for the human moments, SF Pro for everything functional. Covers are still lifes of the items being funded, generated from each cause’s budget — no stock photos of people in need. Color carries meaning everywhere: sun is action and progress, green is trust and delivery, violet is privacy.
+- **Motion with a job:** every animation explains something. The gift meter shows your share landing before you pay; covers’ items float gently; the cause cover stretches and parallaxes; the step that’s happening now pulses; a small burst of warm sparks marks a completed cause; “Your impact” is a shelf of the actual things you funded, each marked delivered, on the way or funding. Onboarding pages move in layers. Everything respects Reduce Motion.
 
 ## Challenges we ran into
 
@@ -76,7 +77,7 @@ When organizations do try to show impact, it often goes wrong in the other direc
 - **Clear, useful idea:** small, specific, verified needs with proof — solving the “where does my money go?” problem for donors and the “how do we ask for $18?” problem for small nonprofits.
 - **Working app:** a real iOS build with the full loop — browse, complete a cause, Test Store purchase, impact, nonprofit posting, Privacy Shield, proof, donor update.
 - **Thoughtful RevenueCat use:** consumables for the prototype’s gift flow, and a subscription + entitlement + offering for the part RevenueCat should power in production, with the reasoning written down.
-- **Care in the build:** native Swift module, design system, motion and haptics, accessibility labels, 29 unit tests on the privacy rules and the gift/proof state machine (one caught a real bug in address detection), strict TypeScript, ESLint with React Compiler rules, CI, honest demo labeling, and a README that says what isn’t built yet.
+- **Care in the build:** native Swift module, design system, motion and haptics, accessibility labels, 31 unit tests on the privacy rules and the gift/proof state machine (one caught a real bug in address detection), strict TypeScript, ESLint with React Compiler rules, CI, honest demo labeling, and a README that says what isn’t built yet.
 
 ## Privacy approach
 
