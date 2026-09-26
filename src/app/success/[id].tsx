@@ -39,7 +39,7 @@ function Glow({ delay }: { delay: number }) {
   }, [delay, v]);
   const style = useAnimatedStyle(() => ({
     opacity: v.value * 0.45,
-    transform: [{ scale: 0.75 + v.value * 0.35 }],
+    transform: [{ scale: 0.72 + v.value * 0.22 }],
   }));
   return <Animated.View pointerEvents="none" style={[styles.glow, style]} />;
 }

@@ -73,6 +73,8 @@ export default function NewCause() {
   const [confirmed, setConfirmed] = useState(false);
   const [published, setPublished] = useState<Cause | null>(null);
   const catScroll = useRef<ScrollView>(null);
+  // "Next" on an item's name jumps straight to its price.
+  const amountRefs = useRef<Record<string, TextInput | null>>({});
   const chipX = useRef<Partial<Record<CategoryId, number>>>({});
 
   // The category follows what's typed until the nonprofit picks one themselves.
@@ -255,7 +257,7 @@ export default function NewCause() {
                   <Animated.View entering={FadeIn} style={styles.autoTag}>
                     <Icon name="sparkles" size={10} color={color.sunDeep} />
                     <Txt variant="caption" color={color.sunDeep} style={{ fontSize: 11, fontWeight: '700' }}>
-                      From your title
+                      Suggested
                     </Txt>
                   </Animated.View>
                 ) : null}
@@ -311,12 +313,17 @@ export default function NewCause() {
                       placeholderTextColor={color.ink3}
                       style={styles.itemInput}
                       returnKeyType="next"
+                      submitBehavior="submit"
+                      onSubmitEditing={() => amountRefs.current[r.id]?.focus()}
                     />
                     <View style={styles.amountBox}>
                       <Txt variant="number" color={r.amount ? color.ink : color.ink3}>
                         $
                       </Txt>
                       <TextInput
+                        ref={(el) => {
+                          amountRefs.current[r.id] = el;
+                        }}
                         value={r.amount}
                         onChangeText={(t) => updateRow(r.id, { amount: t.replace(/[^0-9]/g, '') })}
                         keyboardType="number-pad"
