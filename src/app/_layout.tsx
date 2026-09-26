@@ -9,18 +9,20 @@ import {
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { LogBox, Platform, Settings, useWindowDimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { runDevLaunchAction } from '@/lib/devLaunch';
+import { LaunchSplash } from '@/components/LaunchSplash';
 import { useNotificationTaps } from '@/lib/notifications';
 import { configurePurchases, listenToCustomerInfo, refreshSupporter } from '@/lib/purchases';
 import { useHydrated, useStore } from '@/store/useStore';
 import { color } from '@/theme/tokens';
 
 SplashScreen.preventAutoHideAsync();
-SplashScreen.setOptions({ duration: 450, fade: true });
+// The JS launch animation starts on the same frame, so the native splash can leave quickly.
+SplashScreen.setOptions({ duration: 120, fade: true });
 
 // Known third-party dev warnings; nothing actionable in our code.
 LogBox.ignoreLogs(['Sending `onAnimatedValueUpdate` with no listeners', '[RevenueCat] ⚠️ Using a Test Store API key']);
@@ -75,10 +77,19 @@ export default function RootLayout() {
     runDevLaunchAction();
   }, [fontsLoaded, hydrated]);
 
-  // Hold the splash until the first real screen can draw, then fade into it.
+  // The native splash hands over to <LaunchSplash> once its first frame is on screen;
+  // this is only a fallback in case that never happens.
+  const [launched, setLaunched] = useState(false);
   useEffect(() => {
-    if (fontsLoaded && hydrated) SplashScreen.hideAsync();
+    if (!fontsLoaded || !hydrated) return;
+    const t = setTimeout(() => SplashScreen.hideAsync(), 1500);
+    return () => clearTimeout(t);
   }, [fontsLoaded, hydrated]);
+  const onboarded = useStore((s) => s.onboarded);
+  const hideNative = useCallback(() => {
+    SplashScreen.hideAsync();
+  }, []);
+  const finishLaunch = useCallback(() => setLaunched(true), []);
 
   if (!fontsLoaded || !hydrated) return null;
 
@@ -114,6 +125,7 @@ export default function RootLayout() {
           <Stack.Screen name="dev" options={{ animation: 'none' }} />
         </Stack>
       </ThemeProvider>
+      {!launched ? <LaunchSplash onReady={hideNative} onDone={finishLaunch} headerSize={onboarded ? 30 : 26} /> : null}
     </GestureHandlerRootView>
   );
 }
