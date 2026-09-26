@@ -30,6 +30,11 @@ export default function GiveSheet() {
   const [amount, setAmount] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A new amount is a fresh attempt: the last error no longer applies.
+  const choose = (n: number) => {
+    setAmount(n);
+    setError(null);
+  };
 
   // Dev/QA only: `-handfulAutoGive 1` presses the main button once the sheet is up.
   useEffect(() => {
@@ -84,7 +89,7 @@ export default function GiveSheet() {
       {options.length > 1 ? (
         <View style={styles.options}>
           {options.map((p) => (
-            <Amount key={p} value={p} active={amount === p} onPress={() => setAmount(p)} />
+            <Amount key={p} value={p} active={amount === p} onPress={() => choose(p)} />
           ))}
         </View>
       ) : null}
@@ -94,7 +99,7 @@ export default function GiveSheet() {
           scaleTo={0.98}
           onPress={() => {
             tap();
-            setAmount(left);
+            choose(left);
           }}
           accessibilityRole="button"
           accessibilityState={{ selected: completes }}
@@ -116,7 +121,7 @@ export default function GiveSheet() {
         <Pressable
           onPress={() => {
             tap();
-            setAmount(amount === options[0] ? left : options[0]);
+            choose(amount === options[0] ? left : options[0]);
           }}
           accessibilityRole="button"
           style={styles.altLink}>
