@@ -103,7 +103,7 @@ export default function StudioScreen() {
                 accessibilityRole="button">
                 <CoverThumb cause={c} size={48} />
                 <View style={{ flex: 1, gap: 6 }}>
-                  <Txt variant="bodyStrong" numberOfLines={1}>
+                  <Txt variant="bodyStrong" numberOfLines={2}>
                     {c.title}
                   </Txt>
                   <ProgressBar value={c.raised / c.goal} height={5} />
