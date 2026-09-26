@@ -21,6 +21,7 @@ import { guessCategory, guessSymbol } from '@/lib/guess';
 import { success, tap } from '@/lib/haptics';
 import { cameraAvailable, pickFromLibrary, type PickedPhoto, takePhoto } from '@/lib/photos';
 import { checkStory } from '@/lib/privacy';
+import { shareCause } from '@/lib/share';
 import { useStore } from '@/store/useStore';
 import { color, font, radius, space } from '@/theme/tokens';
 
@@ -234,14 +235,21 @@ export default function NewCause() {
         </Animated.View>
         <View style={{ flex: 1 }} />
         <View style={{ alignSelf: 'stretch', gap: 10 }}>
+          {/* Sharing is what gets a new cause funded; managing it comes second. */}
+          <Button label="Share cause" kind="sun" symbol="square.and.arrow.up" onPress={() => shareCause(published)} />
           <Button
-            label="View cause"
+            label="Manage cause"
+            kind="secondary"
             onPress={() => {
               router.back();
-              router.push(`/cause/${published.id}`);
+              router.push(`/nonprofit/cause/${published.id}`);
             }}
           />
-          <Button label="Back to studio" kind="secondary" onPress={close} />
+          <Pressable onPress={close} hitSlop={8} accessibilityRole="button" style={{ alignSelf: 'center', padding: 6 }}>
+            <Txt variant="caption" color={color.ink2} style={{ fontWeight: '600' }}>
+              Back to studio
+            </Txt>
+          </Pressable>
         </View>
       </View>
     );
