@@ -9,6 +9,7 @@ import { CoverArt } from '@/components/CoverArt';
 import { ConfirmAll, Field, FlowHeader, Segmented, StepIn } from '@/components/Form';
 import { Icon } from '@/components/Icon';
 import { OrgLine } from '@/components/OrgLine';
+import { Pill } from '@/components/Pill';
 import { ShieldReview } from '@/components/ShieldReview';
 import { Txt } from '@/components/Txt';
 import { CATEGORIES, categoryById } from '@/data/categories';
@@ -567,12 +568,7 @@ function Preview({
       <CoverArt cause={{ category, items, coverUri: cover }} height={120} rounded={0} />
       <View style={{ padding: space.md, gap: 10 }}>
         <View style={styles.previewTop}>
-          <View style={[styles.catPill, { backgroundColor: cat.tint }]}>
-            <Icon name={cat.symbol} size={11} color={cat.ink} />
-            <Txt variant="micro" color={cat.ink}>
-              {cat.label}
-            </Txt>
-          </View>
+          <Pill label={cat.label} symbol={cat.symbol} small />
           <Txt variant="caption" color={color.ink3}>
             {area}
           </Txt>
@@ -681,14 +677,6 @@ const styles = StyleSheet.create({
   },
   preview: { backgroundColor: color.card, borderRadius: radius.lg, overflow: 'hidden' },
   previewTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  catPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: radius.pill,
-  },
   previewItems: { gap: 6, paddingVertical: 4 },
   previewItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   previewGoal: { gap: 6 },

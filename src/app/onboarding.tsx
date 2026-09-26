@@ -243,12 +243,12 @@ function TimelineVisual({ p, width }: VisualProps) {
         {steps.map((s, i) => (
           <Layer key={s} p={p} width={width} depth={0.08 + i * 0.1} style={{ flexDirection: 'row', gap: 12 }}>
             <View style={{ alignItems: 'center', width: 26 }}>
-              <View style={[styles.tlDot, i === 3 && { backgroundColor: color.leaf }]}>
+              <View style={styles.tlDot}>
                 <Icon name="checkmark" size={12} color={color.white} weight="heavy" />
               </View>
               {i < steps.length - 1 ? <View style={styles.tlLine} /> : null}
             </View>
-            <View style={{ paddingBottom: 18, paddingTop: 3 }}>
+            <View style={{ paddingBottom: i < steps.length - 1 ? 18 : 0, paddingTop: 3 }}>
               <Txt variant="bodyStrong">{s}</Txt>
             </View>
           </Layer>
@@ -303,11 +303,11 @@ const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: color.ink,
+    backgroundColor: color.leaf,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tlLine: { width: 2, flex: 1, backgroundColor: color.ink, minHeight: 16 },
+  tlLine: { width: 2, flex: 1, backgroundColor: color.leaf, minHeight: 16 },
   photo: {
     width: 312,
     height: 234,
