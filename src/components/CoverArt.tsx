@@ -1,10 +1,21 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect } from 'react';
 import { StyleSheet, View, type ViewStyle } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { categoryById } from '@/data/categories';
 import type { Cause } from '@/data/types';
-import { color, radius } from '@/theme/tokens';
+import { radius } from '@/theme/tokens';
 
 import { Icon } from './Icon';
 
@@ -35,9 +46,79 @@ type Props = {
   height: number;
   rounded?: number;
   style?: ViewStyle;
+  /** Gentle idle float of the items. Off for small or repeated covers. */
+  alive?: boolean;
 };
 
-export function CoverArt({ cause, height, rounded = radius.lg, style }: Props) {
+function Tile({
+  symbol,
+  size,
+  x,
+  y,
+  r,
+  ink,
+  index,
+  alive,
+}: {
+  symbol: string;
+  size: number;
+  x: number;
+  y: number;
+  r: number;
+  ink: string;
+  index: number;
+  alive: boolean;
+}) {
+  const reduced = useReducedMotion();
+  const t = useSharedValue(0);
+  useEffect(() => {
+    if (!alive || reduced) return;
+    const d = 2600 + index * 420;
+    t.set(
+      withDelay(
+        index * 350,
+        withRepeat(
+          withSequence(
+            withTiming(1, { duration: d, easing: Easing.inOut(Easing.sin) }),
+            withTiming(0, { duration: d, easing: Easing.inOut(Easing.sin) }),
+          ),
+          -1,
+        ),
+      ),
+    );
+  }, [alive, reduced, index, t]);
+
+  const float = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: -5 * t.value },
+      { rotate: `${r + (index % 2 ? 1.6 : -1.6) * t.value}deg` },
+    ],
+  }));
+
+  return (
+    <Animated.View
+      style={[
+        styles.tile,
+        {
+          width: size,
+          height: size,
+          borderRadius: size * 0.28,
+          left: `${x * 100}%`,
+          top: `${y * 100}%`,
+          marginLeft: -size / 2,
+          marginTop: -size / 2,
+        },
+        float,
+      ]}>
+      <View style={[styles.tileFace, { borderRadius: size * 0.28 }]}>
+        <LinearGradient colors={['#FFFFFF', '#FBF7EF']} style={StyleSheet.absoluteFill} />
+        <Icon name={symbol} size={size * 0.46} color={ink} weight="medium" hierarchical />
+      </View>
+    </Animated.View>
+  );
+}
+
+export function CoverArt({ cause, height, rounded = radius.lg, style, alive = true }: Props) {
   const cat = categoryById(cause.category);
 
   if (cause.coverUri) {
@@ -56,36 +137,42 @@ export function CoverArt({ cause, height, rounded = radius.lg, style }: Props) {
       style={[{ height, borderRadius: rounded, overflow: 'hidden', backgroundColor: cat.tint }, style]}
       accessible
       accessibilityLabel={`Illustration of ${items.map((i) => i.label).join(', ')}`}>
+      {/* Soft light from the top left, a warm pool of the category color bottom right. */}
       <LinearGradient
-        colors={['rgba(255,255,255,0.55)', 'rgba(255,255,255,0)']}
-        start={{ x: 0.1, y: 0 }}
-        end={{ x: 0.7, y: 1 }}
+        colors={['rgba(255,255,255,0.6)', 'rgba(255,255,255,0)']}
+        start={{ x: 0.05, y: 0 }}
+        end={{ x: 0.65, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
       <View
-        style={[styles.sun, { width: height * 1.1, height: height * 1.1, right: -height * 0.35, top: -height * 0.45 }]}
+        style={[styles.orb, { width: height * 1.1, height: height * 1.1, right: -height * 0.35, top: -height * 0.45 }]}
+      />
+      <View
+        style={[
+          styles.orb,
+          {
+            width: height * 0.9,
+            height: height * 0.9,
+            left: -height * 0.3,
+            bottom: -height * 0.55,
+            backgroundColor: `${cat.ink}14`,
+          },
+        ]}
       />
       {items.map((item, i) => {
         const p = layout[i];
-        const size = Math.min(height * p.s, 128);
         return (
-          <View
+          <Tile
             key={item.id}
-            style={[
-              styles.tile,
-              {
-                width: size,
-                height: size,
-                borderRadius: size * 0.28,
-                left: `${p.x * 100}%`,
-                top: `${p.y * 100}%`,
-                marginLeft: -size / 2,
-                marginTop: -size / 2,
-                transform: [{ rotate: `${p.r}deg` }],
-              },
-            ]}>
-            <Icon name={item.symbol} size={size * 0.46} color={cat.ink} weight="medium" hierarchical />
-          </View>
+            symbol={item.symbol}
+            size={Math.min(height * p.s, 128)}
+            x={p.x}
+            y={p.y}
+            r={p.r}
+            ink={cat.ink}
+            index={i}
+            alive={alive}
+          />
         );
       })}
     </View>
@@ -127,16 +214,21 @@ export function CoverThumb({
 const styles = StyleSheet.create({
   tile: {
     position: 'absolute',
-    backgroundColor: color.card,
-    alignItems: 'center',
-    justifyContent: 'center',
     shadowColor: '#3B2F1A',
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
     elevation: 4,
   },
-  sun: {
+  tileFace: {
+    flex: 1,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: StyleSheet.hairlineWidth * 2,
+    borderColor: 'rgba(255,255,255,0.9)',
+  },
+  orb: {
     position: 'absolute',
     borderRadius: 999,
     backgroundColor: 'rgba(255,255,255,0.35)',

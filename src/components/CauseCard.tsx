@@ -26,6 +26,8 @@ function usePressScale() {
   };
 }
 
+export const ALMOST_CARD_WIDTH = 286;
+
 export const statusLabel: Record<Cause['status'], string> = {
   open: 'Open',
   funded: 'Funded',
@@ -149,7 +151,7 @@ const styles = StyleSheet.create({
   pills: { flexDirection: 'row', gap: 6 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   almost: {
-    width: 286,
+    width: ALMOST_CARD_WIDTH,
     backgroundColor: color.card,
     borderRadius: radius.lg,
     padding: space.md,

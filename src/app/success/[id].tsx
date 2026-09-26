@@ -7,6 +7,7 @@ import Animated, {
   FadeIn,
   FadeInDown,
   useAnimatedProps,
+  useReducedMotion,
   useSharedValue,
   withDelay,
   withTiming,
@@ -41,6 +42,67 @@ function Glow({ delay }: { delay: number }) {
     transform: [{ scale: 0.75 + v.value * 0.35 }],
   }));
   return <Animated.View pointerEvents="none" style={[styles.glow, style]} />;
+}
+
+const SPARK_COLORS = [color.sun, '#F7C565', color.sunDeep, '#FFE3A8', color.leaf];
+
+/** One warm spark flung out of the ring: it arcs, turns and fades. */
+function Spark({ index, count, delay, reach }: { index: number; count: number; delay: number; reach: number }) {
+  const v = useSharedValue(0);
+  useEffect(() => {
+    v.set(withDelay(delay + (index % 3) * 40, withTiming(1, { duration: 1100, easing: Easing.out(Easing.quad) })));
+  }, [delay, index, v]);
+
+  const angle = (index / count) * Math.PI * 2 + (index % 2 ? 0.18 : -0.12);
+  const dist = reach * (0.72 + ((index * 37) % 11) / 30);
+  const size = 6 + ((index * 5) % 4) * 2;
+  const square = index % 3 === 0;
+  const tint = SPARK_COLORS[index % SPARK_COLORS.length];
+
+  const style = useAnimatedStyle(() => {
+    const t = v.value;
+    const out = 1 - Math.pow(1 - t, 2);
+    return {
+      opacity: t === 0 ? 0 : t < 0.12 ? t / 0.12 : 1 - Math.pow((t - 0.12) / 0.88, 1.6),
+      transform: [
+        { translateX: Math.cos(angle) * (62 + (dist - 62) * out) },
+        { translateY: Math.sin(angle) * (62 + (dist - 62) * out) + 26 * t * t },
+        { rotate: `${(index % 2 ? 1 : -1) * 220 * t}deg` },
+        { scale: 0.5 + 0.7 * Math.sin(Math.min(1, t * 1.4) * Math.PI * 0.85) },
+      ],
+    };
+  });
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        styles.spark,
+        {
+          width: size,
+          height: square ? size : size * 1.9,
+          marginLeft: -size / 2,
+          marginTop: -size / 2,
+          borderRadius: square ? 2 : size / 2,
+          backgroundColor: tint,
+        },
+        style,
+      ]}
+    />
+  );
+}
+
+/** Confetti-free celebration: a small ring of warm sparks when the ring fills. */
+function Burst({ delay, count, reach }: { delay: number; count: number; reach: number }) {
+  const reduced = useReducedMotion();
+  if (reduced) return null;
+  return (
+    <View pointerEvents="none" style={styles.burst}>
+      {Array.from({ length: count }, (_, i) => (
+        <Spark key={i} index={i} count={count} delay={delay} reach={reach} />
+      ))}
+    </View>
+  );
 }
 
 function Check({ delay }: { delay: number }) {
@@ -95,6 +157,8 @@ export default function SuccessScreen() {
     <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom + space.md }]}>
       <ScrollView
         contentOffset={devScroll()}
+        // The glow and sparks spill past the top edge instead of being cut flat.
+        style={{ overflow: 'visible' }}
         contentContainerStyle={{
           alignItems: 'center',
           gap: space.md,
@@ -105,6 +169,7 @@ export default function SuccessScreen() {
         showsVerticalScrollIndicator={false}>
         <Animated.View entering={FadeIn.duration(400)} style={styles.ringWrap}>
           {done ? <Glow delay={RING_MS + 100} /> : null}
+          <Burst delay={RING_MS + 150} count={done ? 18 : 10} reach={done ? 150 : 115} />
           <Ring
             value={now}
             from={before}
@@ -218,6 +283,8 @@ export default function SuccessScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.paper },
   ringWrap: { alignItems: 'center', justifyContent: 'center' },
+  burst: { position: 'absolute', width: 0, height: 0 },
+  spark: { position: 'absolute' },
   glow: { position: 'absolute', width: 204, height: 204, borderRadius: 102, backgroundColor: color.sunSoft },
   card: {
     alignSelf: 'stretch',

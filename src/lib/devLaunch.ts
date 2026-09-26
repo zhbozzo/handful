@@ -3,7 +3,7 @@
  * from the command line without the "Open in Handful?" deep-link prompt.
  *
  *   xcrun simctl launch --terminate-running-process booted app.handful.demo -handfulDev "go:/cause/hot-meal-tonight"
- *   … -handfulDev reset | onboarding | shield | shield:1200 | gift:hot-meal-tonight:4
+ *   … -handfulDev reset | onboarding | shield | shield:1200 | gift:hot-meal-tonight:4 | history
  *
  * iOS puts `-key value` launch arguments into NSUserDefaults, which React Native's
  * Settings API reads.
@@ -42,7 +42,46 @@ export function runDevLaunchAction() {
         transactionId: `dev_${Date.now().toString(36)}`,
         rail: 'offline-demo',
       });
-      router.push({ pathname: '/success/[id]', params: { id: causeId, gift: contribution.id, completed: completed ? '1' : '0' } });
+      router.push({
+        pathname: '/success/[id]',
+        params: { id: causeId, gift: contribution.id, completed: completed ? '1' : '0' },
+      });
+    } else if (cmd === 'history') {
+      // history — a few offline-labelled gifts (one to an already-delivered cause) to review Your impact
+      s.resetDemo();
+      s.finishOnboarding();
+      const g = useStore.getState();
+      g.contribute({
+        causeId: 'hot-meal-tonight',
+        amount: 4,
+        productId: 'handful_gift_4',
+        transactionId: 'dev_a1',
+        rail: 'offline-demo',
+      });
+      g.contribute({
+        causeId: 'shelter-hygiene',
+        amount: 5,
+        productId: 'handful_gift_5',
+        transactionId: 'dev_a2',
+        rail: 'offline-demo',
+      });
+      const day = 86_400_000;
+      useStore.setState((st) => ({
+        contributions: [
+          ...st.contributions,
+          {
+            id: 'gift_dev_old',
+            causeId: 'family-groceries',
+            amount: 5,
+            at: Date.now() - 6 * day,
+            completedCause: false,
+            productId: 'handful_gift_5',
+            transactionId: 'dev_a0',
+            rail: 'offline-demo',
+          },
+        ],
+      }));
+      router.navigate('/impact');
     } else if (cmd === 'rc') {
       // rc — log what RevenueCat returns for the gift products and the supporter offering
       import('react-native-purchases').then(async ({ default: Purchases, PRODUCT_CATEGORY }) => {
@@ -55,7 +94,9 @@ export function runDevLaunchAction() {
           JSON.stringify({
             products: products.map((p) => `${p.identifier}=${p.priceString}`),
             offerings: Object.keys(offerings.all),
-            supporterPackages: offerings.all.supporter?.availablePackages.map((p) => `${p.identifier}:${p.product.identifier}:${p.product.priceString}`),
+            supporterPackages: offerings.all.supporter?.availablePackages.map(
+              (p) => `${p.identifier}:${p.product.identifier}:${p.product.priceString}`,
+            ),
             appUserID: info.originalAppUserId,
             activeEntitlements: Object.keys(info.entitlements.active),
           }),

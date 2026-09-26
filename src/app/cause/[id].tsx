@@ -1,7 +1,14 @@
 import { BlurView } from 'expo-blur';
 import { Link, router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
@@ -32,6 +39,14 @@ export default function CauseScreen() {
   const onScroll = useAnimatedScrollHandler((e) => {
     scrollY.value = e.contentOffset.y;
   });
+  const coverH = 300 + insets.top;
+  // Pull down: the cover stretches from the top. Scroll up: it drifts slower than the page.
+  const coverStyle = useAnimatedStyle(() => {
+    const y = scrollY.value;
+    return y < 0
+      ? { transform: [{ translateY: y / 2 }, { scale: 1 + -y / coverH }] }
+      : { transform: [{ translateY: y * 0.45 }], opacity: interpolate(y, [0, coverH], [1, 0.4], 'clamp') };
+  });
 
   if (!cause) return null;
 
@@ -49,9 +64,11 @@ export default function CauseScreen() {
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: 140 + insets.bottom }}
         showsVerticalScrollIndicator={false}>
-        <Link.AppleZoomTarget>
-          <CoverArt cause={cause} height={300 + insets.top} rounded={0} />
-        </Link.AppleZoomTarget>
+        <Animated.View style={coverStyle}>
+          <Link.AppleZoomTarget>
+            <CoverArt cause={cause} height={coverH} rounded={0} />
+          </Link.AppleZoomTarget>
+        </Animated.View>
 
         <View style={styles.body}>
           <Animated.View entering={FadeInDown.duration(450)} style={{ gap: space.sm }}>

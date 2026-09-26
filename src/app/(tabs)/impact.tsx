@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown, LinearTransition, ZoomIn } from 'react-native-reanimated';
 
 import { Button } from '@/components/Button';
 import { CountUp } from '@/components/CountUp';
@@ -11,10 +12,11 @@ import { Pill } from '@/components/Pill';
 import { Txt } from '@/components/Txt';
 import { Mark } from '@/components/Wordmark';
 import { categoryById } from '@/data/categories';
-import type { CauseItem } from '@/data/types';
+import type { CauseItem, CauseStatus } from '@/data/types';
 import { ago, money, when } from '@/lib/format';
 import { getRevenueCatUserId } from '@/lib/purchases';
 import { devScroll } from '@/lib/devScroll';
+import { tap } from '@/lib/haptics';
 import { useStore } from '@/store/useStore';
 import { color, font, radius, shadow, space } from '@/theme/tokens';
 
@@ -29,17 +31,22 @@ export default function ImpactScreen() {
   const stats = useMemo(() => {
     const ids = [...new Set(contributions.map((c) => c.causeId))];
     const helped = ids.map((id) => causes.find((c) => c.id === id)).filter((c) => !!c);
-    const items = new Map<string, CauseItem & { tint: string; ink: string }>();
+    const items = new Map<string, Collected>();
     helped.forEach((c) => {
       const cat = categoryById(c.category);
-      c.items.forEach((i) => items.set(i.label, { ...i, tint: cat.tint, ink: cat.ink }));
+      const state = stateOf(c.status);
+      c.items.forEach((i) => {
+        const seen = items.get(i.label);
+        if (!seen || RANK[state] > RANK[seen.state]) items.set(i.label, { ...i, tint: cat.tint, ink: cat.ink, state });
+      });
     });
     return {
       total: contributions.reduce((s, c) => s + c.amount, 0),
       helped: helped.length,
       completed: contributions.filter((c) => c.completedCause).length,
       delivered: helped.filter((c) => c.status === 'delivered').length,
-      items: [...items.values()],
+      // Delivered first: the collection leads with what has already reached people.
+      items: [...items.values()].sort((a, b) => RANK[b.state] - RANK[a.state]),
     };
   }, [contributions, causes]);
 
@@ -70,15 +77,17 @@ export default function ImpactScreen() {
         </Animated.View>
       ) : (
         <>
-          <Animated.View entering={FadeInDown.duration(450)} style={styles.grid}>
-            <Stat value={stats.total} money label="given" />
+          <Animated.View entering={FadeInDown.duration(500)}>
+            <CollectionHero total={stats.total} items={stats.items} />
+          </Animated.View>
+
+          <Animated.View
+            entering={FadeInDown.delay(80).duration(500)}
+            layout={LinearTransition.springify().damping(20)}
+            style={styles.grid}>
             <Stat value={stats.helped} label={stats.helped === 1 ? 'cause helped' : 'causes helped'} />
-            <Stat
-              value={stats.completed}
-              label={stats.completed === 1 ? 'cause you completed' : 'causes you completed'}
-              accent
-            />
-            <Stat value={stats.delivered} label="delivered with proof" leaf />
+            <Stat value={stats.completed} label="you completed" accent />
+            <Stat value={stats.delivered} label="delivered" leaf />
           </Animated.View>
 
           {inbox.length > 0 ? (
@@ -129,20 +138,6 @@ export default function ImpactScreen() {
               })}
             </View>
           ) : null}
-
-          <View style={{ gap: space.sm }}>
-            <Txt variant="micro">What your gifts went toward</Txt>
-            <View style={styles.items}>
-              {stats.items.map((i) => (
-                <View key={i.label} style={[styles.itemChip, { backgroundColor: i.tint }]}>
-                  <Icon name={i.symbol} size={13} color={i.ink} />
-                  <Txt variant="caption" color={i.ink} style={{ fontWeight: '600' }}>
-                    {i.label}
-                  </Txt>
-                </View>
-              ))}
-            </View>
-          </View>
 
           <View style={{ gap: space.sm }}>
             <Txt variant="micro">Gift history</Txt>
@@ -202,6 +197,127 @@ export default function ImpactScreen() {
   );
 }
 
+type ItemState = 'funding' | 'onTheWay' | 'delivered';
+type Collected = CauseItem & { tint: string; ink: string; state: ItemState };
+const RANK: Record<ItemState, number> = { funding: 0, onTheWay: 1, delivered: 2 };
+
+function stateOf(status: CauseStatus): ItemState {
+  if (status === 'delivered') return 'delivered';
+  if (status === 'funded' || status === 'purchased') return 'onTheWay';
+  return 'funding';
+}
+
+const TILT = [-4, 3, -2, 5, -3, 2, -5, 4];
+
+/**
+ * The things your gifts paid for, collected like a shelf of small objects.
+ * Each one says where it is now: still funding, on its way, or delivered with proof.
+ */
+const SHELF = 8;
+
+function CollectionHero({ total, items }: { total: number; items: Collected[] }) {
+  const delivered = items.filter((i) => i.state === 'delivered').length;
+  const [open, setOpen] = useState(false);
+  const hidden = items.length - SHELF;
+  const shown = open || hidden <= 1 ? items : items.slice(0, SHELF - 1);
+  return (
+    <View style={styles.hero}>
+      <LinearGradient
+        colors={['#FFF8EA', '#FCE9C4']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <View style={styles.heroOrb} />
+      <View style={{ gap: 2 }}>
+        <Txt variant="micro" color={color.sunDeep}>
+          Given so far
+        </Txt>
+        <CountUp
+          variant="bigNumber"
+          value={total}
+          from={0}
+          duration={1000}
+          format={money}
+          style={{ fontSize: 64, lineHeight: 68, letterSpacing: -1.2 }}
+        />
+        <Txt variant="callout">
+          Toward {items.length} {items.length === 1 ? 'thing' : 'things'} people needed
+          {delivered > 0 ? ` — ${delivered} already delivered.` : '.'}
+        </Txt>
+      </View>
+      <View style={styles.shelf}>
+        {shown.map((item, i) => (
+          <Animated.View
+            key={item.label}
+            entering={ZoomIn.delay(open ? (i - SHELF + 1) * 50 : 300 + i * 80)
+              .springify()
+              .damping(13)}
+            style={styles.slot}
+            accessible
+            accessibilityLabel={`${item.label}, ${item.state === 'delivered' ? 'delivered' : item.state === 'onTheWay' ? 'on the way' : 'still funding'}`}>
+            <View style={[styles.tile, { transform: [{ rotate: `${TILT[i % TILT.length]}deg` }] }]}>
+              <Icon name={item.symbol} size={26} color={item.ink} weight="medium" hierarchical />
+              {item.state !== 'funding' ? (
+                <View style={[styles.badge, item.state === 'delivered' ? styles.badgeLeaf : styles.badgeSun]}>
+                  <Icon
+                    name={item.state === 'delivered' ? 'checkmark' : 'shippingbox.fill'}
+                    size={item.state === 'delivered' ? 9 : 8}
+                    color={color.white}
+                    weight="heavy"
+                  />
+                </View>
+              ) : null}
+            </View>
+            <Txt variant="caption" align="center" numberOfLines={2} style={styles.slotLabel}>
+              {item.label}
+            </Txt>
+          </Animated.View>
+        ))}
+        {shown.length < items.length ? (
+          <Animated.View
+            entering={ZoomIn.delay(300 + shown.length * 80)
+              .springify()
+              .damping(13)}
+            style={styles.slot}>
+            <Pressable
+              onPress={() => {
+                tap();
+                setOpen(true);
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={`Show ${items.length - shown.length} more`}
+              style={({ pressed }) => [styles.tile, styles.more, pressed && { transform: [{ scale: 0.94 }] }]}>
+              <Txt variant="number" color={color.sunDeep}>
+                +{items.length - shown.length}
+              </Txt>
+            </Pressable>
+            <Txt variant="caption" align="center" style={styles.slotLabel}>
+              more
+            </Txt>
+          </Animated.View>
+        ) : null}
+      </View>
+      <View style={styles.legend}>
+        <Legend dot={color.leaf} label="Delivered" />
+        <Legend dot={color.sun} label="On the way" />
+        <Legend dot={color.lineStrong} label="Funding" />
+      </View>
+    </View>
+  );
+}
+
+function Legend({ dot, label }: { dot: string; label: string }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+      <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dot }} />
+      <Txt variant="caption" color={color.ink2} style={{ fontSize: 12 }}>
+        {label}
+      </Txt>
+    </View>
+  );
+}
+
 function Stat({
   value,
   label,
@@ -236,17 +352,64 @@ function Stat({
 const styles = StyleSheet.create({
   card: { backgroundColor: color.card, borderRadius: radius.lg, padding: space.md, ...shadow.card },
   empty: { alignItems: 'center', gap: space.sm, paddingVertical: space.xxl },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  grid: { flexDirection: 'row', gap: 10 },
   stat: {
-    width: '48.5%',
-    flexGrow: 1,
+    flex: 1,
     backgroundColor: color.card,
     borderRadius: radius.lg,
-    padding: space.md,
-    gap: 2,
+    padding: 14,
+    gap: 0,
     minHeight: 104,
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
   },
+  hero: {
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    padding: space.lg,
+    paddingTop: space.lg,
+    gap: space.lg,
+    backgroundColor: color.sunSoft,
+  },
+  heroOrb: {
+    position: 'absolute',
+    right: -90,
+    top: -110,
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: 'rgba(255,255,255,0.55)',
+  },
+  shelf: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 14, marginHorizontal: -4 },
+  slot: { width: '25%', alignItems: 'center', gap: 7, paddingHorizontal: 4 },
+  tile: {
+    width: 58,
+    height: 58,
+    borderRadius: 17,
+    backgroundColor: color.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#3B2F1A',
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+  },
+  badge: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFF4DE',
+  },
+  more: { backgroundColor: 'rgba(255,255,255,0.55)', shadowOpacity: 0 },
+  badgeLeaf: { backgroundColor: color.leaf },
+  badgeSun: { backgroundColor: color.sunDeep },
+  slotLabel: { fontSize: 12, lineHeight: 15, color: color.ink2 },
+  legend: { flexDirection: 'row', gap: 14 },
   update: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -257,15 +420,6 @@ const styles = StyleSheet.create({
   },
   updateDelivered: { borderWidth: 1.5, borderColor: color.leafSoft },
   unread: { width: 10, height: 10, borderRadius: 5, backgroundColor: color.sun },
-  items: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  itemChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 11,
-    paddingVertical: 7,
-    borderRadius: radius.pill,
-  },
   gift: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
   giftBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line },
   supporter: { flexDirection: 'row', alignItems: 'center', gap: 12 },
