@@ -40,7 +40,7 @@ flowchart LR
   V -->|"'Delivered ✓' update"| D
 ```
 
-**Show the help, not the suffering.** Cover photos show the setting, the items or a volunteer’s hands — a meal being handed over, a bus stop, a street dog — never the face of the person being helped. They’re labelled “Illustrative photo”; causes without one get an illustration built from their budget.
+**Show the situation, never expose the person.** Cover photos show where the need is — a night street, a bus stop, a shelter dormitory, a street dog — with people only from behind, far away or as hands, so no one being helped can be identified. They’re labelled “Illustrative photo”; causes without one get an illustration built from their budget.
 
 ## Screenshots
 
@@ -226,15 +226,15 @@ What would change before real money moves:
 ### Photo credits
 
 Illustrative cause photos from [Unsplash](https://unsplash.com/license) (free to use under the Unsplash License), cropped and stripped of metadata:
-[Dan DeAlmeida](https://unsplash.com/photos/4aM_QE-HRLw) (hot meal) ·
+[Sinitta Leunen](https://unsplash.com/photos/2h0Vt8l-_GQ) (night street) ·
 [Anthony Young](https://unsplash.com/photos/pCJCfl5HWdA) (Toby) ·
-[Traian Titilincu](https://unsplash.com/photos/NR4DcGtlhPE) (bus stop) ·
-[National Cancer Institute](https://unsplash.com/photos/O13g6-Gtb5o) (prescription) ·
-[The Design Lady](https://unsplash.com/photos/1yRdOY4_Z78) (school supplies) ·
-[Maria Lin Kim](https://unsplash.com/photos/8RaUEd8zD-U) (groceries) ·
-[Deski Jayantoro](https://unsplash.com/photos/0slSvn3OhFU) (kit hand-off) ·
-[Erik Mclean](https://unsplash.com/photos/QJ3g4T8Cxu4) (blanket) ·
-[Miguel Constantin Montes](https://unsplash.com/photos/B-3P_nfuOcA) (hygiene).
+[the blowup](https://unsplash.com/photos/IQj77ckUsbM) (bus stop) ·
+[Towfiqu barbhuiya](https://unsplash.com/photos/Yw9Vgr6i_-0) (medication) ·
+[Sonu Agvan](https://unsplash.com/photos/_Xlcw84K7Tg) (walk to school) ·
+[ran liwen](https://unsplash.com/photos/3BzWXnG3Dvc) (mother and son) ·
+[Sergio Aguirre](https://unsplash.com/photos/z8EYXn0OAYM) (smoke-stained kitchen) ·
+[Mihály Köles](https://unsplash.com/photos/324p_yfAZhE) (blankets on the street) ·
+[Adem Percem](https://unsplash.com/photos/ypE9DgHdEYo) (shelter dormitory).
 Delivery-proof demo photos: Pexels and one AI-generated image (the tent), both processed by Privacy Shield in the app.
 
 ## License

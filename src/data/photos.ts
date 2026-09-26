@@ -1,9 +1,9 @@
 import type { ImageSourcePropType } from 'react-native';
 
 /**
- * Illustrative photos for the demo causes (Unsplash, credited in the README): the setting, the items
- * or a volunteer's hands — never the face of a person being helped. A cause without one falls back
- * to its illustration.
+ * Illustrative photos for the demo causes (Unsplash, credited in the README): the situation, with people
+ * only from behind, far away or as hands — never an identifiable face of someone being helped.
+ * A cause without one falls back to its illustration.
  */
 const CAUSE_PHOTOS: Partial<Record<string, ImageSourcePropType>> = {
   'bus-fare': require('@/assets/causes/bus-fare.jpg'),

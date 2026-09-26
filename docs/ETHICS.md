@@ -4,7 +4,7 @@ We went through the product screen by screen with the questions below, and chang
 
 ## Does this exploit vulnerable people?
 
-- **Covers never show the person being helped.** Demo covers are Unsplash photos of the setting, the items or a volunteer’s hands (a street dog for the animal cause), chosen so no one in a vulnerable situation is identifiable, and labelled “Illustrative photo”. We rejected candidates with faces of people in need, readable brands, or protected emblems (a red cross). A cause without a photo gets an illustration generated from its budget.
+- **Covers show the situation, never an identifiable person.** Demo covers are documentary Unsplash photos of where the need is (a night street, a bus stop, a shelter dormitory, a smoke-stained kitchen, a street dog). People appear only from behind, far away or as hands — never a recognisable face of someone being helped — and photos are labelled “Illustrative photo”. We rejected candidates with close-up faces of people in need, readable brands, or protected emblems (a red cross), and cropped two photos by hand. A cause without a photo gets an illustration generated from its budget.
 - **Beneficiaries are never named.** One demo cause names a dog (Toby); that’s the only name in the app.
 - **Stories describe the need, not the misery.** We rewrote seed copy around what the person *asked for* and what will be bought (“asked for a hot meal and dry socks before tonight’s cold front”), not how bad things are.
 - **No urgency tricks.** No countdown timers, no “people are starving while…”, no red. “Only $4 left” is a fact about the budget, not pressure; there is always a plain “Give” option and no nagging after a gift.

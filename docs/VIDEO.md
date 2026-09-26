@@ -48,5 +48,5 @@ Record each with `xcrun simctl io booted recordVideo --codec h264 <file>.mp4`, s
 ## Cause photos
 
 The nine demo cover photos in `assets/causes/` come from Unsplash (credits in the README), imported with
-`scripts/import-cause-photos.py` (3:2 crop, 1200 px, metadata stripped). The prescription photo was cropped
-by hand so no face shows at the edge.
+`scripts/import-cause-photos.py` (3:2 crop, 1200 px, metadata stripped). The night-street photo was cropped by hand
+to drop a dark foreground silhouette.
