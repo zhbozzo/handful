@@ -106,6 +106,11 @@ export default function RootLayout() {
           <Stack.Screen name="about" options={{ ...sheet, sheetAllowedDetents: [0.75, 1] }} />
           <Stack.Screen name="nonprofit/new" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="nonprofit/proof/[id]" options={{ presentation: 'fullScreenModal' }} />
+          <Stack.Screen name="nonprofit/cause/[id]" />
+          <Stack.Screen
+            name="nonprofit/withdraw/[id]"
+            options={{ ...sheet, sheetAllowedDetents: fontScale > 1.15 ? [1] : [0.82, 1] }}
+          />
           <Stack.Screen name="dev" options={{ animation: 'none' }} />
         </Stack>
       </ThemeProvider>

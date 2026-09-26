@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { seedCauses, STUDIO_ORG_ID } from '@/data/seed';
+import { seedCauses, STUDIO_ACCOUNT, STUDIO_ORG_ID } from '@/data/seed';
 import type { Cause, Contribution, Evidence, InboxItem } from '@/data/types';
 
 type NewContribution = Omit<Contribution, 'id' | 'at' | 'completedCause'>;
@@ -25,6 +25,8 @@ type Actions = {
   finishOnboarding: () => void;
   contribute: (c: NewContribution) => { completed: boolean; contribution: Contribution };
   createCause: (draft: CauseDraft) => Cause;
+  /** Transfers a fully funded cause's money to the nonprofit (simulated). Returns the amount, or 0. */
+  withdraw: (causeId: string) => number;
   postProof: (causeId: string, evidence: Evidence) => void;
   markInboxRead: (id?: string) => void;
   setSupporter: (active: boolean) => void;
@@ -51,14 +53,16 @@ export const useStore = create<State & Actions>()(
       contribute: (input) => {
         const now = Date.now();
         const cause = get().causes.find((c) => c.id === input.causeId);
+        const open = cause?.status === 'open';
         const remaining = cause ? cause.goal - cause.raised : 0;
-        const completed = !!cause && input.amount >= remaining;
+        const completed = !!cause && open && input.amount >= remaining;
         const contribution: Contribution = { ...input, id: uid('gift'), at: now, completedCause: completed };
 
         set((s) => ({
           contributions: [contribution, ...s.contributions],
           causes: s.causes.map((c) => {
-            if (c.id !== input.causeId) return c;
+            // A funded, bought or delivered cause never moves backwards.
+            if (c.id !== input.causeId || c.status !== 'open') return c;
             const raised = Math.min(c.goal, c.raised + input.amount);
             const donors = c.donors + 1;
             if (!completed) return { ...c, raised, donors };
@@ -100,6 +104,14 @@ export const useStore = create<State & Actions>()(
         return cause;
       },
 
+      withdraw: (causeId) => {
+        const cause = get().causes.find((c) => c.id === causeId);
+        if (!cause || cause.status !== 'funded' || cause.payout) return 0;
+        const payout = { amount: cause.raised, at: Date.now(), account: STUDIO_ACCOUNT };
+        set((s) => ({ causes: s.causes.map((c) => (c.id === causeId ? { ...c, payout } : c)) }));
+        return payout.amount;
+      },
+
       postProof: (causeId, evidence) => {
         const now = Date.now();
         const spent = evidence.receipt.reduce((sum, r) => sum + r.amount, 0);
@@ -112,6 +124,8 @@ export const useStore = create<State & Actions>()(
               ...c,
               status: 'delivered',
               evidence,
+              // Buying the items means the money was released, even if nobody tapped Withdraw first.
+              payout: c.payout ?? { amount: c.raised, at: now - 120_000, account: STUDIO_ACCOUNT },
               timeline: [
                 ...c.timeline,
                 ...(hasPurchase
@@ -141,7 +155,7 @@ export const useStore = create<State & Actions>()(
     {
       name: 'handful',
       // Bump when the demo seed changes: older installs restart from the new seed.
-      version: 4,
+      version: 5,
       migrate: (persisted) => ({ ...initialState(), onboarded: (persisted as Partial<State>)?.onboarded ?? false }),
       storage: createJSONStorage(() => AsyncStorage),
     },

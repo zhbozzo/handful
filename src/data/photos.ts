@@ -1,5 +1,7 @@
 import type { ImageSourcePropType } from 'react-native';
 
+import type { Evidence } from './types';
+
 /**
  * Illustrative photos for the demo causes (Unsplash, credited in the README): the situation, with people
  * only from behind, far away or as hands — never an identifiable face of someone being helped.
@@ -18,3 +20,12 @@ const CAUSE_PHOTOS: Partial<Record<string, ImageSourcePropType>> = {
 };
 
 export const causePhoto = (id?: string): ImageSourcePropType | undefined => (id ? CAUSE_PHOTOS[id] : undefined);
+
+/** Delivery (thank-you) photos bundled with the seed data. */
+const PROOF_PHOTOS: Record<NonNullable<Evidence['photoAsset']>, ImageSourcePropType> = {
+  groceries: require('@/assets/images/proof-groceries.jpg'),
+};
+
+/** The protected thank-you photo a nonprofit posted with its proof, if any. */
+export const proofPhoto = (ev?: Evidence): ImageSourcePropType | undefined =>
+  ev?.photoUri ? { uri: ev.photoUri } : ev?.photoAsset ? PROOF_PHOTOS[ev.photoAsset] : undefined;

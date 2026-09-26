@@ -55,8 +55,19 @@ export function DonorStack({ gifts, donors, size = 26 }: { gifts: RecentGift[]; 
   );
 }
 
-/** The last few gifts, newest first. Other donors stay anonymous; your own gifts say "You". */
-export function RecentGifts({ gifts, donors }: { gifts: RecentGift[]; donors: number }) {
+/**
+ * The last few gifts, newest first. Other donors stay anonymous; your own gifts say "You" —
+ * except in the nonprofit's view, where every donor is anonymous.
+ */
+export function RecentGifts({
+  gifts,
+  donors,
+  nonprofit = false,
+}: {
+  gifts: RecentGift[];
+  donors: number;
+  nonprofit?: boolean;
+}) {
   if (gifts.length === 0) return null;
   return (
     <View
@@ -68,10 +79,12 @@ export function RecentGifts({ gifts, donors }: { gifts: RecentGift[]; donors: nu
           key={g.key}
           entering={FadeInDown.delay(120 + i * 80).duration(360)}
           style={[styles.row, i > 0 && styles.rowBorder]}>
-          <Face gift={g} index={i} size={30} />
+          <Face gift={nonprofit ? { ...g, you: false } : g} index={i} size={30} />
           <View style={{ flex: 1 }}>
             <Txt variant="bodyStrong" style={{ fontSize: 15 }}>
-              {g.you ? `You gave ${money(g.amount)}` : `Someone gave ${money(g.amount)}`}
+              {g.you && !nonprofit
+                ? `You gave ${money(g.amount)}`
+                : `${nonprofit ? 'A donor' : 'Someone'} gave ${money(g.amount)}`}
             </Txt>
             {g.completed ? (
               <Txt variant="caption" color={color.sunDeep} style={{ fontWeight: '600' }}>

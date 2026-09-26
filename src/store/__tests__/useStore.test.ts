@@ -29,6 +29,17 @@ describe('gifts', () => {
     expect(cause('hot-meal-tonight').timeline.map((t) => t.status)).toEqual(['open', 'funded']);
   });
 
+  it('never moves a cause backwards once it is funded or delivered', () => {
+    const before = cause('family-groceries');
+    const { completed } = useStore.getState().contribute(gift('family-groceries', 5));
+    expect(completed).toBe(false);
+    expect(cause('family-groceries')).toMatchObject({
+      status: 'delivered',
+      raised: before.raised,
+      donors: before.donors,
+    });
+  });
+
   it('never raises more than the goal', () => {
     const c = cause('toby-food');
     useStore.getState().contribute(gift('toby-food', c.goal));
@@ -81,5 +92,29 @@ describe('nonprofit studio', () => {
     });
     expect(created).toMatchObject({ goal: 21, raised: 0, status: 'open', isDemo: true, createdHere: true });
     expect(useStore.getState().causes[0].id).toBe(created.id);
+  });
+});
+
+describe('payouts', () => {
+  it('only releases money once a cause is fully funded, and only once', () => {
+    const s = useStore.getState();
+    expect(s.withdraw('hot-meal-tonight')).toBe(0);
+    const c = cause('hot-meal-tonight');
+    s.contribute(gift('hot-meal-tonight', c.goal - c.raised));
+    expect(useStore.getState().withdraw('hot-meal-tonight')).toBe(c.goal);
+    expect(cause('hot-meal-tonight').payout).toMatchObject({ amount: c.goal, account: '4821' });
+    expect(useStore.getState().withdraw('hot-meal-tonight')).toBe(0);
+  });
+
+  it('records the payout when proof is posted without an explicit withdrawal', () => {
+    const c = cause('hot-meal-tonight');
+    useStore.getState().contribute(gift('hot-meal-tonight', c.goal - c.raised));
+    useStore.getState().postProof('hot-meal-tonight', {
+      privacy: { facesBlurred: 1, textBlurred: 0, locationRemoved: true },
+      store: 'Market',
+      receipt: [{ label: 'Hot meal', amount: 6 }],
+      note: 'Delivered tonight.',
+    });
+    expect(cause('hot-meal-tonight').payout?.amount).toBe(c.goal);
   });
 });

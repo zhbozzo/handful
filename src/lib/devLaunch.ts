@@ -34,7 +34,7 @@ export function runDevLaunchAction() {
     } else if (cmd === 'gift') {
       // gift:<causeId>:<amount> — offline-labelled gift to review the success screen
       const [causeId, amount] = arg.split(':');
-      s.finishOnboarding();
+      s.resetDemo();
       const { completed, contribution } = s.contribute({
         causeId,
         amount: Number(amount),

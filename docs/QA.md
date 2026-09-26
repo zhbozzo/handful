@@ -54,3 +54,8 @@ Legend: ✅ pass · ⚠️ pass with note · ❌ fail (fixed / open)
 | 30 | No yellow/red boxes, no console errors | ⚠️ no errors; one react-native-screens form-sheet layout warning in dev |
 | 31 | Cause page: donor stack + last 3 gifts, anonymous; amounts add up to what was raised | ✅ (unit-tested; caught a negative amount before release) |
 | 32 | Share from a cause and from the success screen | ✅ native share sheet, text only |
+| 33 | Studio: funds card (received / collecting / available / paid out) updates after a cause is completed | ✅ $0 → $18 available after a real Test Store gift |
+| 34 | Withdraw sheet → Transfer → “on its way” → Post receipt & thank-you photo | ✅ simulated payout, labelled as demo |
+| 35 | Thank-you photo picked from the photo library (no dev shortcut) → Privacy Shield → Post | ✅ 2 faces blurred, GPS removed |
+| 36 | Your impact: money bar + Thank-yous card with the protected photo, tab badge | ✅ |
+| 37 | A funded/delivered cause never moves backwards if another gift arrives | ✅ unit test (found while capturing screenshots) |

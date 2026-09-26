@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, LinearTransition, ZoomIn } from 'react-native-reanimated';
 
@@ -8,15 +9,19 @@ import { Button } from '@/components/Button';
 import { CountUp } from '@/components/CountUp';
 import { CoverThumb } from '@/components/CoverArt';
 import { Icon } from '@/components/Icon';
+import { OrgLine } from '@/components/OrgLine';
 import { Pill } from '@/components/Pill';
 import { PressableScale } from '@/components/PressableScale';
 import { StatusScrim } from '@/components/StatusScrim';
 import { Txt } from '@/components/Txt';
 import { categoryById } from '@/data/categories';
-import type { CauseItem, CauseStatus } from '@/data/types';
+import { proofPhoto } from '@/data/photos';
+import { orgById } from '@/data/seed';
+import type { Cause, CauseItem, CauseStatus } from '@/data/types';
 import { ago, money, when } from '@/lib/format';
 import { getRevenueCatUserId } from '@/lib/purchases';
 import { devScroll } from '@/lib/devScroll';
+import { type MoneySplit, whereYourMoneyIs } from '@/lib/funds';
 import { tap } from '@/lib/haptics';
 import { useStore } from '@/store/useStore';
 import { color, radius, shadow, space } from '@/theme/tokens';
@@ -50,6 +55,13 @@ export default function ImpactScreen() {
       items: [...items.values()].sort((a, b) => RANK[b.state] - RANK[a.state]),
     };
   }, [contributions, causes]);
+
+  const split = whereYourMoneyIs(contributions, causes);
+  // Delivered causes you gave to, newest delivery first: the nonprofit's thank-you photo and note.
+  const thanks = causes
+    .filter((c) => c.status === 'delivered' && c.evidence && contributions.some((g) => g.causeId === c.id))
+    .sort((a, b) => (b.timeline.at(-1)?.at ?? 0) - (a.timeline.at(-1)?.at ?? 0));
+  const givenTo = (id: string) => contributions.filter((g) => g.causeId === id).reduce((sum, g) => sum + g.amount, 0);
 
   const empty = contributions.length === 0;
 
@@ -92,7 +104,7 @@ export default function ImpactScreen() {
         ) : (
           <>
             <Animated.View entering={FadeInDown.duration(500)}>
-              <CollectionHero total={stats.total} items={stats.items} />
+              <CollectionHero total={stats.total} items={stats.items} split={split} />
             </Animated.View>
 
             <Animated.View
@@ -103,6 +115,20 @@ export default function ImpactScreen() {
               <Stat value={stats.completed} label="Completed" accent />
               <Stat value={stats.delivered} label="Delivered" leaf />
             </Animated.View>
+
+            {thanks.length > 0 ? (
+              <View style={{ gap: space.sm }}>
+                <View style={styles.sectionHead}>
+                  <Txt variant="micro">Thank-yous</Txt>
+                  <Txt variant="caption">From the causes you helped</Txt>
+                </View>
+                {thanks.map((c, i) => (
+                  <Animated.View key={c.id} entering={FadeInDown.delay(140 + i * 80).duration(450)}>
+                    <ThankYou cause={c} gave={givenTo(c.id)} />
+                  </Animated.View>
+                ))}
+              </View>
+            ) : null}
 
             {inbox.length > 0 ? (
               <View style={{ gap: space.sm }}>
@@ -240,7 +266,7 @@ const GHOST = ['fork.knife', 'drop.fill', 'bus.fill', 'pawprint.fill'];
  */
 const SHELF = 8;
 
-function CollectionHero({ total, items }: { total: number; items: Collected[] }) {
+function CollectionHero({ total, items, split }: { total: number; items: Collected[]; split: MoneySplit }) {
   const delivered = items.filter((i) => i.state === 'delivered').length;
   const [open, setOpen] = useState(false);
   const hidden = items.length - SHELF;
@@ -271,6 +297,7 @@ function CollectionHero({ total, items }: { total: number; items: Collected[] })
           {delivered > 0 ? ` — ${delivered} already delivered.` : '.'}
         </Txt>
       </View>
+      <MoneyBar split={split} />
       <View style={styles.shelf}>
         {shown.map((item, i) => (
           <Animated.View
@@ -323,23 +350,89 @@ function CollectionHero({ total, items }: { total: number; items: Collected[] })
           </Animated.View>
         ) : null}
       </View>
-      <View style={styles.legend}>
-        <Legend dot={color.leaf} label="Delivered" />
-        <Legend dot={color.sun} label="On the way" />
-        <Legend dot={color.lineStrong} label="Funding" />
+    </View>
+  );
+}
+
+/** Where each dollar you gave is right now. */
+function MoneyBar({ split }: { split: MoneySplit }) {
+  const parts = [
+    { key: 'delivered', value: split.delivered, color: color.leaf, label: 'delivered' },
+    { key: 'onTheWay', value: split.onTheWay, color: color.sun, label: 'on the way' },
+    { key: 'funding', value: split.funding, color: '#E3D7C2', label: 'still funding' },
+  ].filter((p) => p.value > 0);
+  return (
+    <View
+      style={{ gap: 8 }}
+      accessible
+      accessibilityLabel={`Where your money is: ${parts.map((p) => `${money(p.value)} ${p.label}`).join(', ')}`}>
+      <View style={styles.moneyBar}>
+        {parts.map((p) => (
+          <View key={p.key} style={{ flex: p.value, backgroundColor: p.color }} />
+        ))}
+      </View>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: 14, rowGap: 4 }}>
+        {parts.map((p) => (
+          <View key={p.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: p.color }} />
+            <Txt variant="caption" color={color.ink} style={{ fontSize: 12 }}>
+              <Txt variant="caption" color={color.ink} style={{ fontSize: 12, fontWeight: '700' }}>
+                {money(p.value)}
+              </Txt>{' '}
+              {p.label}
+            </Txt>
+          </View>
+        ))}
       </View>
     </View>
   );
 }
 
-function Legend({ dot, label }: { dot: string; label: string }) {
+/** The nonprofit's thank-you: the protected delivery photo, its note, and what you gave. */
+function ThankYou({ cause, gave }: { cause: Cause; gave: number }) {
+  const ev = cause.evidence;
+  const org = orgById(cause.orgId);
+  const photo = proofPhoto(ev);
+  if (!ev) return null;
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-      <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dot }} />
-      <Txt variant="caption" color={color.ink2} style={{ fontSize: 12 }}>
-        {label}
-      </Txt>
-    </View>
+    <PressableScale onPress={() => router.push(`/proof/${cause.id}`)} scaleTo={0.98} style={styles.thanks}>
+      {photo ? (
+        <View>
+          <Image source={photo} style={styles.thanksPhoto} contentFit="cover" transition={200} />
+          <View style={styles.thanksChip}>
+            <Icon name="checkmark.shield.fill" size={11} color={color.shield} />
+            <Txt variant="caption" color={color.shield} style={{ fontSize: 11, fontWeight: '700' }}>
+              {ev.privacy.facesBlurred > 0 ? 'Faces blurred · ' : ''}GPS removed
+            </Txt>
+          </View>
+          <View style={styles.thanksGave}>
+            <Txt variant="caption" color={color.white} style={{ fontSize: 12, fontWeight: '700' }}>
+              You gave {money(gave)}
+            </Txt>
+          </View>
+        </View>
+      ) : null}
+      <View style={{ padding: space.md, gap: 8 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Icon name="checkmark.seal.fill" size={13} color={color.leaf} />
+          <Txt variant="micro" color={color.leaf}>
+            Delivered
+          </Txt>
+          <Txt variant="caption" color={color.ink3} numberOfLines={1} style={{ flex: 1 }}>
+            · {cause.title}
+          </Txt>
+        </View>
+        <Txt variant="bodyStrong" style={{ fontSize: 17, lineHeight: 24 }} numberOfLines={3}>
+          “{ev.note}”
+        </Txt>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <OrgLine org={org} size="sm" />
+          <Txt variant="caption" color={color.ink} style={{ fontWeight: '700' }}>
+            Receipt →
+          </Txt>
+        </View>
+      </View>
+    </PressableScale>
   );
 }
 
@@ -419,6 +512,31 @@ const styles = StyleSheet.create({
     borderRadius: 130,
     backgroundColor: 'rgba(255,255,255,0.55)',
   },
+  sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+  moneyBar: { flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', gap: 2 },
+  thanks: { backgroundColor: color.card, borderRadius: radius.lg, overflow: 'hidden', ...shadow.card },
+  thanksPhoto: { height: 190, backgroundColor: color.paperDeep },
+  thanksChip: {
+    position: 'absolute',
+    left: 10,
+    bottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+  },
+  thanksGave: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(23,20,15,0.72)',
+  },
   shelf: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 14, marginHorizontal: -4 },
   slot: { width: '25%', alignItems: 'center', gap: 7, paddingHorizontal: 4 },
   tile: {
@@ -449,7 +567,6 @@ const styles = StyleSheet.create({
   badgeLeaf: { backgroundColor: color.leaf },
   badgeSun: { backgroundColor: color.sunDeep },
   slotLabel: { fontSize: 12, lineHeight: 15, color: color.ink2 },
-  legend: { flexDirection: 'row', gap: 14 },
   update: {
     flexDirection: 'row',
     alignItems: 'center',

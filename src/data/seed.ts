@@ -73,6 +73,8 @@ export const orgById = (id: string, extra: Organization[] = []): Organization =>
 
 /** The nonprofit the in-app studio acts as. */
 export const STUDIO_ORG_ID = 'org-ronda';
+/** The demo nonprofit's verified bank account (last four digits). */
+export const STUDIO_ACCOUNT = '4821';
 
 const H = 3_600_000;
 const D = 24 * H;
@@ -285,6 +287,7 @@ export function seedCauses(now = Date.now()): Cause[] {
         { status: 'funded', at: now - 1.2 * D, note: '8 people funded it' },
         { status: 'purchased', at: now - 4 * H, note: 'Receipt uploaded · $27.40 spent' },
       ],
+      payout: { amount: 28, at: now - 1.1 * D, account: STUDIO_ACCOUNT },
       consent: consentOk,
       isDemo: true,
     },

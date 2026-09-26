@@ -22,7 +22,7 @@ import type { PhotoReport } from '@/lib/privacy';
 import { useCause, useStore } from '@/store/useStore';
 import { color, font, radius, shadow, space } from '@/theme/tokens';
 
-const TITLES = ['Receipt', 'Delivery & post'];
+const TITLES = ['Receipt', 'Thank-you photo'];
 
 export default function PostProof() {
   const {
@@ -89,7 +89,7 @@ export default function PostProof() {
   ][step];
   const missing = [
     store.trim().length <= 1 ? 'Add where you bought it' : spent > cause.raised + 0.001 ? 'More than was raised' : null,
-    !safe ? 'Add a delivery photo' : note.trim().length <= 5 ? 'Write a short note' : null,
+    !safe ? 'Add a thank-you photo' : note.trim().length <= 5 ? 'Write a short thank-you note' : null,
   ][step];
 
   async function choose(fromCamera: boolean) {
@@ -301,11 +301,11 @@ export default function PostProof() {
                       <Icon name="checkmark.shield.fill" size={22} color={color.shield} />
                     </View>
                     <Txt variant="bodyStrong" align="center">
-                      Add a delivery photo
+                      Add a thank-you photo
                     </Txt>
                     <Txt variant="caption" align="center" style={{ maxWidth: 280 }}>
-                      The items, hands, a bag handed over. Privacy Shield blurs faces and removes location on this phone
-                      first.
+                      The moment of delivery — a hot meal handed over, the kit on the shelf. Privacy Shield blurs faces
+                      and removes location on this phone first.
                     </Txt>
                     <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
                       <Button label="Choose photo" compact symbol="photo.on.rectangle" onPress={() => choose(false)} />
@@ -322,7 +322,7 @@ export default function PostProof() {
                   </View>
                 )}
                 <Field
-                  label="Note to donors"
+                  label="Thank-you note to donors"
                   value={note}
                   onChangeText={setNote}
                   multiline

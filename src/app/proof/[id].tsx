@@ -14,14 +14,11 @@ import { Timeline } from '@/components/Timeline';
 import { Txt } from '@/components/Txt';
 import { devScroll } from '@/lib/devScroll';
 import { categoryById } from '@/data/categories';
+import { proofPhoto } from '@/data/photos';
 import { orgById } from '@/data/seed';
 import { money, when } from '@/lib/format';
 import { useCause, useStore } from '@/store/useStore';
 import { color, radius, shadow, space } from '@/theme/tokens';
-
-const DEMO_PHOTOS: Record<string, number> = {
-  groceries: require('@/assets/images/proof-groceries.jpg'),
-};
 
 export default function ProofScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -47,7 +44,7 @@ export default function ProofScreen() {
   const spent = ev.receipt.reduce((s, r) => s + r.amount, 0);
   const leftover = Math.max(0, cause.raised - spent);
   const deliveredAt = cause.timeline.find((t) => t.status === 'delivered')?.at ?? cause.createdAt;
-  const photo = ev.photoUri ? { uri: ev.photoUri } : ev.photoAsset ? DEMO_PHOTOS[ev.photoAsset] : undefined;
+  const photo = proofPhoto(ev);
   const privacyBits = [
     ev.privacy.facesBlurred > 0
       ? `${ev.privacy.facesBlurred} face${ev.privacy.facesBlurred > 1 ? 's' : ''} blurred`

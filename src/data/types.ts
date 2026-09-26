@@ -50,6 +50,13 @@ export type Evidence = {
   note: string;
 };
 
+export type Payout = {
+  amount: number;
+  at: number;
+  /** Last four digits of the nonprofit's verified bank account. */
+  account: string;
+};
+
 export type TimelineEvent = {
   status: CauseStatus;
   at: number;
@@ -72,6 +79,8 @@ export type Cause = {
   items: CauseItem[];
   timeline: TimelineEvent[];
   evidence?: Evidence;
+  /** Funds transferred to the nonprofit once the cause was fully funded (simulated in the demo). */
+  payout?: Payout;
   coverUri?: string;
   consent: { consentObtained: boolean; noExactLocation: boolean; imagesReviewed: boolean };
   isDemo: boolean;

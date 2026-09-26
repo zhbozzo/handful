@@ -56,6 +56,10 @@ flowchart LR
 |---|---|---|---|
 | ![](submission/screenshots/07c-proof-post.png) | ![](submission/screenshots/08-proof.png) | ![](submission/screenshots/08c-delivered-notification.png) | ![](submission/screenshots/08b-proof-tent.png) |
 
+| Nonprofit funds | Manage a cause | Withdraw (simulated) | Thank-you in Your impact |
+|---|---|---|---|
+| ![](submission/screenshots/11-studio.png) | ![](submission/screenshots/11b-manage.png) | ![](submission/screenshots/12-withdraw.png) | ![](submission/screenshots/09c-impact-thanks.png) |
+
 | Who else gave (anonymous) | Your impact | Gift history (RevenueCat) | Supporter |
 |---|---|---|---|
 | ![](submission/screenshots/02b-cause-activity.png) | ![](submission/screenshots/09-impact.png) | ![](submission/screenshots/09b-impact-history.png) | ![](submission/screenshots/10-supporter.png) |
@@ -103,11 +107,13 @@ src/
     success/[id].tsx      Ring-closing success
     proof/[id].tsx        Delivery proof (donor view)
     nonprofit/new.tsx     Post a cause: need & budget → story & photo → review (one confirmation)
-    nonprofit/proof/[id]  Post proof: receipt → photo + note
+    nonprofit/proof/[id]  Post proof: receipt → thank-you photo + note
+    nonprofit/cause/[id]  Manage a cause: money received, donations, stage, next step
+    nonprofit/withdraw/[id] Withdraw a funded cause's money (simulated payout)
     supporter.tsx         Supporter membership (RevenueCat subscription)
   components/             Design system: Txt, Button, Pill, Ring, CoverArt, Timeline, ShieldReview…
   data/                   Types, categories, demo seed data
-  lib/                    purchases (RevenueCat), privacy (Shield logic), guess (category/icon from text), notifications, format
+  lib/                    purchases (RevenueCat), privacy (Shield logic), funds (payout stages, where your money is), guess, notifications, format
   store/useStore.ts       Zustand + AsyncStorage (all state is local)
   theme/tokens.ts         Color, type, spacing, radius, motion
 modules/privacy-shield/   Local Expo module (Swift, Vision, Core Image)
