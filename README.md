@@ -52,6 +52,10 @@ flowchart LR
 |---|---|---|---|
 | ![](submission/screenshots/06-shield-review.png) | ![](submission/screenshots/06b-shield-protected.png) | ![](submission/screenshots/07-publish.png) | ![](submission/screenshots/08-proof.png) |
 
+| Your impact | Gift history (RevenueCat) | Supporter | Nonprofit studio |
+|---|---|---|---|
+| ![](submission/screenshots/09-impact.png) | ![](submission/screenshots/09b-impact-history.png) | ![](submission/screenshots/10b-supporter-active.png) | ![](submission/screenshots/11-studio.png) |
+
 ## How RevenueCat is used
 
 There are two RevenueCat flows in the app, and we want to be precise about what each one is.
@@ -62,7 +66,7 @@ Each gift is a purchase of a consumable product `handful_gift_<amount>` (`$1` �
 This is real SDK integration — but **it is not how donations should work in production**, and we don’t pretend otherwise: App Store Review Guideline 3.2.2(iv) doesn’t allow collecting charitable donations with in-app purchase. See [Production architecture](#production-architecture).
 
 **2. Handful Supporter (production-ready model) — subscription + entitlement.**
-An optional monthly membership that pays for the platform itself, so nonprofits pay nothing and gifts carry no platform fee. It uses an offering (`supporter`), a monthly package, and an entitlement (`supporter`) checked through `CustomerInfo` and a `CustomerInfo` update listener. Guideline 3.1.1 allows in-app purchase for supporting the developer, so this is the part of the stack RevenueCat keeps powering after launch.
+An optional monthly membership that pays for the platform itself, so nonprofits pay nothing and gifts carry no platform fee. It uses an offering (`supporter`), a monthly package, and an entitlement (`supporter`) checked through `CustomerInfo` and a `CustomerInfo` update listener. The paywall reads its price from the offering’s package, and **Restore purchases** calls `Purchases.restorePurchases()` (App Review requires a restore path for subscriptions). Guideline 3.1.1 allows in-app purchase for supporting the developer, so this is the part of the stack RevenueCat keeps powering after launch.
 
 Code: [`src/lib/purchases.ts`](src/lib/purchases.ts), [`src/app/give/[id].tsx`](src/app/give/[id].tsx), [`src/app/supporter.tsx`](src/app/supporter.tsx).
 
