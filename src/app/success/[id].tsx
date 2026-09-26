@@ -164,17 +164,17 @@ export default function SuccessScreen() {
           alignItems: 'center',
           gap: space.md,
           paddingHorizontal: space.lg,
-          paddingTop: 28,
+          paddingTop: 12,
           paddingBottom: space.lg,
         }}
         showsVerticalScrollIndicator={false}>
         <Animated.View entering={FadeIn.duration(400)} style={styles.ringWrap}>
           {done ? <Glow delay={RING_MS + 100} /> : null}
-          <Burst delay={RING_MS + 150} count={done ? 18 : 10} reach={done ? 150 : 115} />
+          <Burst delay={RING_MS + 150} count={done ? 18 : 10} reach={done ? 135 : 105} />
           <Ring
             value={now}
             from={before}
-            size={148}
+            size={128}
             stroke={13}
             fill={done ? color.sun : color.sun}
             duration={RING_MS}
@@ -182,7 +182,7 @@ export default function SuccessScreen() {
             {done ? (
               <Check delay={RING_MS + 250} />
             ) : (
-              <Txt variant="bigNumber" style={{ fontSize: 44, lineHeight: 50 }}>
+              <Txt variant="bigNumber" style={{ fontSize: 38, lineHeight: 44 }}>
                 +{money(contribution.amount)}
               </Txt>
             )}
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
   ringWrap: { alignItems: 'center', justifyContent: 'center' },
   burst: { position: 'absolute', width: 0, height: 0 },
   spark: { position: 'absolute' },
-  glow: { position: 'absolute', width: 204, height: 204, borderRadius: 102, backgroundColor: color.sunSoft },
+  glow: { position: 'absolute', width: 180, height: 180, borderRadius: 90, backgroundColor: color.sunSoft },
   card: {
     alignSelf: 'stretch',
     backgroundColor: color.card,

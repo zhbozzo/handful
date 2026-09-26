@@ -29,7 +29,7 @@ export const ORGANIZATIONS: Organization[] = [
   {
     id: 'org-huellas',
     name: 'Huellas Compartidas',
-    focus: 'Care for the pets of people in hard times',
+    focus: 'Street dogs and the pets of people in hard times',
     city: 'Santiago',
     initials: 'HC',
     tint: '#8A5A2B',
@@ -110,7 +110,7 @@ export function seedCauses(now = Date.now()): Cause[] {
       orgId: 'org-huellas',
       title: 'A month of food for Toby',
       summary:
-        'Toby keeps an older man company in the room he rents downtown. Rent is covered this month; dog food didn’t fit.',
+        'Toby lives on the street near the Vega market. Our volunteers feed him and treat his fleas while we look for a home — this covers his next month.',
       category: 'animals',
       beneficiary: 'individual',
       area: 'Recoleta',
@@ -123,7 +123,7 @@ export function seedCauses(now = Date.now()): Cause[] {
         { id: 'food', label: 'Dry dog food, 8 kg', amount: 18, symbol: 'pawprint.fill' },
         { id: 'flea', label: 'Flea treatment', amount: 6, symbol: 'cross.case.fill' },
       ],
-      timeline: [{ status: 'open', at: now - 20 * H, note: 'Need verified at a home visit' }],
+      timeline: [{ status: 'open', at: now - 20 * H, note: 'Checked by our volunteers on the market round' }],
       consent: consentOk,
       isDemo: true,
     },

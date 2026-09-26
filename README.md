@@ -40,7 +40,7 @@ flowchart LR
   V -->|"'Delivered ✓' update"| D
 ```
 
-**Show the help, not the suffering.** Covers are still-life photos of the items being funded — a meal, socks, a bus fare — never a person. The demo photos are AI-generated (objects only, no people or text) and labelled “Illustrative photo”; causes without one get an illustration built from their budget.
+**Show the help, not the suffering.** Cover photos show the setting, the items or a volunteer’s hands — a meal being handed over, a bus stop, a street dog — never the face of the person being helped. They’re labelled “Illustrative photo”; causes without one get an illustration built from their budget.
 
 ## Screenshots
 
@@ -222,6 +222,20 @@ What would change before real money moves:
 - No exact locations, no full names, no diagnoses, no identifiable children.
 - Proof protects dignity first; transparency never depends on exposing someone.
 - Nothing in the app implies money moved when it didn’t.
+
+### Photo credits
+
+Illustrative cause photos from [Unsplash](https://unsplash.com/license) (free to use under the Unsplash License), cropped and stripped of metadata:
+[Dan DeAlmeida](https://unsplash.com/photos/4aM_QE-HRLw) (hot meal) ·
+[Anthony Young](https://unsplash.com/photos/pCJCfl5HWdA) (Toby) ·
+[Traian Titilincu](https://unsplash.com/photos/NR4DcGtlhPE) (bus stop) ·
+[National Cancer Institute](https://unsplash.com/photos/O13g6-Gtb5o) (prescription) ·
+[The Design Lady](https://unsplash.com/photos/1yRdOY4_Z78) (school supplies) ·
+[Maria Lin Kim](https://unsplash.com/photos/8RaUEd8zD-U) (groceries) ·
+[Deski Jayantoro](https://unsplash.com/photos/0slSvn3OhFU) (kit hand-off) ·
+[Erik Mclean](https://unsplash.com/photos/QJ3g4T8Cxu4) (blanket) ·
+[Miguel Constantin Montes](https://unsplash.com/photos/B-3P_nfuOcA) (hygiene).
+Delivery-proof demo photos: Pexels and one AI-generated image (the tent), both processed by Privacy Shield in the app.
 
 ## License
 

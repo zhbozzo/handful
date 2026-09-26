@@ -47,6 +47,6 @@ Record each with `xcrun simctl io booted recordVideo --codec h264 <file>.mp4`, s
 
 ## Cause photos
 
-The nine demo cover photos in `assets/causes/` were generated with ChatGPT from one shared style prompt
-(still life, warm window light, paper background, objects only — no people, hands, faces, text or brands)
-plus one line per cause, then imported with `scripts/import-cause-photos.py` (3:2 crop, 1200 px, metadata stripped).
+The nine demo cover photos in `assets/causes/` come from Unsplash (credits in the README), imported with
+`scripts/import-cause-photos.py` (3:2 crop, 1200 px, metadata stripped). The prescription photo was cropped
+by hand so no face shows at the edge.

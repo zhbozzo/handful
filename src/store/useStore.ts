@@ -141,7 +141,7 @@ export const useStore = create<State & Actions>()(
     {
       name: 'handful',
       // Bump when the demo seed changes: older installs restart from the new seed.
-      version: 3,
+      version: 4,
       migrate: (persisted) => ({ ...initialState(), onboarded: (persisted as Partial<State>)?.onboarded ?? false }),
       storage: createJSONStorage(() => AsyncStorage),
     },
