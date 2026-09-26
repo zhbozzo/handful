@@ -59,3 +59,7 @@ Legend: ✅ pass · ⚠️ pass with note · ❌ fail (fixed / open)
 | 35 | Thank-you photo picked from the photo library (no dev shortcut) → Privacy Shield → Post | ✅ 2 faces blurred, GPS removed |
 | 36 | Your impact: money bar + Thank-yous card with the protected photo, tab badge | ✅ |
 | 37 | A funded/delivered cause never moves backwards if another gift arrives | ✅ unit test (found while capturing screenshots) |
+| 38 | Home “It got there”: delivered causes show the protected thank-you photo and note → proof | ✅ |
+| 39 | Proof flow for a cause whose receipt is already up starts at the thank-you photo | ✅ |
+| 40 | Published screen: Share cause (native sheet) / Manage cause | ✅ |
+| 41 | Large accessibility text on studio, manage and withdraw | ✅ stage tracker collapses to the next step |

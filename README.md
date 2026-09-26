@@ -60,9 +60,9 @@ flowchart LR
 |---|---|---|---|
 | ![](submission/screenshots/11-studio.png) | ![](submission/screenshots/11b-manage.png) | ![](submission/screenshots/12-withdraw.png) | ![](submission/screenshots/09c-impact-thanks.png) |
 
-| Who else gave (anonymous) | Your impact | Gift history (RevenueCat) | Supporter |
+| It got there (home) | Who else gave (anonymous) | Your impact | Supporter |
 |---|---|---|---|
-| ![](submission/screenshots/02b-cause-activity.png) | ![](submission/screenshots/09-impact.png) | ![](submission/screenshots/09b-impact-history.png) | ![](submission/screenshots/10-supporter.png) |
+| ![](submission/screenshots/01b-home-delivered.png) | ![](submission/screenshots/02b-cause-activity.png) | ![](submission/screenshots/09-impact.png) | ![](submission/screenshots/10-supporter.png) |
 
 ## What we learned from existing giving apps
 
