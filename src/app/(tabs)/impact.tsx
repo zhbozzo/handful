@@ -102,7 +102,8 @@ export default function ImpactScreen() {
               Nothing here yet — on purpose.
             </Txt>
             <Txt variant="callout" align="center" style={{ maxWidth: 290 }}>
-              Each gift adds the real things it paid for to this shelf, and the proof when they’re delivered.
+              Give to a cause and follow it here like an order — funded, bought, delivered — with the receipt and a
+              thank-you photo at the end.
             </Txt>
             <Button label="Find a cause" compact onPress={() => router.navigate('/')} style={{ marginTop: 6 }} />
           </Animated.View>
