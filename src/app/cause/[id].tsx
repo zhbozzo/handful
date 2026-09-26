@@ -20,8 +20,11 @@ import { OrgLine } from '@/components/OrgLine';
 import { Pill } from '@/components/Pill';
 import { ProgressBar } from '@/components/Progress';
 import { ScrollHeader } from '@/components/ScrollHeader';
+import { DonorStack, RecentGifts } from '@/components/Supporters';
 import { Timeline } from '@/components/Timeline';
 import { Txt } from '@/components/Txt';
+import { recentGifts } from '@/lib/activity';
+import { shareCause } from '@/lib/share';
 import { devScroll } from '@/lib/devScroll';
 import { categoryById } from '@/data/categories';
 import { orgById } from '@/data/seed';
@@ -33,7 +36,8 @@ import { color, radius, shadow, space } from '@/theme/tokens';
 export default function CauseScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const cause = useCause(id);
-  const gave = useStore((s) => s.contributions.filter((c) => c.causeId === id).reduce((sum, c) => sum + c.amount, 0));
+  const contributions = useStore((s) => s.contributions);
+  const gave = contributions.filter((c) => c.causeId === id).reduce((sum, c) => sum + c.amount, 0);
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(devScroll()?.y ?? 0);
   const onScroll = useAnimatedScrollHandler((e) => {
@@ -52,6 +56,7 @@ export default function CauseScreen() {
 
   const org = orgById(cause.orgId);
   const cat = categoryById(cause.category);
+  const recent = recentGifts(cause, contributions);
   const left = cause.goal - cause.raised;
   const open = cause.status === 'open';
   const delivered = cause.status === 'delivered';
@@ -124,10 +129,17 @@ export default function CauseScreen() {
                 </Txt>
               </View>
             ) : (
-              <Txt variant="caption">
-                {pct(cause.raised, cause.goal)}% funded · {plural(cause.donors, 'donor')}
-                {gave > 0 ? ` · you gave ${money(gave)}` : ''}
-              </Txt>
+              <>
+                <View style={styles.donorRow}>
+                  <DonorStack gifts={recent} donors={cause.donors} />
+                  <Txt variant="caption" style={{ flex: 1 }}>
+                    {pct(cause.raised, cause.goal)}% funded · {plural(cause.donors, 'donor')}
+                    {gave > 0 ? ` · you gave ${money(gave)}` : ''}
+                  </Txt>
+                </View>
+                <View style={styles.cardRule} />
+                <RecentGifts gifts={recent} donors={cause.donors} />
+              </>
             )}
           </Animated.View>
 
@@ -184,7 +196,7 @@ export default function CauseScreen() {
         </View>
       </Animated.ScrollView>
 
-      <ScrollHeader scrollY={scrollY} title={cause.title} showAt={300} />
+      <ScrollHeader scrollY={scrollY} title={cause.title} showAt={300} onShare={() => shareCause(cause)} />
 
       <Animated.View entering={FadeIn.delay(250)} style={[styles.bar, { paddingBottom: insets.bottom + 10 }]}>
         <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFill} />
@@ -271,6 +283,8 @@ function Row({
 }
 
 const styles = StyleSheet.create({
+  donorRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  cardRule: { height: StyleSheet.hairlineWidth, backgroundColor: color.line, marginTop: 2 },
   firstRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   body: {
     padding: space.lg,

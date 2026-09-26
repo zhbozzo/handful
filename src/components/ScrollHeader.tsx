@@ -14,10 +14,12 @@ type Props = {
   title: string;
   /** Scroll offset where the bar is fully visible. */
   showAt: number;
+  /** Optional share action on the right. */
+  onShare?: () => void;
 };
 
 /** Floating back button that grows into a blurred title bar as content scrolls under it. */
-export function ScrollHeader({ scrollY, title, showAt }: Props) {
+export function ScrollHeader({ scrollY, title, showAt, onShare }: Props) {
   const insets = useSafeAreaInsets();
   const bar = useAnimatedStyle(() => ({
     opacity: interpolate(scrollY.value, [showAt - 80, showAt], [0, 1], 'clamp'),
@@ -47,7 +49,15 @@ export function ScrollHeader({ scrollY, title, showAt }: Props) {
             {title}
           </Txt>
         </Animated.View>
-        <View style={{ width: 40 }} />
+        {onShare ? (
+          <Pressable onPress={onShare} accessibilityRole="button" accessibilityLabel="Share" hitSlop={10}>
+            <Animated.View style={[styles.back, chip]}>
+              <Icon name="square.and.arrow.up" size={16} color={color.ink} weight="bold" />
+            </Animated.View>
+          </Pressable>
+        ) : (
+          <View style={{ width: 40 }} />
+        )}
       </View>
     </View>
   );

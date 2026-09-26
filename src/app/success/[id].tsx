@@ -25,6 +25,7 @@ import { orgById } from '@/data/seed';
 import { money, pct } from '@/lib/format';
 import { success, tap } from '@/lib/haptics';
 import { askForDeliveryUpdates, notificationsGranted } from '@/lib/notifications';
+import { shareCause } from '@/lib/share';
 import { useCause, useStore } from '@/store/useStore';
 import { color, radius, space } from '@/theme/tokens';
 
@@ -254,6 +255,22 @@ export default function SuccessScreen() {
             </Pressable>
           </Animated.View>
         ) : null}
+
+        {/* One share is worth more than any other follow-up a donor can do. */}
+        <Animated.View entering={FadeIn.delay(done ? RING_MS + 850 : 1250)}>
+          <Pressable
+            onPress={() => {
+              tap();
+              shareCause(cause, { justGave: true });
+            }}
+            style={styles.notify}
+            accessibilityRole="button">
+            <Icon name="square.and.arrow.up" size={15} color={color.ink} />
+            <Txt variant="caption" color={color.ink} style={{ fontWeight: '700' }}>
+              {done ? 'Share the good news' : `Ask a friend to help finish it · ${money(left)} to go`}
+            </Txt>
+          </Pressable>
+        </Animated.View>
       </ScrollView>
 
       <View style={styles.actions}>

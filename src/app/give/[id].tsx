@@ -153,6 +153,19 @@ export default function GiveSheet() {
 
       <View style={{ flex: 1 }} />
 
+      {/* The whole checkout in one line: no platform fee, no preselected tip, no surprise total. */}
+      <View style={styles.total} accessible accessibilityLabel={`Total ${money(amount)}. No platform fee. No tip.`}>
+        <View style={{ flex: 1, gap: 1 }}>
+          <Txt variant="bodyStrong">Total</Txt>
+          <Txt variant="caption" color={color.ink3}>
+            No platform fee · no tip, ever
+          </Txt>
+        </View>
+        <Txt variant="number" style={{ fontSize: 22, lineHeight: 28 }}>
+          {money(amount)}
+        </Txt>
+      </View>
+
       <Button
         label={
           error
@@ -207,6 +220,7 @@ function Amount({ value, active, onPress }: { value: number; active: boolean; on
 }
 
 const styles = StyleSheet.create({
+  total: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4 },
   sheet: { flex: 1, padding: space.lg, paddingTop: space.xl, gap: space.md, backgroundColor: color.paper },
   options: { flexDirection: 'row', gap: 10 },
   amountSlot: { flex: 1 },
