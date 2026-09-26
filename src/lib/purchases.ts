@@ -48,10 +48,22 @@ export type GiftResult =
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Store errors in words a donor can act on; the SDK's own text is written for developers. */
+export function friendlyPurchaseError(code?: string, raw?: string): string {
+  if (code === PURCHASES_ERROR_CODE.NETWORK_ERROR || code === PURCHASES_ERROR_CODE.OFFLINE_CONNECTION_ERROR)
+    return 'You’re offline. Nothing was charged — try again when you’re connected.';
+  if (code === PURCHASES_ERROR_CODE.PAYMENT_PENDING_ERROR)
+    return 'The payment is waiting for approval. Nothing is recorded until it goes through.';
+  if (code === PURCHASES_ERROR_CODE.PURCHASE_NOT_ALLOWED_ERROR)
+    return 'Purchases aren’t allowed on this device. Nothing was charged.';
+  if (raw && /simulated/i.test(raw)) return 'The Test Store simulated a declined payment. Nothing was charged.';
+  return 'The payment didn’t go through. Nothing was charged — try again.';
+}
+
 function readError(e: unknown): { cancelled: boolean; message: string } {
   const err = e as { userCancelled?: boolean | null; code?: string; message?: string };
   const cancelled = !!err?.userCancelled || err?.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR;
-  return { cancelled, message: err?.message ?? 'Something went wrong. Nothing was charged.' };
+  return { cancelled, message: friendlyPurchaseError(err?.code, err?.message) };
 }
 
 /** Dev/QA only (`-handfulOffline 1` launch argument): skip the SDK to test navigation without taps. */

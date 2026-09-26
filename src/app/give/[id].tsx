@@ -149,7 +149,13 @@ export default function GiveSheet() {
       <View style={{ flex: 1 }} />
 
       <Button
-        label={completes ? `Complete it · ${money(amount)}` : `Give ${money(amount)}`}
+        label={
+          error
+            ? `Try again · ${money(amount)}`
+            : completes
+              ? `Complete it · ${money(amount)}`
+              : `Give ${money(amount)}`
+        }
         kind={completes ? 'sun' : 'primary'}
         loading={busy}
         onPress={give}
