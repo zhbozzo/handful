@@ -3,7 +3,7 @@
  * from the command line without the "Open in Handful?" deep-link prompt.
  *
  *   xcrun simctl launch --terminate-running-process booted app.handful.demo -handfulDev "go:/cause/hot-meal-tonight"
- *   … -handfulDev reset | onboarding | shield | shield:1200 | gift:hot-meal-tonight:4 | history
+ *   … -handfulDev reset | onboarding | shield | shield:1200 | gift:hot-meal-tonight:4 | history | rcfresh
  *
  * iOS puts `-key value` launch arguments into NSUserDefaults, which React Native's
  * Settings API reads.
@@ -101,6 +101,16 @@ export function runDevLaunchAction() {
             activeEntitlements: Object.keys(info.entitlements.active),
           }),
         );
+      });
+    } else if (cmd === 'rcfresh') {
+      // rcfresh — switch to a brand-new RevenueCat customer (no purchases) to review the paywall
+      import('react-native-purchases').then(async ({ default: Purchases }) => {
+        // logIn from an anonymous user carries its purchases over; logging out then starts a clean anonymous customer.
+        if (await Purchases.isAnonymous()) await Purchases.logIn(`handful_demo_${Date.now().toString(36)}`);
+        const customerInfo = await Purchases.logOut();
+        s.setSupporter(!!customerInfo.entitlements.active.supporter);
+        s.finishOnboarding();
+        router.push('/supporter');
       });
     } else if (cmd === 'shield') {
       s.finishOnboarding();

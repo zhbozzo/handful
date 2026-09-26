@@ -54,7 +54,7 @@ flowchart LR
 
 | Your impact | Gift history (RevenueCat) | Supporter | Nonprofit studio |
 |---|---|---|---|
-| ![](submission/screenshots/09-impact.png) | ![](submission/screenshots/09b-impact-history.png) | ![](submission/screenshots/10b-supporter-active.png) | ![](submission/screenshots/11-studio.png) |
+| ![](submission/screenshots/09-impact.png) | ![](submission/screenshots/09b-impact-history.png) | ![](submission/screenshots/10-supporter.png) | ![](submission/screenshots/11-studio.png) |
 
 ## How RevenueCat is used
 
