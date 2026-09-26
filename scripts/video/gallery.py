@@ -18,6 +18,7 @@ ITEMS = [
     ("06b-shield-protected.png", "Privacy Shield", "Protected before it’s posted.", "Faces blurred, metadata stripped, nothing uploaded."),
     ("08-proof.png", "Proof", "It got there.", "Receipt, leftover and a privacy-safe photo."),
     ("09-impact.png", "Your impact", "Things, not points.", "Only what you did: delivered, on the way, funding."),
+    ("07d-publish-review.png", "For nonprofits", "Post a need in three steps.", "Category and icons from what you type; one confirmation."),
     ("10-supporter.png", "RevenueCat", "Keep Handful free.", "Offering, entitlement, restore — the part that ships."),
 ]
 

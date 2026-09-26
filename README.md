@@ -48,9 +48,13 @@ flowchart LR
 |---|---|---|---|
 | ![](submission/screenshots/01-home.png) | ![](submission/screenshots/02-cause.png) | ![](submission/screenshots/03-cause-budget.png) | ![](submission/screenshots/04-give.png) |
 
-| Privacy Shield: found | Privacy Shield: protected | Publish a cause | Delivered, with proof |
+| Privacy Shield: found | Privacy Shield: protected | Post a cause (1 of 3) | Review & publish |
 |---|---|---|---|
-| ![](submission/screenshots/06-shield-review.png) | ![](submission/screenshots/06b-shield-protected.png) | ![](submission/screenshots/07-publish.png) | ![](submission/screenshots/08-proof.png) |
+| ![](submission/screenshots/06-shield-review.png) | ![](submission/screenshots/06b-shield-protected.png) | ![](submission/screenshots/07-publish.png) | ![](submission/screenshots/07d-publish-review.png) |
+
+| Post proof | Delivered, with proof | Donor notification | Protected tent photo |
+|---|---|---|---|
+| ![](submission/screenshots/07c-proof-post.png) | ![](submission/screenshots/08-proof.png) | ![](submission/screenshots/08c-delivered-notification.png) | ![](submission/screenshots/08b-proof-tent.png) |
 
 | Your impact | Gift history (RevenueCat) | Supporter | Nonprofit studio |
 |---|---|---|---|
@@ -94,12 +98,12 @@ src/
     give/[id].tsx         Gift sheet → RevenueCat
     success/[id].tsx      Ring-closing success
     proof/[id].tsx        Delivery proof (donor view)
-    nonprofit/new.tsx     Create cause (5 steps)
-    nonprofit/proof/[id]  Post proof (receipt → photo → note)
+    nonprofit/new.tsx     Post a cause: need & budget → story & photo → review (one confirmation)
+    nonprofit/proof/[id]  Post proof: receipt → photo + note
     supporter.tsx         Supporter membership (RevenueCat subscription)
   components/             Design system: Txt, Button, Pill, Ring, CoverArt, Timeline, ShieldReview…
   data/                   Types, categories, demo seed data
-  lib/                    purchases (RevenueCat), privacy (Shield logic), notifications, format
+  lib/                    purchases (RevenueCat), privacy (Shield logic), guess (category/icon from text), notifications, format
   store/useStore.ts       Zustand + AsyncStorage (all state is local)
   theme/tokens.ts         Color, type, spacing, radius, motion
 modules/privacy-shield/   Local Expo module (Swift, Vision, Core Image)
@@ -107,7 +111,7 @@ modules/privacy-shield/   Local Expo module (Swift, Vision, Core Image)
 
 No backend, no login. State lives on the device. The “nonprofit” and the “donor” are the same phone in this demo; a delivered update fires a local notification to stand in for a push.
 
-**Stack:** Expo SDK 57, React Native 0.86 (New Architecture), Expo Router (native tabs), TypeScript, Reanimated 4, react-native-svg, expo-symbols (SF Symbols), expo-haptics, expo-image-picker, expo-notifications, Zustand, react-native-purchases 10, Instrument Serif.
+**Stack:** Expo SDK 57, React Native 0.86 (New Architecture), Expo Router (native tabs), TypeScript, Reanimated 4, react-native-svg, expo-symbols (SF Symbols), expo-haptics, expo-image-picker, expo-notifications, Zustand, react-native-purchases 10, Figtree.
 
 ## Run it
 
@@ -217,4 +221,4 @@ What would change before real money moves:
 
 ## License
 
-[MIT](LICENSE). Fonts: Instrument Serif (SIL Open Font License). Icons: SF Symbols (Apple, used on Apple platforms under Apple’s license).
+[MIT](LICENSE). Font: Figtree (SIL Open Font License). Icons: SF Symbols (Apple, used on Apple platforms under Apple’s license).

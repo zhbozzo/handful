@@ -39,6 +39,17 @@ type Props = {
 
 const BEAM = 90;
 
+/** Locked findings of one kind read as one row ("2 faces"); choices stay one row each. */
+function groupFindings(findings: Finding[]) {
+  const rows: (Finding & { count: number })[] = [];
+  for (const f of findings) {
+    const same = f.locked && !f.advisory ? rows.find((r) => r.locked && !r.advisory && r.kind === f.kind) : undefined;
+    if (same) same.count += 1;
+    else rows.push({ ...f, count: 1 });
+  }
+  return rows.map((r) => (r.count > 1 ? { ...r, label: `${r.count} ${r.label.toLowerCase()}s` } : r));
+}
+
 const KIND_SYMBOL: Record<Finding['kind'], string> = {
   face: 'face.dashed',
   plate: 'car.fill',
@@ -67,6 +78,7 @@ export function ShieldReview({
   const available = shieldAvailable();
   const [phase, setPhase] = useState<Phase>(available ? 'scanning' : 'error');
   const [findings, setFindings] = useState<Finding[]>([]);
+  const rows = groupFindings(findings);
   const [safeText, setSafeText] = useState(0);
   const [ms, setMs] = useState(0);
   const [safeUri, setSafeUri] = useState<string | null>(null);
@@ -272,18 +284,18 @@ export function ShieldReview({
         <Animated.View entering={FadeInDown.duration(400)} style={{ gap: space.md }}>
           <View style={{ gap: 4 }}>
             <Txt variant="headline">
-              {findings.length === 0
+              {rows.length === 0
                 ? 'Nothing identifying found.'
-                : `${findings.length} thing${findings.length > 1 ? 's' : ''} to review`}
+                : `${rows.length} thing${rows.length > 1 ? 's' : ''} to review`}
             </Txt>
             <Txt variant="caption">
               Checked on this device in {ms} ms · {safeText} other text area{safeText === 1 ? '' : 's'} look safe ·
               nothing uploaded
             </Txt>
           </View>
-          {findings.length > 0 ? (
+          {rows.length > 0 ? (
             <View style={styles.card}>
-              {findings.map((f, i) => (
+              {rows.map((f, i) => (
                 <View key={f.id} style={[styles.finding, i > 0 && styles.findingBorder]}>
                   <View
                     style={[
@@ -403,7 +415,7 @@ const styles = StyleSheet.create({
   },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center' },
   card: { backgroundColor: color.card, borderRadius: radius.lg, paddingHorizontal: space.md },
-  finding: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
+  finding: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
   findingBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line },
   findingIcon: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   safeRow: {

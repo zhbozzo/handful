@@ -1,7 +1,7 @@
 # Demo video — script, shot list, edit
 
 **Length:** 1:50 (hard cap 2:00). **Format:** 1920×1080, 30 fps, H.264 + AAC, for YouTube (unlisted is fine, but it must be public-viewable).
-**Look:** warm paper background (#F6F3EC), the app’s own serif (Instrument Serif) for captions, the phone recording framed without a device bezel, rounded corners.
+**Look:** warm paper background (#F6F3EC), the app’s own type (Figtree ExtraBold, one accent line in deep sun) for captions, the phone recording framed without a device bezel, rounded corners.
 **Audio:** original ambient track generated for this video (no third-party music). Optional voice-over (script below) — captions carry the story on their own.
 
 The first 15 seconds do the work: problem → the one line that explains the product → the app.
@@ -36,7 +36,7 @@ Record each with `xcrun simctl io booted recordVideo --codec h264 <file>.mp4`, s
 ## Edit (automated)
 
 `scripts/video/build.sh` composes the recordings, title cards and captions with ffmpeg (no third-party editor needed):
-- Title cards rendered with Pillow in Instrument Serif at 1920×1080.
+- Title cards rendered with Pillow in Figtree at 1920×1080.
 - Phone recordings scaled to 980 px tall, rounded-corner mask, soft shadow, left-aligned; captions on the right.
 - Cross-fades 8 frames between shots, music ducked −6 dB under voice-over if present.
 - Export: `submission/video/handful-demo.mp4` (H.264 High, CRF 18, 30 fps, AAC 192 kbps, `+faststart`).
