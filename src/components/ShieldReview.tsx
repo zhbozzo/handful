@@ -7,6 +7,7 @@ import Animated, {
   FadeIn,
   FadeInDown,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -80,10 +81,13 @@ export function ShieldReview({
   const dispW = Math.min(maxW, maxH * ratio);
   const dispH = dispW / ratio;
 
+  const reduced = useReducedMotion();
   const beam = useSharedValue(0);
   useEffect(() => {
-    beam.set(withRepeat(withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }), -1, true));
-  }, [beam]);
+    // With Reduce Motion the scan line holds still mid-photo; the label still says it's scanning.
+    if (reduced) beam.set(0.5);
+    else beam.set(withRepeat(withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }), -1, true));
+  }, [beam, reduced]);
   const beamStyle = useAnimatedStyle(() => ({ transform: [{ translateY: beam.value * (dispH - BEAM) }] }));
 
   // One bright sweep across the photo the moment the protected version lands.

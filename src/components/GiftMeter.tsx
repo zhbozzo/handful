@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withRepeat,
   withSequence,
@@ -30,12 +31,14 @@ export function GiftMeter({ raised, goal, gift }: Props) {
   const left = goal - after;
   const completes = left <= 0;
 
+  const reduced = useReducedMotion();
   const share = useSharedValue(0);
-  const glow = useSharedValue(0.85);
+  const glow = useSharedValue(reduced ? 1 : 0.85);
   useEffect(() => {
     share.set(withSpring(giftPct, { damping: 16, stiffness: 140 }));
   }, [giftPct, share]);
   useEffect(() => {
+    if (reduced) return;
     glow.set(
       withRepeat(
         withSequence(
@@ -45,12 +48,15 @@ export function GiftMeter({ raised, goal, gift }: Props) {
         -1,
       ),
     );
-  }, [glow]);
+  }, [glow, reduced]);
 
   const shareStyle = useAnimatedStyle(() => ({ width: `${share.value * 100}%`, opacity: glow.value }));
 
   return (
-    <View style={{ gap: 10 }} accessible accessibilityLabel={`After your gift: ${completes ? 'fully funded' : `${money(left)} to go`}`}>
+    <View
+      style={{ gap: 10 }}
+      accessible
+      accessibilityLabel={`After your gift: ${completes ? 'fully funded' : `${money(left)} to go`}`}>
       <View style={styles.track}>
         <View style={[styles.raised, { width: `${raisedPct * 100}%` }]} />
         <Animated.View style={[styles.share, shareStyle]} />
