@@ -1,4 +1,14 @@
-import { Pressable, StyleSheet, TextInput, type TextInputProps, View } from 'react-native';
+import { useEffect } from 'react';
+import {
+  Pressable,
+  type StyleProp,
+  StyleSheet,
+  TextInput,
+  type TextInputProps,
+  View,
+  type ViewStyle,
+} from 'react-native';
+import Animated, { Easing, FadeInRight, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { tap } from '@/lib/haptics';
 import { color, font, radius, space } from '@/theme/tokens';
@@ -36,7 +46,7 @@ export function FlowHeader({
         )}
         <View style={styles.steps}>
           {Array.from({ length: total }).map((_, i) => (
-            <View key={i} style={[styles.step, i <= step && styles.stepOn]} />
+            <Segment key={i} on={i <= step} />
           ))}
         </View>
         <Pressable
@@ -48,13 +58,36 @@ export function FlowHeader({
           <Icon name="xmark" size={15} color={color.ink} weight="bold" />
         </Pressable>
       </View>
-      <View style={{ gap: 2 }}>
+      <Animated.View key={title} entering={FadeInRight.duration(280)} style={{ gap: 2 }}>
         <Txt variant="micro">
           Step {step + 1} of {total}
         </Txt>
         <Txt variant="title">{title}</Txt>
-      </View>
+      </Animated.View>
     </View>
+  );
+}
+
+/** A progress segment that fills from the left when its step is reached. */
+function Segment({ on }: { on: boolean }) {
+  const v = useSharedValue(on ? 1 : 0);
+  useEffect(() => {
+    v.set(withTiming(on ? 1 : 0, { duration: 420, easing: Easing.out(Easing.cubic) }));
+  }, [on, v]);
+  const fill = useAnimatedStyle(() => ({ width: `${v.value * 100}%` }));
+  return (
+    <View style={styles.step}>
+      <Animated.View style={[styles.stepFill, fill]} />
+    </View>
+  );
+}
+
+/** Each step's content slides in a little from the right. */
+export function StepIn({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+  return (
+    <Animated.View entering={FadeInRight.duration(300)} style={style}>
+      {children}
+    </Animated.View>
   );
 }
 
@@ -157,8 +190,8 @@ const styles = StyleSheet.create({
     backgroundColor: color.card,
   },
   steps: { flex: 1, flexDirection: 'row', gap: 4 },
-  step: { flex: 1, height: 4, borderRadius: 2, backgroundColor: color.line },
-  stepOn: { backgroundColor: color.ink },
+  step: { flex: 1, height: 4, borderRadius: 2, backgroundColor: color.line, overflow: 'hidden' },
+  stepFill: { height: '100%', borderRadius: 2, backgroundColor: color.ink },
   input: {
     minHeight: 50,
     borderRadius: radius.md,

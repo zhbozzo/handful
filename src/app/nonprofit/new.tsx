@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { CoverArt } from '@/components/CoverArt';
-import { Check, Field, FlowHeader, Segmented } from '@/components/Form';
+import { Check, Field, FlowHeader, Segmented, StepIn } from '@/components/Form';
 import { Icon } from '@/components/Icon';
 import { OrgLine } from '@/components/OrgLine';
 import { ShieldReview } from '@/components/ShieldReview';
@@ -193,7 +193,7 @@ export default function NewCause() {
         />
 
         {step === 0 ? (
-          <View style={{ gap: space.lg }}>
+          <StepIn style={{ gap: space.lg }}>
             <View style={{ gap: 8 }}>
               <Txt variant="caption" color={color.ink} style={{ fontWeight: '600' }}>
                 Who is this helping?
@@ -243,11 +243,11 @@ export default function NewCause() {
               hint="Name the help, not the person."
             />
             <Button label="Fill with an example" kind="ghost" compact symbol="wand.and.stars" onPress={fillExample} />
-          </View>
+          </StepIn>
         ) : null}
 
         {step === 1 ? (
-          <View style={{ gap: space.md }}>
+          <StepIn style={{ gap: space.md }}>
             <Txt variant="callout">List what you’ll buy and what it costs. Donors see exactly this.</Txt>
             {rows.map((r, i) => (
               <View key={r.id} style={styles.budgetRow}>
@@ -296,11 +296,11 @@ export default function NewCause() {
             <Txt variant="caption" color={goal > 100 ? color.error : color.ink3}>
               Keep it small: causes up to $100 get funded fastest — most are under $60.
             </Txt>
-          </View>
+          </StepIn>
         ) : null}
 
         {step === 2 ? (
-          <View style={{ gap: space.lg }}>
+          <StepIn style={{ gap: space.lg }}>
             <Field
               label="Short story"
               placeholder="What’s the need, and what will you do with the money?"
@@ -339,11 +339,11 @@ export default function NewCause() {
                 <Txt variant="caption">No full names, exact places, phone numbers or health details found.</Txt>
               )}
             </View>
-          </View>
+          </StepIn>
         ) : null}
 
         {step === 3 ? (
-          <View style={{ gap: space.lg }}>
+          <StepIn style={{ gap: space.lg }}>
             {photo ? (
               <ShieldReview
                 key={photo.uri}
@@ -388,11 +388,11 @@ export default function NewCause() {
                 />
               </>
             )}
-          </View>
+          </StepIn>
         ) : null}
 
         {step === 4 ? (
-          <View style={{ gap: space.lg }}>
+          <StepIn style={{ gap: space.lg }}>
             <View style={styles.preview}>
               <CoverArt cause={{ category, items, coverUri: cover }} height={150} rounded={0} />
               <View style={{ padding: space.md, gap: 8 }}>
@@ -423,7 +423,7 @@ export default function NewCause() {
                 detail="No identifiable faces, children or documents."
               />
             </View>
-          </View>
+          </StepIn>
         ) : null}
       </ScrollView>
 

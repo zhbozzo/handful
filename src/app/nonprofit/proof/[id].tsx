@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { CoverThumb } from '@/components/CoverArt';
-import { Check, Field, FlowHeader } from '@/components/Form';
+import { Check, Field, FlowHeader, StepIn } from '@/components/Form';
 import { Icon } from '@/components/Icon';
 import { ShieldReview } from '@/components/ShieldReview';
 import { Txt } from '@/components/Txt';
@@ -23,7 +23,13 @@ import { color, font, radius, space } from '@/theme/tokens';
 const TITLES = ['Receipt', 'Delivery photo', 'Note & post'];
 
 export default function PostProof() {
-  const { id, devPhoto, auto, hold, step: devStep } = useLocalSearchParams<{
+  const {
+    id,
+    devPhoto,
+    auto,
+    hold,
+    step: devStep,
+  } = useLocalSearchParams<{
     id: string;
     devPhoto?: string;
     auto?: string;
@@ -171,7 +177,7 @@ export default function PostProof() {
         </View>
 
         {step === 0 ? (
-          <View style={{ gap: space.md }}>
+          <StepIn style={{ gap: space.md }}>
             <Field label="Where did you buy it?" value={store} onChangeText={setStore} maxLength={40} />
             <View style={styles.card}>
               {lines.map((l, i) => (
@@ -206,11 +212,11 @@ export default function PostProof() {
             <Txt variant="caption" color={color.ink3}>
               In production the receipt photo is attached and checked. This demo records the line items.
             </Txt>
-          </View>
+          </StepIn>
         ) : null}
 
         {step === 1 ? (
-          <View style={{ gap: space.lg }}>
+          <StepIn style={{ gap: space.lg }}>
             {photo ? (
               <ShieldReview
                 key={photo.uri}
@@ -252,11 +258,11 @@ export default function PostProof() {
                 ) : null}
               </>
             )}
-          </View>
+          </StepIn>
         ) : null}
 
         {step === 2 ? (
-          <View style={{ gap: space.lg }}>
+          <StepIn style={{ gap: space.lg }}>
             <Field
               label="Note to donors"
               value={note}
@@ -271,7 +277,7 @@ export default function PostProof() {
               label="Delivered as described"
               detail="The items on the receipt reached the person or family this cause was for."
             />
-          </View>
+          </StepIn>
         ) : null}
       </ScrollView>
 
