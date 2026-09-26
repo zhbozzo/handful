@@ -2,7 +2,7 @@ import { Redirect } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 import { useStore } from '@/store/useStore';
-import { color } from '@/theme/tokens';
+import { color, font } from '@/theme/tokens';
 
 export default function TabsLayout() {
   const onboarded = useStore((s) => s.onboarded);
@@ -11,14 +11,22 @@ export default function TabsLayout() {
   if (!onboarded) return <Redirect href="/onboarding" />;
 
   return (
-    <NativeTabs tintColor={color.ink} iconColor={{ default: color.ink3, selected: color.ink }} minimizeBehavior="never">
+    <NativeTabs
+      tintColor={color.ink}
+      iconColor={{ default: color.ink3, selected: color.ink }}
+      labelStyle={{
+        default: { fontFamily: font.semibold, fontSize: 10, color: color.ink3 },
+        selected: { fontFamily: font.bold, fontSize: 10, color: color.ink },
+      }}
+      badgeBackgroundColor={color.sunDeep}
+      minimizeBehavior="never">
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Causes</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={{ default: 'square.grid.2x2', selected: 'square.grid.2x2.fill' }} />
+        <NativeTabs.Trigger.Icon sf={{ default: 'heart.circle', selected: 'heart.circle.fill' }} />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="impact">
         <NativeTabs.Trigger.Label>Your impact</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={{ default: 'hands.and.sparkles', selected: 'hands.and.sparkles.fill' }} />
+        <NativeTabs.Trigger.Icon sf={{ default: 'gift', selected: 'gift.fill' }} />
         {unread > 0 ? <NativeTabs.Trigger.Badge>{String(unread)}</NativeTabs.Trigger.Badge> : null}
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="studio">

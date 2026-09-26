@@ -14,10 +14,12 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { categoryById } from '@/data/categories';
+import { causePhoto } from '@/data/photos';
 import type { Cause } from '@/data/types';
-import { radius } from '@/theme/tokens';
+import { color, radius } from '@/theme/tokens';
 
 import { Icon } from './Icon';
+import { Txt } from './Txt';
 
 /**
  * Covers show the help, never the person: a still life of the items the cause pays for.
@@ -41,8 +43,10 @@ const LAYOUTS: { x: number; y: number; s: number; r: number }[][] = [
   ],
 ];
 
+type CoverCause = Pick<Cause, 'category' | 'items' | 'coverUri'> & { id?: string };
+
 type Props = {
-  cause: Pick<Cause, 'category' | 'items' | 'coverUri'>;
+  cause: CoverCause;
   height: number;
   rounded?: number;
   style?: ViewStyle;
@@ -50,6 +54,8 @@ type Props = {
   alive?: boolean;
   /** Space at the top the items should stay clear of (status bar, back button). */
   padTop?: number;
+  /** Label demo photos as illustrative (on the cause page). */
+  photoTag?: boolean;
 };
 
 /** Bigger covers hold fewer, larger items; four items share the space. */
@@ -120,13 +126,35 @@ function Tile({
   );
 }
 
-export function CoverArt({ cause, height, rounded = radius.lg, style, alive = true, padTop = 0 }: Props) {
+export function CoverArt({
+  cause,
+  height,
+  rounded = radius.lg,
+  style,
+  alive = true,
+  padTop = 0,
+  photoTag = false,
+}: Props) {
   const cat = categoryById(cause.category);
+  const demoPhoto = cause.coverUri ? undefined : causePhoto(cause.id);
 
-  if (cause.coverUri) {
+  if (cause.coverUri || demoPhoto) {
     return (
       <View style={[{ height, borderRadius: rounded, overflow: 'hidden', backgroundColor: cat.tint }, style]}>
-        <Image source={{ uri: cause.coverUri }} style={StyleSheet.absoluteFill} contentFit="cover" transition={250} />
+        <Image
+          source={cause.coverUri ? { uri: cause.coverUri } : demoPhoto}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={250}
+          accessibilityLabel={`Photo of ${cause.items.map((i) => i.label).join(', ')}`}
+        />
+        {demoPhoto && photoTag ? (
+          <View style={styles.photoTag}>
+            <Txt variant="caption" color={color.ink2} style={{ fontSize: 10, lineHeight: 13 }}>
+              Illustrative photo
+            </Txt>
+          </View>
+        ) : null}
       </View>
     );
   }
@@ -181,18 +209,13 @@ export function CoverArt({ cause, height, rounded = radius.lg, style, alive = tr
   );
 }
 
-export function CoverThumb({
-  cause,
-  size = 56,
-}: {
-  cause: Pick<Cause, 'category' | 'items' | 'coverUri'>;
-  size?: number;
-}) {
+export function CoverThumb({ cause, size = 56 }: { cause: CoverCause; size?: number }) {
   const cat = categoryById(cause.category);
-  if (cause.coverUri) {
+  const demoPhoto = cause.coverUri ? undefined : causePhoto(cause.id);
+  if (cause.coverUri || demoPhoto) {
     return (
       <Image
-        source={{ uri: cause.coverUri }}
+        source={cause.coverUri ? { uri: cause.coverUri } : demoPhoto}
         style={{ width: size, height: size, borderRadius: size * 0.3, backgroundColor: cat.tint }}
         contentFit="cover"
       />
@@ -229,6 +252,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: StyleSheet.hairlineWidth * 2,
     borderColor: 'rgba(255,255,255,0.9)',
+  },
+  photoTag: {
+    position: 'absolute',
+    right: 10,
+    bottom: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.85)',
   },
   orb: {
     position: 'absolute',

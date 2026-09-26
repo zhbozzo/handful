@@ -109,7 +109,7 @@ export default function GiveSheet() {
           </View>
           <View style={{ flex: 1 }}>
             <Txt variant="bodyStrong">Complete this cause</Txt>
-            <Txt variant="caption">Cover the last {money(left)} and it’s fully funded today.</Txt>
+            <Txt variant="caption">Covers what’s left — funded today.</Txt>
           </View>
           <Txt variant="number" style={{ fontSize: 20 }}>
             {money(left)}
@@ -153,19 +153,6 @@ export default function GiveSheet() {
 
       <View style={{ flex: 1 }} />
 
-      {/* The whole checkout in one line: no platform fee, no preselected tip, no surprise total. */}
-      <View style={styles.total} accessible accessibilityLabel={`Total ${money(amount)}. No platform fee. No tip.`}>
-        <View style={{ flex: 1, gap: 1 }}>
-          <Txt variant="bodyStrong">Total</Txt>
-          <Txt variant="caption" color={color.ink3}>
-            No platform fee · no tip, ever
-          </Txt>
-        </View>
-        <Txt variant="number" style={{ fontSize: 22, lineHeight: 28 }}>
-          {money(amount)}
-        </Txt>
-      </View>
-
       <Button
         label={
           error
@@ -179,12 +166,19 @@ export default function GiveSheet() {
         onPress={give}
         accessibilityHint="Opens the RevenueCat test purchase sheet"
       />
-      <View style={styles.rail}>
+      {/* The whole checkout promise in one line: the button's amount is the total. */}
+      <View
+        style={styles.rail}
+        accessible
+        accessibilityLabel="No platform fee, no tip. RevenueCat Test Store, no real money.">
         <Icon name="lock.fill" size={11} color={color.ink3} />
-        <Txt variant="caption" color={color.ink3} align="center">
+        <Txt variant="caption" color={color.ink3} align="center" style={{ fontSize: 12 }}>
+          <Txt variant="caption" color={color.ink2} style={{ fontSize: 12, fontWeight: '700' }}>
+            No fee · no tip
+          </Txt>
           {revenueCatEnabled()
-            ? `RevenueCat ${isTestStoreKey() ? 'Test Store' : 'sandbox'} · no real money moves`
-            : 'Offline demo · RevenueCat key not configured · no money moves'}
+            ? ` · RevenueCat ${isTestStoreKey() ? 'Test Store' : 'sandbox'}, no real money`
+            : ' · offline demo, no money moves'}
         </Txt>
       </View>
     </View>
@@ -220,7 +214,6 @@ function Amount({ value, active, onPress }: { value: number; active: boolean; on
 }
 
 const styles = StyleSheet.create({
-  total: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4 },
   sheet: { flex: 1, padding: space.lg, paddingTop: space.xl, gap: space.md, backgroundColor: color.paper },
   options: { flexDirection: 'row', gap: 10 },
   amountSlot: { flex: 1 },

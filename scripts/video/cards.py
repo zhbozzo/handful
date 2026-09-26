@@ -19,10 +19,10 @@ SERIF_ITALIC = HEAVY
 W, H = 1920, 1080
 PAPER = (246, 243, 236)
 INK = (23, 20, 15)
-INK2 = (92, 86, 75)
-INK3 = (143, 136, 123)
+INK2 = (78, 73, 63)
+INK3 = (111, 105, 94)
 SUN = (244, 166, 42)
-SUN_DEEP = (168, 98, 10)
+SUN_DEEP = (154, 89, 8)
 
 
 def font(path, size):

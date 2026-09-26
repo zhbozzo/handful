@@ -12,14 +12,14 @@ export const color = {
   paperDeep: '#EFEAE0',
   card: '#FFFFFF',
   ink: '#17140F',
-  ink2: '#5C564B',
-  ink3: '#8F887B',
+  ink2: '#4E493F',
+  ink3: '#6F695E',
   line: '#E6E0D3',
   lineStrong: '#D6CEBE',
 
   sun: '#F4A62A',
   sunSoft: '#FCEBC8',
-  sunDeep: '#A8620A',
+  sunDeep: '#9A5908',
 
   leaf: '#1D6B4E',
   leafSoft: '#DCEEE4',

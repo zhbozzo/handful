@@ -52,7 +52,7 @@ export function CauseCard({ cause }: { cause: Cause }) {
             onPressOut={p.onPressOut}
             accessibilityRole="button"
             accessibilityLabel={`${cause.title}. ${done ? statusLabel[cause.status] : `${money(left)} to go`}`}>
-            <CoverArt cause={cause} height={148} rounded={0} />
+            <CoverArt cause={cause} height={148} rounded={0} alive={false} />
             <View style={styles.body}>
               <View style={styles.pills}>
                 <Pill label={cat.label} small />
@@ -108,41 +108,50 @@ export function AlmostCard({ cause }: { cause: Cause }) {
   const p = usePressScale();
   return (
     <Animated.View style={[styles.almost, p.style]}>
-      <Pressable
-        onPress={() => router.push(`/cause/${cause.id}`)}
-        onPressIn={p.onPressIn}
-        onPressOut={p.onPressOut}
-        accessibilityRole="button"
-        accessibilityLabel={`${cause.title}. Only ${money(left)} left.`}
-        style={{ gap: space.md }}>
-        <View style={styles.almostTop}>
-          <Ring value={cause.raised / cause.goal} size={58} stroke={6}>
-            <Txt variant="number" style={{ fontSize: 14 }}>
-              {pct(cause.raised, cause.goal)}%
-            </Txt>
-          </Ring>
-          <View style={{ flex: 1, gap: 2 }}>
-            <Txt variant="headline" style={{ fontSize: 24 }}>
+      <View style={styles.almostClip}>
+        <Pressable
+          onPress={() => router.push(`/cause/${cause.id}`)}
+          onPressIn={p.onPressIn}
+          onPressOut={p.onPressOut}
+          accessibilityRole="button"
+          accessibilityLabel={`${cause.title}. Only ${money(left)} left.`}>
+          <CoverArt cause={cause} height={ALMOST_COVER} rounded={0} alive={false} />
+          {/* The ring sits on the seam between picture and text. */}
+          <View style={styles.almostRing}>
+            <Ring value={cause.raised / cause.goal} size={50} stroke={5}>
+              <Txt variant="number" style={{ fontSize: 12, lineHeight: 15 }}>
+                {pct(cause.raised, cause.goal)}%
+              </Txt>
+            </Ring>
+          </View>
+          <View style={styles.almostBody}>
+            <Txt variant="headline" style={{ fontSize: 22, lineHeight: 27 }}>
               Only {money(left)} left
             </Txt>
-            <Txt variant="caption" numberOfLines={2}>
+            <Txt variant="caption" numberOfLines={1}>
               {cause.title}
             </Txt>
+            <View style={{ marginTop: 6 }}>
+              <OrgLine org={org} size="sm" />
+            </View>
           </View>
-        </View>
-        <OrgLine org={org} size="sm" />
-      </Pressable>
-      {left <= MAX_GIFT ? (
-        <Button
-          label={`Complete it · ${money(left)}`}
-          kind="sun"
-          compact
-          onPress={() => router.push({ pathname: '/give/[id]', params: { id: cause.id, amount: String(left) } })}
-        />
-      ) : null}
+        </Pressable>
+        {left <= MAX_GIFT ? (
+          <View style={{ paddingHorizontal: space.md, paddingBottom: space.md }}>
+            <Button
+              label={`Complete it · ${money(left)}`}
+              kind="sun"
+              compact
+              onPress={() => router.push({ pathname: '/give/[id]', params: { id: cause.id, amount: String(left) } })}
+            />
+          </View>
+        ) : null}
+      </View>
     </Animated.View>
   );
 }
+
+const ALMOST_COVER = 112;
 
 const styles = StyleSheet.create({
   card: {
@@ -158,9 +167,16 @@ const styles = StyleSheet.create({
     width: ALMOST_CARD_WIDTH,
     backgroundColor: color.card,
     borderRadius: radius.lg,
-    padding: space.md,
-    gap: space.md,
     ...shadow.card,
   },
-  almostTop: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  almostClip: { borderRadius: radius.lg, overflow: 'hidden' },
+  almostRing: {
+    position: 'absolute',
+    top: ALMOST_COVER - 30,
+    left: space.md - 4,
+    padding: 4,
+    borderRadius: 40,
+    backgroundColor: color.card,
+  },
+  almostBody: { paddingHorizontal: space.md, paddingTop: 30, paddingBottom: space.md, gap: 2 },
 });
