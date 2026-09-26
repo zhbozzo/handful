@@ -12,7 +12,6 @@ import { Pill } from '@/components/Pill';
 import { PressableScale } from '@/components/PressableScale';
 import { StatusScrim } from '@/components/StatusScrim';
 import { Txt } from '@/components/Txt';
-import { Mark } from '@/components/Wordmark';
 import { categoryById } from '@/data/categories';
 import type { CauseItem, CauseStatus } from '@/data/types';
 import { ago, money, when } from '@/lib/format';
@@ -69,12 +68,24 @@ export default function ImpactScreen() {
 
         {empty ? (
           <Animated.View entering={FadeInDown.duration(450)} style={[styles.card, styles.empty]}>
-            <Mark size={56} />
+            <View style={styles.ghostShelf} accessible={false}>
+              {GHOST.map((symbol, i) => (
+                <Animated.View
+                  key={symbol}
+                  entering={ZoomIn.delay(200 + i * 90)
+                    .springify()
+                    .damping(14)}>
+                  <View style={[styles.ghostTile, { transform: [{ rotate: `${TILT[i]}deg` }] }]}>
+                    <Icon name={symbol} size={22} color={color.lineStrong} />
+                  </View>
+                </Animated.View>
+              ))}
+            </View>
             <Txt variant="headline" align="center">
               Nothing here yet — on purpose.
             </Txt>
             <Txt variant="callout" align="center" style={{ maxWidth: 290 }}>
-              Your first gift shows up here, and so does the proof when it’s delivered.
+              Each gift adds the real things it paid for to this shelf, and the proof when they’re delivered.
             </Txt>
             <Button label="Find a cause" compact onPress={() => router.navigate('/')} style={{ marginTop: 6 }} />
           </Animated.View>
@@ -221,6 +232,7 @@ function stateOf(status: CauseStatus): ItemState {
 }
 
 const TILT = [-4, 3, -2, 5, -3, 2, -5, 4];
+const GHOST = ['fork.knife', 'drop.fill', 'bus.fill', 'pawprint.fill'];
 
 /**
  * The things your gifts paid for, collected like a shelf of small objects.
@@ -368,7 +380,18 @@ function Stat({
 
 const styles = StyleSheet.create({
   card: { backgroundColor: color.card, borderRadius: radius.lg, padding: space.md, ...shadow.card },
-  empty: { alignItems: 'center', gap: space.sm, paddingVertical: space.xxl },
+  empty: { alignItems: 'center', gap: space.sm, paddingVertical: space.xl },
+  ghostShelf: { flexDirection: 'row', gap: 12, marginBottom: space.sm },
+  ghostTile: {
+    width: 52,
+    height: 52,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: color.paper,
+    borderWidth: 1.5,
+    borderColor: color.line,
+  },
   grid: { flexDirection: 'row', gap: 10 },
   stat: {
     flex: 1,
