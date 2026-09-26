@@ -10,7 +10,7 @@ Legend: ✅ pass · ⚠️ pass with note · ❌ fail (fixed / open)
 | 1 | Fresh install → launch | Splash (paper + mark) → onboarding | ⚠️ via `-handfulDev onboarding` (state reset), not a reinstall; splash fades into first screen |
 | 2 | Onboarding: swipe + Continue ×2 → Start giving | Lands on Causes; onboarding never shows again | ✅ |
 | 3 | Causes: hero, Almost there carousel, chips, cards, On the way, Delivered, footer | All sections render; no clipped text; tab bar doesn’t cover content | ✅ |
-| 4 | Category chip filter | List filters; “All” restores | |
+| 4 | Category chip filter | List filters; “All” restores | ✅ |
 | 5 | Open “Hot meal + warm socks” | Cover, pills (Food, Demo cause), org ✓, amounts, items, timeline, trust & privacy | ✅ |
 | 6 | “Complete it · $4” | Give sheet opens with Complete selected | ✅ |
 | 7 | Give → RevenueCat Test Store sheet → Successful purchase | Success screen: ring closes, check draws, haptic | ✅ `handful_gift_4` |
@@ -44,8 +44,8 @@ Legend: ✅ pass · ⚠️ pass with note · ❌ fail (fixed / open)
 
 | # | Check | Result |
 |---|---|---|
-| 23 | Kill + relaunch: state persists | |
-| 24 | Reset demo data | |
+| 23 | Kill + relaunch: state persists | ✅ gifts and proof survived every relaunch in this pass |
+| 24 | Reset demo data | ✅ confirmation alert → starting state |
 | 25 | No RevenueCat key (.env empty): offline demo labels everywhere | |
 | 26 | Airplane mode during gift: error message, nothing recorded | |
 | 27 | Dynamic Type (Larger text): no overlaps on key screens | ✅ accessibility-large; gift sheet opens full height |
