@@ -14,8 +14,8 @@ Legend: ✅ pass · ⚠️ pass with note · ❌ fail (fixed / open)
 | 5 | Open “Hot meal + warm socks” | Cover, pills (Food, Demo cause), org ✓, amounts, items, timeline, trust & privacy | ✅ |
 | 6 | “Complete it · $4” | Give sheet opens with Complete selected | ✅ |
 | 7 | Give → RevenueCat Test Store sheet → Successful purchase | Success screen: ring closes, check draws, haptic | ✅ `handful_gift_4` |
-| 8 | Test Store → Failed purchase | Inline error, nothing recorded | |
-| 9 | Test Store → Cancel | Sheet stays, no error | |
+| 8 | Test Store → Failed purchase | Inline error, nothing recorded | ✅ error clears on retry |
+| 9 | Test Store → Cancel | Sheet stays, no error | ✅ |
 | 10 | Give $2 on a far-from-goal cause | Success “Your $2 is in.”, % updates | ✅ ran with $5 (`handful_gift_5`) |
 | 11 | Your impact | Stats, updates, items, gift history with RC transaction id | ✅ |
 | 12 | Notify me when delivered | iOS permission prompt → “We’ll notify you…” | ✅ |
@@ -25,7 +25,7 @@ Legend: ✅ pass · ⚠️ pass with note · ❌ fail (fixed / open)
 | # | Step | Expected | Result |
 |---|---|---|---|
 | 13 | Nonprofits → Post a new cause (3 steps) → Fill with an example | Each step valid; Continue enabled; category + icons suggested from text | ✅ also typed by hand: “Next” jumps to the price |
-| 14 | Story check with “sleeps under the bridge on Av. Matta 123” | Warnings shown, Continue disabled | ⚠️ covered by unit tests; not re-run in the UI this pass |
+| 14 | Story check with “sleeps under the bridge on Av. Matta 123” | Warnings shown, Continue disabled | ✅ typed into the area field; “Fix the privacy check first” |
 | 15 | Photo → choose `delivery-with-gps.jpg` | Scan animation → 2 faces + location found | ⚠️ photo injected with `?devPhoto=1` (picker not tapped); 2 faces + GPS found |
 | 16 | Protect identity | Blurred output, hold-to-compare works | ✅ blur; hold-to-compare not re-tested |
 | 17 | One confirmation → Publish | Published screen with donor preview | ✅ |
