@@ -66,7 +66,7 @@ export default function CauseScreen() {
         showsVerticalScrollIndicator={false}>
         <Animated.View style={coverStyle}>
           <Link.AppleZoomTarget>
-            <CoverArt cause={cause} height={coverH} rounded={0} />
+            <CoverArt cause={cause} height={coverH} rounded={0} padTop={insets.top + 24} />
           </Link.AppleZoomTarget>
         </Animated.View>
 

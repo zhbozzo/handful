@@ -10,6 +10,7 @@ import { CoverThumb } from '@/components/CoverArt';
 import { Icon } from '@/components/Icon';
 import { Pill } from '@/components/Pill';
 import { PressableScale } from '@/components/PressableScale';
+import { StatusScrim } from '@/components/StatusScrim';
 import { Txt } from '@/components/Txt';
 import { Mark } from '@/components/Wordmark';
 import { categoryById } from '@/data/categories';
@@ -54,143 +55,158 @@ export default function ImpactScreen() {
   const empty = contributions.length === 0;
 
   return (
-    <ScrollView
-      contentOffset={devScroll()}
-      style={{ flex: 1, backgroundColor: color.paper }}
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={{ paddingTop: space.sm, paddingBottom: 48, paddingHorizontal: space.lg, gap: space.xl }}
-      showsVerticalScrollIndicator={false}>
-      <View style={{ gap: 6 }}>
-        <Txt variant="title">Your impact</Txt>
-        <Txt variant="callout">Only what you actually did. No estimates, no made-up numbers.</Txt>
-      </View>
+    <View style={{ flex: 1, backgroundColor: color.paper }}>
+      <ScrollView
+        contentOffset={devScroll()}
+        style={{ flex: 1, backgroundColor: color.paper }}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{ paddingTop: space.sm, paddingBottom: 48, paddingHorizontal: space.lg, gap: space.xl }}
+        showsVerticalScrollIndicator={false}>
+        <View style={{ gap: 6 }}>
+          <Txt variant="title">Your impact</Txt>
+          <Txt variant="callout">Only what you actually did. No estimates, no made-up numbers.</Txt>
+        </View>
 
-      {empty ? (
-        <Animated.View entering={FadeInDown.duration(450)} style={[styles.card, styles.empty]}>
-          <Mark size={56} />
-          <Txt variant="headline" align="center">
-            Nothing here yet — on purpose.
-          </Txt>
-          <Txt variant="callout" align="center" style={{ maxWidth: 290 }}>
-            Your first gift shows up here, and so does the proof when it’s delivered.
-          </Txt>
-          <Button label="Find a cause" compact onPress={() => router.navigate('/')} style={{ marginTop: 6 }} />
-        </Animated.View>
-      ) : (
-        <>
-          <Animated.View entering={FadeInDown.duration(500)}>
-            <CollectionHero total={stats.total} items={stats.items} />
+        {empty ? (
+          <Animated.View entering={FadeInDown.duration(450)} style={[styles.card, styles.empty]}>
+            <Mark size={56} />
+            <Txt variant="headline" align="center">
+              Nothing here yet — on purpose.
+            </Txt>
+            <Txt variant="callout" align="center" style={{ maxWidth: 290 }}>
+              Your first gift shows up here, and so does the proof when it’s delivered.
+            </Txt>
+            <Button label="Find a cause" compact onPress={() => router.navigate('/')} style={{ marginTop: 6 }} />
           </Animated.View>
+        ) : (
+          <>
+            <Animated.View entering={FadeInDown.duration(500)}>
+              <CollectionHero total={stats.total} items={stats.items} />
+            </Animated.View>
 
-          <Animated.View
-            entering={FadeInDown.delay(80).duration(500)}
-            layout={LinearTransition.springify().damping(20)}
-            style={styles.grid}>
-            <Stat value={stats.helped} label={stats.helped === 1 ? 'cause helped' : 'causes helped'} />
-            <Stat value={stats.completed} label="you completed" accent />
-            <Stat value={stats.delivered} label="delivered" leaf />
-          </Animated.View>
+            <Animated.View
+              entering={FadeInDown.delay(80).duration(500)}
+              layout={LinearTransition.springify().damping(20)}
+              style={styles.grid}>
+              <Stat value={stats.helped} label={stats.helped === 1 ? 'cause helped' : 'causes helped'} />
+              <Stat value={stats.completed} label="you completed" accent />
+              <Stat value={stats.delivered} label="delivered" leaf />
+            </Animated.View>
 
-          {inbox.length > 0 ? (
-            <View style={{ gap: space.sm }}>
-              <Txt variant="micro">Updates</Txt>
-              {inbox.map((u) => {
-                const cause = causes.find((c) => c.id === u.causeId);
-                if (!cause) return null;
-                const delivered = u.kind === 'delivered';
-                return (
-                  <PressableScale
-                    key={u.id}
-                    onPress={() => {
-                      markInboxRead(u.id);
-                      router.push(delivered ? `/proof/${cause.id}` : `/cause/${cause.id}`);
-                    }}
-                    style={[styles.update, delivered && styles.updateDelivered]}
-                    accessibilityRole="button">
-                    <CoverThumb cause={cause} size={48} />
-                    <View style={{ flex: 1, gap: 2 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        {delivered ? <Icon name="checkmark.seal.fill" size={13} color={color.leaf} /> : null}
-                        <Txt variant="micro" color={delivered ? color.leaf : color.sunDeep}>
-                          {delivered ? 'Delivered' : 'You completed it'}
+            {inbox.length > 0 ? (
+              <View style={{ gap: space.sm }}>
+                <Txt variant="micro">Updates</Txt>
+                {inbox.map((u) => {
+                  const cause = causes.find((c) => c.id === u.causeId);
+                  if (!cause) return null;
+                  const delivered = u.kind === 'delivered';
+                  return (
+                    <PressableScale
+                      key={u.id}
+                      onPress={() => {
+                        markInboxRead(u.id);
+                        router.push(delivered ? `/proof/${cause.id}` : `/cause/${cause.id}`);
+                      }}
+                      style={[styles.update, delivered && styles.updateDelivered]}
+                      accessibilityRole="button">
+                      <CoverThumb cause={cause} size={48} />
+                      <View style={{ flex: 1, gap: 2 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                          {delivered ? <Icon name="checkmark.seal.fill" size={13} color={color.leaf} /> : null}
+                          <Txt variant="micro" color={delivered ? color.leaf : color.sunDeep}>
+                            {delivered ? 'Delivered' : 'You completed it'}
+                          </Txt>
+                          <Txt variant="caption" color={color.ink3}>
+                            · {ago(u.at)}
+                          </Txt>
+                        </View>
+                        <Txt variant="bodyStrong" numberOfLines={1}>
+                          {cause.title}
                         </Txt>
-                        <Txt variant="caption" color={color.ink3}>
-                          · {ago(u.at)}
+                        <Txt variant="caption">
+                          {delivered ? 'See the receipt and delivery photo' : 'Proof arrives once it’s delivered'}
                         </Txt>
                       </View>
-                      <Txt variant="bodyStrong" numberOfLines={1}>
-                        {cause.title}
-                      </Txt>
-                      <Txt variant="caption">
-                        {delivered ? 'See the receipt and delivery photo' : 'Proof arrives once it’s delivered'}
-                      </Txt>
-                    </View>
-                    {!u.read ? (
-                      <View style={styles.unread} />
-                    ) : (
-                      <Icon name="chevron.right" size={13} color={color.ink3} />
-                    )}
-                  </PressableScale>
-                );
-              })}
-            </View>
-          ) : null}
+                      {!u.read ? (
+                        <View style={styles.unread} />
+                      ) : (
+                        <Icon name="chevron.right" size={13} color={color.ink3} />
+                      )}
+                    </PressableScale>
+                  );
+                })}
+              </View>
+            ) : null}
 
-          <View style={{ gap: space.sm }}>
-            <Txt variant="micro">Gift history</Txt>
-            <View style={styles.card}>
-              {contributions.map((g, i) => {
-                const cause = causes.find((c) => c.id === g.causeId);
-                return (
-                  <View key={g.id} style={[styles.gift, i > 0 && styles.giftBorder]}>
-                    <View style={{ flex: 1, gap: 2 }}>
-                      <Txt variant="bodyStrong" numberOfLines={1}>
-                        {cause?.title ?? 'Cause'}
-                      </Txt>
-                      <Txt variant="caption">
-                        {when(g.at)}
-                        {g.completedCause ? ' · completed it' : ''}
-                      </Txt>
-                      <Txt
-                        variant="caption"
-                        color={color.ink3}
-                        style={{ fontFamily: font.mono, fontSize: 11 }}
-                        numberOfLines={1}>
-                        {g.rail === 'revenuecat-test-store'
-                          ? `RC Test Store · ${g.transactionId}`
-                          : `offline demo · ${g.transactionId}`}
-                      </Txt>
+            <View style={{ gap: space.sm }}>
+              <Txt variant="micro">Gift history</Txt>
+              <View style={styles.card}>
+                {contributions.map((g, i) => {
+                  const cause = causes.find((c) => c.id === g.causeId);
+                  return (
+                    <View key={g.id} style={[styles.gift, i > 0 && styles.giftBorder]}>
+                      <View style={{ flex: 1, gap: 2 }}>
+                        <Txt variant="bodyStrong" numberOfLines={1}>
+                          {cause?.title ?? 'Cause'}
+                        </Txt>
+                        <Txt variant="caption">
+                          {when(g.at)}
+                          {g.completedCause ? ' · completed it' : ''}
+                        </Txt>
+                        <Txt
+                          variant="caption"
+                          color={color.ink3}
+                          style={{ fontFamily: font.mono, fontSize: 11 }}
+                          numberOfLines={1}>
+                          {g.rail === 'revenuecat-test-store'
+                            ? `RC Test Store · ${g.transactionId}`
+                            : `offline demo · ${g.transactionId}`}
+                        </Txt>
+                      </View>
+                      <Txt variant="number">{money(g.amount)}</Txt>
                     </View>
-                    <Txt variant="number">{money(g.amount)}</Txt>
-                  </View>
-                );
-              })}
+                  );
+                })}
+              </View>
+              <View style={{ paddingHorizontal: 4, gap: 2 }}>
+                <Txt variant="caption" color={color.ink3}>
+                  Test transactions — no real money moved.
+                </Txt>
+                {rcUser ? (
+                  <Txt
+                    variant="caption"
+                    color={color.ink3}
+                    numberOfLines={1}
+                    ellipsizeMode="middle"
+                    style={{ fontFamily: font.mono, fontSize: 11 }}>
+                    RevenueCat customer · {rcUser}
+                  </Txt>
+                ) : null}
+              </View>
             </View>
-            <Txt variant="caption" color={color.ink3} style={{ paddingHorizontal: 4 }}>
-              Test transactions — no real money moved.{rcUser ? ` RevenueCat customer ${rcUser}.` : ''}
+          </>
+        )}
+
+        <PressableScale
+          onPress={() => router.push('/supporter')}
+          style={[styles.card, styles.supporter]}
+          accessibilityRole="button">
+          <View style={{ flex: 1, gap: 4 }}>
+            {supporter ? <Pill label="Supporter" tone="sun" symbol="sun.max.fill" small /> : null}
+            <Txt variant="bodyStrong">
+              {supporter ? 'You keep Handful free for nonprofits' : 'Keep Handful free for nonprofits'}
+            </Txt>
+            <Txt variant="caption">
+              {supporter
+                ? 'Thank you. Nonprofits pay nothing, and gifts carry no platform fee.'
+                : 'An optional membership pays for the platform, so gifts reach causes without a platform fee.'}
             </Txt>
           </View>
-        </>
-      )}
-
-      <PressableScale
-        onPress={() => router.push('/supporter')}
-        style={[styles.card, styles.supporter]}
-        accessibilityRole="button">
-        <View style={{ flex: 1, gap: 4 }}>
-          {supporter ? <Pill label="Supporter" tone="sun" symbol="sun.max.fill" small /> : null}
-          <Txt variant="bodyStrong">
-            {supporter ? 'You keep Handful free for nonprofits' : 'Keep Handful free for nonprofits'}
-          </Txt>
-          <Txt variant="caption">
-            {supporter
-              ? 'Thank you. Nonprofits pay nothing, and gifts carry no platform fee.'
-              : 'An optional membership pays for the platform, so gifts reach causes without a platform fee.'}
-          </Txt>
-        </View>
-        <Icon name="chevron.right" size={14} color={color.ink3} />
-      </PressableScale>
-    </ScrollView>
+          <Icon name="chevron.right" size={14} color={color.ink3} />
+        </PressableScale>
+      </ScrollView>
+      <StatusScrim />
+    </View>
   );
 }
 

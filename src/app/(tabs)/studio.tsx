@@ -9,6 +9,7 @@ import { OrgLine } from '@/components/OrgLine';
 import { Pill } from '@/components/Pill';
 import { PressableScale } from '@/components/PressableScale';
 import { ProgressBar } from '@/components/Progress';
+import { StatusScrim } from '@/components/StatusScrim';
 import { Txt } from '@/components/Txt';
 import { orgById, STUDIO_ORG_ID } from '@/data/seed';
 import type { Cause } from '@/data/types';
@@ -26,109 +27,112 @@ export default function StudioScreen() {
   const mine = causes.filter((c) => c.orgId === STUDIO_ORG_ID && c.status === 'open');
 
   return (
-    <ScrollView
-      contentOffset={devScroll()}
-      style={{ flex: 1, backgroundColor: color.paper }}
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={{ paddingTop: space.sm, paddingBottom: 48, paddingHorizontal: space.lg, gap: space.xl }}
-      showsVerticalScrollIndicator={false}>
-      <View style={{ gap: space.sm }}>
-        <Pill label="Nonprofit view · demo" tone="shield" symbol="building.2.fill" />
-        <Txt variant="title">Nonprofit studio</Txt>
-        <Txt variant="callout">
-          How a verified nonprofit posts a need and, later, the proof. In the real product this lives behind a verified
-          account; here you can try it as a demo nonprofit.
-        </Txt>
-        <View style={styles.orgCard}>
-          <OrgLine org={org} sub="Demo nonprofit · verification simulated" />
-        </View>
-      </View>
-
-      <PressableScale onPress={() => router.push('/nonprofit/new')} style={styles.hero} accessibilityRole="button">
-        <View style={styles.heroGlow} />
-        <View style={styles.heroIcon}>
-          <Icon name="plus" size={22} color={color.ink} weight="bold" />
-        </View>
-        <View style={{ flex: 1, gap: 2 }}>
-          <Txt variant="headline" color={color.white}>
-            Post a new cause
+    <View style={{ flex: 1, backgroundColor: color.paper }}>
+      <ScrollView
+        contentOffset={devScroll()}
+        style={{ flex: 1, backgroundColor: color.paper }}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{ paddingTop: space.sm, paddingBottom: 48, paddingHorizontal: space.lg, gap: space.xl }}
+        showsVerticalScrollIndicator={false}>
+        <View style={{ gap: space.sm }}>
+          <Pill label="Nonprofit view · demo" tone="shield" symbol="building.2.fill" />
+          <Txt variant="title">Nonprofit studio</Txt>
+          <Txt variant="callout">
+            How a verified nonprofit posts a need and, later, the proof. In the real product this lives behind a
+            verified account; here you can try it as a demo nonprofit.
           </Txt>
-          <Txt variant="caption" color="rgba(255,255,255,0.7)">
-            Need → budget → story → photo → Privacy Shield → publish
-          </Txt>
+          <View style={styles.orgCard}>
+            <OrgLine org={org} sub="Demo nonprofit · verification simulated" />
+          </View>
         </View>
-        <Icon name="chevron.right" size={15} color="rgba(255,255,255,0.7)" />
-      </PressableScale>
 
-      <View style={{ gap: space.sm }}>
-        <Txt variant="micro">Funded · waiting for proof</Txt>
-        {needsProof.length === 0 ? (
-          <Txt variant="caption">Nothing waiting. When a cause is fully funded it shows up here.</Txt>
-        ) : (
-          needsProof.map((c) => (
-            <View key={c.id} style={styles.proofCard}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <PressableScale onPress={() => router.push('/nonprofit/new')} style={styles.hero} accessibilityRole="button">
+          <View style={styles.heroGlow} />
+          <View style={styles.heroIcon}>
+            <Icon name="plus" size={22} color={color.ink} weight="bold" />
+          </View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Txt variant="headline" color={color.white}>
+              Post a new cause
+            </Txt>
+            <Txt variant="caption" color="rgba(255,255,255,0.7)">
+              Need → budget → story → photo → Privacy Shield → publish
+            </Txt>
+          </View>
+          <Icon name="chevron.right" size={15} color="rgba(255,255,255,0.7)" />
+        </PressableScale>
+
+        <View style={{ gap: space.sm }}>
+          <Txt variant="micro">Funded · waiting for proof</Txt>
+          {needsProof.length === 0 ? (
+            <Txt variant="caption">Nothing waiting. When a cause is fully funded it shows up here.</Txt>
+          ) : (
+            needsProof.map((c) => (
+              <View key={c.id} style={styles.proofCard}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <CoverThumb cause={c} size={48} />
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Txt variant="bodyStrong" numberOfLines={2}>
+                      {c.title}
+                    </Txt>
+                    <Txt variant="caption" numberOfLines={1}>
+                      {money(c.raised)} raised · {c.donors} donors waiting on proof
+                    </Txt>
+                  </View>
+                </View>
+                <Steps status={c.status} />
+                <Button
+                  label="Post receipt & delivery photo"
+                  kind="leaf"
+                  compact
+                  symbol="checkmark.shield.fill"
+                  onPress={() => router.push(`/nonprofit/proof/${c.id}`)}
+                />
+              </View>
+            ))
+          )}
+        </View>
+
+        {mine.length > 0 ? (
+          <View style={{ gap: space.sm }}>
+            <Txt variant="micro">Your open causes</Txt>
+            {mine.map((c) => (
+              <PressableScale
+                key={c.id}
+                onPress={() => router.push(`/cause/${c.id}`)}
+                style={styles.row}
+                accessibilityRole="button">
                 <CoverThumb cause={c} size={48} />
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Txt variant="bodyStrong" numberOfLines={2}>
+                <View style={{ flex: 1, gap: 6 }}>
+                  <Txt variant="bodyStrong" numberOfLines={1}>
                     {c.title}
                   </Txt>
-                  <Txt variant="caption" numberOfLines={1}>
-                    {money(c.raised)} raised · {c.donors} donors waiting on proof
+                  <ProgressBar value={c.raised / c.goal} height={5} />
+                  <Txt variant="caption">
+                    {money(c.raised)} of {money(c.goal)} · {c.donors} donors
                   </Txt>
                 </View>
-              </View>
-              <Steps status={c.status} />
-              <Button
-                label="Post receipt & delivery photo"
-                kind="leaf"
-                compact
-                symbol="checkmark.shield.fill"
-                onPress={() => router.push(`/nonprofit/proof/${c.id}`)}
-              />
-            </View>
-          ))
-        )}
-      </View>
+                <Icon name="chevron.right" size={13} color={color.ink3} />
+              </PressableScale>
+            ))}
+          </View>
+        ) : null}
 
-      {mine.length > 0 ? (
-        <View style={{ gap: space.sm }}>
-          <Txt variant="micro">Your open causes</Txt>
-          {mine.map((c) => (
-            <PressableScale
-              key={c.id}
-              onPress={() => router.push(`/cause/${c.id}`)}
-              style={styles.row}
-              accessibilityRole="button">
-              <CoverThumb cause={c} size={48} />
-              <View style={{ flex: 1, gap: 6 }}>
-                <Txt variant="bodyStrong" numberOfLines={1}>
-                  {c.title}
-                </Txt>
-                <ProgressBar value={c.raised / c.goal} height={5} />
-                <Txt variant="caption">
-                  {money(c.raised)} of {money(c.goal)} · {c.donors} donors
-                </Txt>
-              </View>
-              <Icon name="chevron.right" size={13} color={color.ink3} />
-            </PressableScale>
-          ))}
-        </View>
-      ) : null}
-
-      <Button
-        label="Reset demo data"
-        kind="ghost"
-        compact
-        symbol="arrow.counterclockwise"
-        onPress={() =>
-          Alert.alert('Reset demo data?', 'Causes, your gifts and updates go back to the starting demo state.', [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Reset', style: 'destructive', onPress: resetDemo },
-          ])
-        }
-      />
-    </ScrollView>
+        <Button
+          label="Reset demo data"
+          kind="ghost"
+          compact
+          symbol="arrow.counterclockwise"
+          onPress={() =>
+            Alert.alert('Reset demo data?', 'Causes, your gifts and updates go back to the starting demo state.', [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Reset', style: 'destructive', onPress: resetDemo },
+            ])
+          }
+        />
+      </ScrollView>
+      <StatusScrim />
+    </View>
   );
 }
 

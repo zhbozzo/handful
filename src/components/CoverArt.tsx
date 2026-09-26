@@ -48,13 +48,18 @@ type Props = {
   style?: ViewStyle;
   /** Gentle idle float of the items. Off for small or repeated covers. */
   alive?: boolean;
+  /** Space at the top the items should stay clear of (status bar, back button). */
+  padTop?: number;
 };
+
+/** Bigger covers hold fewer, larger items; four items share the space. */
+const MAX_TILE = [132, 124, 108, 96];
 
 function Tile({
   symbol,
   size,
   x,
-  y,
+  top,
   r,
   ink,
   index,
@@ -63,7 +68,7 @@ function Tile({
   symbol: string;
   size: number;
   x: number;
-  y: number;
+  top: number;
   r: number;
   ink: string;
   index: number;
@@ -104,7 +109,7 @@ function Tile({
           height: size,
           borderRadius: size * 0.28,
           left: `${x * 100}%`,
-          top: `${y * 100}%`,
+          top,
           marginLeft: -size / 2,
           marginTop: -size / 2,
         },
@@ -118,7 +123,7 @@ function Tile({
   );
 }
 
-export function CoverArt({ cause, height, rounded = radius.lg, style, alive = true }: Props) {
+export function CoverArt({ cause, height, rounded = radius.lg, style, alive = true, padTop = 0 }: Props) {
   const cat = categoryById(cause.category);
 
   if (cause.coverUri) {
@@ -165,9 +170,9 @@ export function CoverArt({ cause, height, rounded = radius.lg, style, alive = tr
           <Tile
             key={item.id}
             symbol={item.symbol}
-            size={Math.min(height * p.s, 128)}
+            size={Math.min((height - padTop) * p.s, MAX_TILE[items.length - 1] ?? 96)}
             x={p.x}
-            y={p.y}
+            top={padTop + p.y * (height - padTop)}
             r={p.r}
             ink={cat.ink}
             index={i}

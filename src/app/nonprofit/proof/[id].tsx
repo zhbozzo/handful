@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Asset } from 'expo-asset';
+import { Image } from 'expo-image';
 import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
@@ -18,7 +19,7 @@ import { notifyDelivered } from '@/lib/notifications';
 import { cameraAvailable, pickFromLibrary, type PickedPhoto, takePhoto } from '@/lib/photos';
 import type { PhotoReport } from '@/lib/privacy';
 import { useCause, useStore } from '@/store/useStore';
-import { color, font, radius, space } from '@/theme/tokens';
+import { color, font, radius, shadow, space } from '@/theme/tokens';
 
 const TITLES = ['Receipt', 'Delivery photo', 'Note & post'];
 
@@ -115,10 +116,10 @@ export default function PostProof() {
         style={[
           styles.screen,
           styles.done,
-          { paddingTop: insets.top + space.xxl, paddingBottom: insets.bottom + space.lg },
+          { paddingTop: insets.top + space.lg, paddingBottom: insets.bottom + space.sm },
         ]}>
         <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.doneBadge}>
-          <Icon name="checkmark.seal.fill" size={44} color={color.white} />
+          <Icon name="checkmark.seal.fill" size={36} color={color.white} />
         </Animated.View>
         <Animated.View entering={FadeInDown.delay(200)} style={{ gap: space.sm, alignItems: 'center' }}>
           <Txt variant="display" align="center">
@@ -127,6 +128,36 @@ export default function PostProof() {
           <Txt variant="callout" align="center" style={{ maxWidth: 310 }}>
             Every donor to “{cause.title}” now sees the receipt, your note and the protected photo.
           </Txt>
+        </Animated.View>
+        <Animated.View entering={FadeInDown.delay(380).springify().damping(18)} style={styles.preview}>
+          {safe?.uri ? (
+            <View>
+              <Image source={{ uri: safe.uri }} style={styles.previewPhoto} contentFit="cover" transition={200} />
+              <View style={styles.previewChip}>
+                <Icon name="checkmark.shield.fill" size={12} color={color.shield} />
+                <Txt variant="caption" color={color.shield} style={{ fontWeight: '700', fontSize: 12 }}>
+                  {safe.report.facesBlurred > 0
+                    ? `${safe.report.facesBlurred} ${safe.report.facesBlurred === 1 ? 'face' : 'faces'} blurred · GPS removed`
+                    : 'GPS removed'}
+                </Txt>
+              </View>
+            </View>
+          ) : null}
+          <View style={styles.previewRow}>
+            <Icon name="doc.text.fill" size={14} color={color.ink2} />
+            <Txt variant="caption" style={{ flex: 1 }} numberOfLines={1}>
+              Receipt · {store.trim()}
+            </Txt>
+            <Txt variant="number" style={{ fontSize: 15 }}>
+              {money(Math.round(spent * 100) / 100)}
+            </Txt>
+          </View>
+          <View style={[styles.previewRow, styles.previewBorder]}>
+            <Icon name="bell.badge.fill" size={14} color={color.leaf} />
+            <Txt variant="caption" color={color.leaf} style={{ flex: 1, fontWeight: '600' }}>
+              Donors who gave get a delivery update
+            </Txt>
+          </View>
         </Animated.View>
         <View style={{ flex: 1 }} />
         <View style={{ alignSelf: 'stretch', gap: 10 }}>
@@ -305,15 +336,38 @@ export default function PostProof() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.paper },
-  done: { alignItems: 'center', paddingHorizontal: space.lg, gap: space.lg },
+  done: { alignItems: 'center', paddingHorizontal: space.lg, gap: space.md },
   doneBadge: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
     backgroundColor: color.leaf,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  preview: {
+    alignSelf: 'stretch',
+    backgroundColor: color.card,
+    borderRadius: radius.lg,
+    padding: space.sm,
+    gap: 4,
+    ...shadow.card,
+  },
+  previewPhoto: { height: 132, borderRadius: radius.md, backgroundColor: color.paperDeep },
+  previewChip: {
+    position: 'absolute',
+    left: 8,
+    bottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.94)',
+  },
+  previewRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, paddingVertical: 8 },
+  previewBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line },
   causeRow: {
     flexDirection: 'row',
     alignItems: 'center',
