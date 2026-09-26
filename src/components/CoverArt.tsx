@@ -151,6 +151,14 @@ export function CoverArt({
           transition={250}
           accessibilityLabel={`Photo of ${cause.items.map((i) => i.label).join(', ')}`}
         />
+        {padTop > 0 ? (
+          // Keeps the status bar and the floating buttons legible over any photo.
+          <LinearGradient
+            pointerEvents="none"
+            colors={['rgba(246,243,236,0.75)', 'rgba(246,243,236,0)']}
+            style={[styles.scrim, { height: padTop + 30 }]}
+          />
+        ) : null}
         {demoPhoto && photoTag ? (
           <View style={[styles.photoTag, { bottom: 10 + bottomInset }]}>
             <Txt variant="caption" color={color.ink2} style={{ fontSize: 10, lineHeight: 13 }}>
@@ -256,6 +264,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth * 2,
     borderColor: 'rgba(255,255,255,0.9)',
   },
+  scrim: { position: 'absolute', top: 0, left: 0, right: 0 },
   photoTag: {
     position: 'absolute',
     right: 10,
