@@ -42,7 +42,10 @@ export default function PostProof() {
   const postProof = useStore((s) => s.postProof);
   const insets = useSafeAreaInsets();
 
-  const [step, setStep] = useState(__DEV__ && devStep ? Math.min(1, Number(devStep)) : 0);
+  // A cause whose receipt is already up (status "purchased") starts at the thank-you photo.
+  const [step, setStep] = useState(
+    __DEV__ && devStep ? Math.min(1, Number(devStep)) : cause?.status === 'purchased' ? 1 : 0,
+  );
   // A new step starts at the top, with no leftover scroll momentum that would swallow the next tap.
   const scrollRef = useRef<ScrollView>(null);
   useEffect(() => {

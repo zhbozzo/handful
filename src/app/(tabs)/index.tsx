@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ALMOST_CARD_WIDTH, AlmostCard, CauseCard } from '@/components/CauseCard';
 import { CauseRow } from '@/components/CauseRow';
+import { DeliveredCard } from '@/components/DeliveredCard';
 import { Icon } from '@/components/Icon';
 import { Pill } from '@/components/Pill';
 import { PressableScale } from '@/components/PressableScale';
@@ -23,6 +24,7 @@ import { Wordmark } from '@/components/Wordmark';
 import { CATEGORIES } from '@/data/categories';
 import type { CategoryId } from '@/data/types';
 import { devScroll } from '@/lib/devScroll';
+import { plural } from '@/lib/format';
 import { tap } from '@/lib/haptics';
 import { useStore } from '@/store/useStore';
 import { color, radius, space } from '@/theme/tokens';
@@ -118,7 +120,7 @@ export default function CausesScreen() {
         <Animated.View entering={FadeInDown.delay(160).duration(600)}>
           <View style={styles.sectionHead}>
             <Txt variant="micro">Open causes</Txt>
-            <Txt variant="caption">{open.length} near you</Txt>
+            <Txt variant="caption">{plural(open.length, 'cause')}</Txt>
           </View>
           <ScrollView
             horizontal
@@ -170,11 +172,12 @@ export default function CausesScreen() {
         {delivered.length > 0 ? (
           <View style={{ marginTop: space.xxl }}>
             <View style={styles.sectionHead}>
-              <Txt variant="micro">Delivered · with proof</Txt>
+              <Txt variant="micro">It got there</Txt>
+              <Txt variant="caption">Receipts and photos from nonprofits</Txt>
             </View>
-            <View style={[styles.list, { gap: 8 }]}>
+            <View style={styles.list}>
               {delivered.map((c) => (
-                <CauseRow key={c.id} cause={c} />
+                <DeliveredCard key={c.id} cause={c} />
               ))}
             </View>
           </View>
