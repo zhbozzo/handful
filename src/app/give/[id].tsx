@@ -1,12 +1,13 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, Settings, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withSequence, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { GiftMeter } from '@/components/GiftMeter';
 import { Icon } from '@/components/Icon';
+import { PressableScale } from '@/components/PressableScale';
 import { Txt } from '@/components/Txt';
 import { money } from '@/lib/format';
 import { success, tap, warn } from '@/lib/haptics';
@@ -89,7 +90,8 @@ export default function GiveSheet() {
       ) : null}
 
       {canComplete ? (
-        <Pressable
+        <PressableScale
+          scaleTo={0.98}
           onPress={() => {
             tap();
             setAmount(left);
@@ -107,7 +109,7 @@ export default function GiveSheet() {
           <Txt variant="number" style={{ fontSize: 20 }}>
             {money(left)}
           </Txt>
-        </Pressable>
+        </PressableScale>
       ) : null}
 
       {options.length === 1 ? (
@@ -166,29 +168,38 @@ export default function GiveSheet() {
 }
 
 function Amount({ value, active, onPress }: { value: number; active: boolean; onPress: () => void }) {
+  // A small pop when an amount becomes the chosen one.
+  const pop = useSharedValue(1);
+  useEffect(() => {
+    if (active) pop.set(withSequence(withSpring(1.05, { damping: 12, stiffness: 420 }), withSpring(1)));
+  }, [active, pop]);
+  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
+
   return (
-    <Pressable
-      onPress={() => {
-        tap();
-        onPress();
-      }}
-      accessibilityRole="button"
-      accessibilityLabel={`Give ${money(value)}`}
-      accessibilityState={{ selected: active }}
-      style={[styles.amount, active && styles.amountActive]}>
-      <Txt variant="bigNumber" color={active ? color.white : color.ink} style={{ fontSize: 34, lineHeight: 38 }}>
-        {money(value)}
-      </Txt>
-    </Pressable>
+    <Animated.View style={[styles.amountSlot, popStyle]}>
+      <PressableScale
+        scaleTo={0.94}
+        onPress={() => {
+          tap();
+          onPress();
+        }}
+        accessibilityRole="button"
+        accessibilityLabel={`Give ${money(value)}`}
+        accessibilityState={{ selected: active }}
+        style={[styles.amount, active && styles.amountActive]}>
+        <Txt variant="bigNumber" color={active ? color.white : color.ink} style={{ fontSize: 34, lineHeight: 38 }}>
+          {money(value)}
+        </Txt>
+      </PressableScale>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   sheet: { flex: 1, padding: space.lg, paddingTop: space.xl, gap: space.md, backgroundColor: color.paper },
   options: { flexDirection: 'row', gap: 10 },
+  amountSlot: { flex: 1 },
   amount: {
-    flexBasis: '31%',
-    flexGrow: 0,
     height: 84,
     borderRadius: radius.lg,
     backgroundColor: color.card,

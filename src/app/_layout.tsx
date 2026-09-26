@@ -17,6 +17,7 @@ import { useHydrated, useStore } from '@/store/useStore';
 import { color } from '@/theme/tokens';
 
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({ duration: 450, fade: true });
 
 // Known third-party dev warnings; nothing actionable in our code.
 LogBox.ignoreLogs(['Sending `onAnimatedValueUpdate` with no listeners', '[RevenueCat] ⚠️ Using a Test Store API key']);
@@ -63,9 +64,10 @@ export default function RootLayout() {
     runDevLaunchAction();
   }, [fontsLoaded, hydrated]);
 
+  // Hold the splash until the first real screen can draw, then fade into it.
   useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync();
-  }, [fontsLoaded]);
+    if (fontsLoaded && hydrated) SplashScreen.hideAsync();
+  }, [fontsLoaded, hydrated]);
 
   if (!fontsLoaded || !hydrated) return null;
 
