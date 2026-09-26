@@ -68,3 +68,47 @@ export function whereYourMoneyIs(contributions: Contribution[], causes: Cause[])
   }
   return out;
 }
+
+/** The donor's view of a cause they gave to — like tracking an order. */
+export type Tracking = {
+  /** Steps done on Funded → Bought → Delivered (0 while still collecting). */
+  done: number;
+  label: string;
+  next: string;
+  /** Needs nothing from anyone but time — sorted after causes still moving. */
+  finished: boolean;
+};
+
+export const DONOR_TRACK = ['Funded', 'Bought', 'Delivered'];
+
+export function trackCause(cause: Cause): Tracking {
+  const left = cause.goal - cause.raised;
+  switch (cause.status) {
+    case 'open':
+      return {
+        done: 0,
+        label: 'Collecting',
+        next: `$${left} to go — share it to help finish it`,
+        finished: false,
+      };
+    case 'funded':
+      return {
+        done: 1,
+        label: 'Funded',
+        next: cause.payout
+          ? 'Money released to the nonprofit · receipt due within 7 days'
+          : 'Fully funded · the nonprofit buys the items next',
+        finished: false,
+      };
+    case 'purchased':
+      return { done: 2, label: 'Bought', next: 'Receipt posted · delivery and photo next', finished: false };
+    default:
+      return { done: 3, label: 'Delivered', next: 'Delivered · see the receipt and thank-you photo', finished: true };
+  }
+}
+
+/** Causes still moving first (closest to delivery first), then the ones waiting for gifts, then delivered. */
+export function sortForTracking(causes: Cause[]): Cause[] {
+  const rank = (c: Cause) => (c.status === 'purchased' ? 0 : c.status === 'funded' ? 1 : c.status === 'open' ? 2 : 3);
+  return [...causes].sort((a, b) => rank(a) - rank(b));
+}

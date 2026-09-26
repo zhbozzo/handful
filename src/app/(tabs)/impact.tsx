@@ -12,6 +12,8 @@ import { Icon } from '@/components/Icon';
 import { OrgLine } from '@/components/OrgLine';
 import { Pill } from '@/components/Pill';
 import { PressableScale } from '@/components/PressableScale';
+import { ProgressBar } from '@/components/Progress';
+import { Stages } from '@/components/Stages';
 import { StatusScrim } from '@/components/StatusScrim';
 import { Txt } from '@/components/Txt';
 import { categoryById } from '@/data/categories';
@@ -21,7 +23,8 @@ import type { Cause, CauseItem, CauseStatus } from '@/data/types';
 import { ago, money, when } from '@/lib/format';
 import { getRevenueCatUserId } from '@/lib/purchases';
 import { devScroll } from '@/lib/devScroll';
-import { type MoneySplit, whereYourMoneyIs } from '@/lib/funds';
+import { DONOR_TRACK, type MoneySplit, sortForTracking, trackCause, whereYourMoneyIs } from '@/lib/funds';
+import { shareCause } from '@/lib/share';
 import { tap } from '@/lib/haptics';
 import { useStore } from '@/store/useStore';
 import { color, radius, shadow, space } from '@/theme/tokens';
@@ -62,6 +65,8 @@ export default function ImpactScreen() {
     .filter((c) => c.status === 'delivered' && c.evidence && contributions.some((g) => g.causeId === c.id))
     .sort((a, b) => (b.timeline.at(-1)?.at ?? 0) - (a.timeline.at(-1)?.at ?? 0));
   const givenTo = (id: string) => contributions.filter((g) => g.causeId === id).reduce((sum, g) => sum + g.amount, 0);
+  // Every cause you gave to, like tracking an order: the ones still moving first.
+  const tracked = sortForTracking(causes.filter((c) => contributions.some((g) => g.causeId === c.id)));
 
   const empty = contributions.length === 0;
 
@@ -115,6 +120,20 @@ export default function ImpactScreen() {
               <Stat value={stats.completed} label="Completed" accent />
               <Stat value={stats.delivered} label="Delivered" leaf />
             </Animated.View>
+
+            {tracked.length > 0 ? (
+              <View style={{ gap: space.sm }}>
+                <View style={styles.sectionHead}>
+                  <Txt variant="micro">Your causes</Txt>
+                  <Txt variant="caption">Where each one is now</Txt>
+                </View>
+                {tracked.map((c, i) => (
+                  <Animated.View key={c.id} entering={FadeInDown.delay(120 + i * 70).duration(420)}>
+                    <TrackedCause cause={c} gave={givenTo(c.id)} />
+                  </Animated.View>
+                ))}
+              </View>
+            ) : null}
 
             {thanks.length > 0 ? (
               <View style={{ gap: space.sm }}>
@@ -394,6 +413,64 @@ function MoneyBar({ split }: { split: MoneySplit }) {
   );
 }
 
+/** One cause you gave to: where it is on Funded → Bought → Delivered, and what happens next. */
+function TrackedCause({ cause, gave }: { cause: Cause; gave: number }) {
+  const t = trackCause(cause);
+  const delivered = cause.status === 'delivered';
+  return (
+    <PressableScale
+      onPress={() => router.push(delivered ? `/proof/${cause.id}` : `/cause/${cause.id}`)}
+      scaleTo={0.98}
+      style={styles.tracked}
+      accessibilityRole="button"
+      accessibilityLabel={`${cause.title}. You gave ${money(gave)}. ${t.label}. ${t.next}`}>
+      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+        <CoverThumb cause={cause} size={50} />
+        <View style={{ flex: 1, gap: 2 }}>
+          <Txt variant="bodyStrong" numberOfLines={1}>
+            {cause.title}
+          </Txt>
+          <Txt variant="caption">
+            You gave{' '}
+            <Txt variant="caption" color={color.ink} style={{ fontWeight: '700' }}>
+              {money(gave)}
+            </Txt>
+            {' · '}
+            {money(cause.raised)} of {money(cause.goal)}
+          </Txt>
+        </View>
+        <Pill label={t.label} tone={delivered ? 'leaf' : cause.status === 'open' ? 'neutral' : 'sun'} small />
+      </View>
+      {cause.status === 'open' ? (
+        <ProgressBar value={cause.raised / cause.goal} height={5} />
+      ) : (
+        <Stages labels={DONOR_TRACK} done={t.done} />
+      )}
+      <View style={styles.trackedNext}>
+        <Icon
+          name={delivered ? 'checkmark.seal.fill' : cause.status === 'open' ? 'hourglass' : 'shippingbox.fill'}
+          size={13}
+          color={delivered ? color.leaf : color.sunDeep}
+        />
+        <Txt variant="caption" color={color.ink} style={{ flex: 1 }}>
+          {t.next}
+        </Txt>
+        {cause.status === 'open' ? (
+          <Pressable
+            onPress={() => shareCause(cause, { justGave: true })}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel="Share">
+            <Icon name="square.and.arrow.up" size={15} color={color.ink} />
+          </Pressable>
+        ) : (
+          <Icon name="chevron.right" size={12} color={color.ink3} />
+        )}
+      </View>
+    </PressableScale>
+  );
+}
+
 /** The nonprofit's thank-you: the protected delivery photo, its note, and what you gave. */
 function ThankYou({ cause, gave }: { cause: Cause; gave: number }) {
   const ev = cause.evidence;
@@ -517,6 +594,15 @@ const styles = StyleSheet.create({
     height: 260,
     borderRadius: 130,
     backgroundColor: 'rgba(255,255,255,0.55)',
+  },
+  tracked: { gap: 12, padding: space.md, backgroundColor: color.card, borderRadius: radius.lg, ...shadow.card },
+  trackedNext: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: color.line,
   },
   sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   moneyBar: { flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', gap: 2 },
