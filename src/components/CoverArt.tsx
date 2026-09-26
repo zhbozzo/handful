@@ -94,10 +94,7 @@ function Tile({
   }, [alive, reduced, index, t]);
 
   const float = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: -5 * t.value },
-      { rotate: `${r + (index % 2 ? 1.6 : -1.6) * t.value}deg` },
-    ],
+    transform: [{ translateY: -5 * t.value }, { rotate: `${r + (index % 2 ? 1.6 : -1.6) * t.value}deg` }],
   }));
 
   return (

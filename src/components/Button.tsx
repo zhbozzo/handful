@@ -8,15 +8,14 @@ import { color, radius } from '@/theme/tokens';
 import { Icon } from './Icon';
 import { Txt } from './Txt';
 
-type Kind = 'primary' | 'sun' | 'secondary' | 'ghost' | 'shield' | 'leaf';
+/** Ink for actions, sun for giving and publishing. Green and violet are for status, never buttons. */
+type Kind = 'primary' | 'sun' | 'secondary' | 'ghost';
 
 const kinds: Record<Kind, { bg: string; fg: string; border?: string }> = {
   primary: { bg: color.ink, fg: color.white },
   sun: { bg: color.sun, fg: color.ink },
   secondary: { bg: color.card, fg: color.ink, border: color.lineStrong },
   ghost: { bg: 'transparent', fg: color.ink },
-  shield: { bg: color.shield, fg: color.white },
-  leaf: { bg: color.leaf, fg: color.white },
 };
 
 type Props = {

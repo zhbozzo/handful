@@ -35,7 +35,7 @@ export default function StudioScreen() {
         contentContainerStyle={{ paddingTop: space.sm, paddingBottom: 48, paddingHorizontal: space.lg, gap: space.xl }}
         showsVerticalScrollIndicator={false}>
         <View style={{ gap: space.sm }}>
-          <Pill label="Nonprofit view · demo" tone="shield" symbol="building.2.fill" />
+          <Pill label="Nonprofit view · demo" tone="demo" symbol="building.2.fill" />
           <Txt variant="title">Nonprofit studio</Txt>
           <Txt variant="callout">
             How a verified nonprofit posts a need and, later, the proof. In the real product this lives behind a
@@ -83,7 +83,6 @@ export default function StudioScreen() {
                 <Steps status={c.status} />
                 <Button
                   label="Post receipt & delivery photo"
-                  kind="leaf"
                   compact
                   symbol="checkmark.shield.fill"
                   onPress={() => router.push(`/nonprofit/proof/${c.id}`)}

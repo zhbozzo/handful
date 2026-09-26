@@ -457,7 +457,6 @@ export default function NewCause() {
                       <View style={{ flexDirection: 'row', gap: 8 }}>
                         <Button
                           label={cover ? 'Change' : 'Add photo'}
-                          kind="shield"
                           compact
                           symbol="photo.on.rectangle"
                           onPress={() => choose(false)}

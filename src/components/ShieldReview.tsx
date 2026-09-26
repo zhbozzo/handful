@@ -320,7 +320,6 @@ export function ShieldReview({
           ) : null}
           <Button
             label={findings.some((f) => f.box && f.protect) ? 'Protect identity' : 'Remove metadata & continue'}
-            kind="shield"
             symbol="checkmark.shield.fill"
             loading={phase === 'protecting'}
             onPress={protect}

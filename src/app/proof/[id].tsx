@@ -94,7 +94,11 @@ export default function ProofScreen() {
             )}
             <View style={styles.shieldTag}>
               <Icon name="checkmark.shield.fill" size={14} color={color.shield} />
-              <Txt variant="caption" color={color.shield} style={{ fontWeight: '700', flexShrink: 1 }} numberOfLines={1}>
+              <Txt
+                variant="caption"
+                color={color.shield}
+                style={{ fontWeight: '700', flexShrink: 1 }}
+                numberOfLines={1}>
                 {privacyBits.join(' · ') || 'Reviewed by Privacy Shield'}
               </Txt>
             </View>

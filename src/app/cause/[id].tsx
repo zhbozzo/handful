@@ -208,7 +208,6 @@ export default function CauseScreen() {
           ) : delivered ? (
             <Button
               label="See the proof"
-              kind="leaf"
               symbol="checkmark.seal.fill"
               style={{ flex: 1 }}
               onPress={() => router.push(`/proof/${cause.id}`)}

@@ -168,7 +168,6 @@ export default function PostProof() {
         <View style={{ alignSelf: 'stretch', gap: 10 }}>
           <Button
             label="See what donors see"
-            kind="leaf"
             onPress={() => {
               router.back();
               router.push(`/proof/${cause.id}`);
@@ -309,13 +308,7 @@ export default function PostProof() {
                       first.
                     </Txt>
                     <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-                      <Button
-                        label="Choose photo"
-                        kind="shield"
-                        compact
-                        symbol="photo.on.rectangle"
-                        onPress={() => choose(false)}
-                      />
+                      <Button label="Choose photo" compact symbol="photo.on.rectangle" onPress={() => choose(false)} />
                       {cameraAvailable() ? (
                         <Button
                           label="Camera"
@@ -363,7 +356,7 @@ export default function PostProof() {
           {step === 1 ? (
             <Button
               label="Post proof to donors"
-              kind="leaf"
+              kind="sun"
               symbol="paperplane.fill"
               disabled={!canNext}
               onPress={post}

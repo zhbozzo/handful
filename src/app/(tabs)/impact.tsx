@@ -20,7 +20,7 @@ import { getRevenueCatUserId } from '@/lib/purchases';
 import { devScroll } from '@/lib/devScroll';
 import { tap } from '@/lib/haptics';
 import { useStore } from '@/store/useStore';
-import { color, font, radius, shadow, space } from '@/theme/tokens';
+import { color, radius, shadow, space } from '@/theme/tokens';
 
 export default function ImpactScreen() {
   const { contributions, causes, inbox, supporter, markInboxRead } = useStore();
@@ -88,9 +88,9 @@ export default function ImpactScreen() {
               entering={FadeInDown.delay(80).duration(500)}
               layout={LinearTransition.springify().damping(20)}
               style={styles.grid}>
-              <Stat value={stats.helped} label={stats.helped === 1 ? 'cause helped' : 'causes helped'} />
-              <Stat value={stats.completed} label="you completed" accent />
-              <Stat value={stats.delivered} label="delivered" leaf />
+              <Stat value={stats.helped} label="Helped" />
+              <Stat value={stats.completed} label="Completed" accent />
+              <Stat value={stats.delivered} label="Delivered" leaf />
             </Animated.View>
 
             {inbox.length > 0 ? (
@@ -156,7 +156,7 @@ export default function ImpactScreen() {
                         <Txt
                           variant="caption"
                           color={color.ink3}
-                          style={{ fontFamily: font.mono, fontSize: 11 }}
+                          style={{ fontSize: 11, lineHeight: 15, fontVariant: ['tabular-nums'] }}
                           numberOfLines={1}>
                           {g.rail === 'revenuecat-test-store'
                             ? `RC Test Store · ${g.transactionId}`
@@ -178,7 +178,7 @@ export default function ImpactScreen() {
                     color={color.ink3}
                     numberOfLines={1}
                     ellipsizeMode="middle"
-                    style={{ fontFamily: font.mono, fontSize: 11 }}>
+                    style={{ fontSize: 11, lineHeight: 15, fontVariant: ['tabular-nums'] }}>
                     RevenueCat customer · {rcUser}
                   </Txt>
                 ) : null}
@@ -353,9 +353,13 @@ function Stat({
         from={0}
         duration={900}
         format={isMoney ? money : String}
-        color={leaf ? color.leaf : color.ink}
+        color={leaf ? color.leaf : accent ? color.sunDeep : color.ink}
+        style={{ fontSize: 32, lineHeight: 38 }}
       />
-      <Txt variant="caption" color={leaf ? color.leaf : color.ink2}>
+      <Txt
+        variant="caption"
+        color={leaf ? color.leaf : accent ? color.sunDeep : color.ink2}
+        style={{ fontWeight: '600' }}>
         {label}
       </Txt>
     </View>
@@ -372,7 +376,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: 14,
     gap: 0,
-    minHeight: 104,
+    minHeight: 88,
     justifyContent: 'space-between',
   },
   hero: {
