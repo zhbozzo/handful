@@ -1,4 +1,5 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import type { NativeStackNavigationProp } from 'expo-router/native-stack';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -129,6 +130,26 @@ function Check({ delay }: { delay: number }) {
   );
 }
 
+/**
+ * True once this screen has finished appearing. The gift sheet is still sliding away when this
+ * screen mounts, so starting the animations at mount would play the ring and check behind it.
+ */
+function useShown() {
+  const navigation = useNavigation<NativeStackNavigationProp<Record<string, object | undefined>>>();
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('transitionEnd', (e) => {
+      if (!e.data.closing) setShown(true);
+    });
+    const fallback = setTimeout(() => setShown(true), 1200);
+    return () => {
+      unsubscribe();
+      clearTimeout(fallback);
+    };
+  }, [navigation]);
+  return shown;
+}
+
 export default function SuccessScreen() {
   const { id, gift, completed } = useLocalSearchParams<{ id: string; gift: string; completed: string }>();
   const cause = useCause(id);
@@ -136,17 +157,21 @@ export default function SuccessScreen() {
   const insets = useSafeAreaInsets();
   const done = completed === '1';
   const [notify, setNotify] = useState<'unknown' | 'ask' | 'on'>('unknown');
+  const shown = useShown();
 
   useEffect(() => {
     notificationsGranted().then((g) => setNotify(g ? 'on' : 'ask'));
   }, []);
 
   useEffect(() => {
+    if (!shown) return;
     const t = setTimeout(success, done ? RING_MS + 250 : RING_MS);
     return () => clearTimeout(t);
-  }, [done]);
+  }, [done, shown]);
 
   if (!cause || !contribution) return null;
+  // The paper background fades in first; the celebration starts once it is fully on screen.
+  if (!shown) return <View style={styles.screen} />;
 
   const org = orgById(cause.orgId);
   const cat = categoryById(cause.category);
