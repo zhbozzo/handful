@@ -7,6 +7,7 @@ import Animated, {
   interpolate,
   LinearTransition,
   type SharedValue,
+  useAnimatedRef,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -24,6 +25,7 @@ import { Wordmark } from '@/components/Wordmark';
 import { CATEGORIES } from '@/data/categories';
 import type { CategoryId } from '@/data/types';
 import { devScroll } from '@/lib/devScroll';
+import { useDemoScroll } from '@/lib/demoScroll';
 import { useLaunchRise } from '@/lib/launch';
 import { plural } from '@/lib/format';
 import { tap } from '@/lib/haptics';
@@ -56,6 +58,10 @@ export default function CausesScreen() {
   const onCarousel = useAnimatedScrollHandler((e) => {
     scrollX.value = e.contentOffset.x;
   });
+  const mainRef = useAnimatedRef<Animated.ScrollView>();
+  const carouselRef = useAnimatedRef<Animated.ScrollView>();
+  useDemoScroll(mainRef, 'home');
+  useDemoScroll(carouselRef, 'home-carousel', true);
 
   // The big serif hero drifts and fades; a compact blurred bar takes over.
   const heroStyle = useAnimatedStyle(() => ({
@@ -73,6 +79,7 @@ export default function CausesScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: color.paper }}>
       <Animated.ScrollView
+        ref={mainRef}
         contentOffset={devScroll()}
         onScroll={onScroll}
         scrollEventThrottle={16}
@@ -108,6 +115,7 @@ export default function CausesScreen() {
                 <Txt variant="caption">One small gift finishes these</Txt>
               </View>
               <Animated.ScrollView
+                ref={carouselRef}
                 horizontal
                 onScroll={onCarousel}
                 scrollEventThrottle={16}

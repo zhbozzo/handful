@@ -65,3 +65,5 @@ Legend: ✅ pass · ⚠️ pass with note · ❌ fail (fixed / open)
 | 41 | Large accessibility text on studio, manage and withdraw | ✅ stage tracker collapses to the next step |
 | 42 | Launch: the logo lands exactly on the header wordmark (home and onboarding), no jump; header sits below the status bar | ✅ frame-by-frame from a simulator recording (found and fixed a 29 pt safe-area offset) |
 | 43 | Your impact: a new thank-you shows first as a “Delivered · See the result” card; opening it clears it and the tab badge | ✅ |
+| 44 | Success screen: the ring, check and items animate after the screen has appeared, not behind the closing gift sheet | ✅ found while recording with a production-mode bundle; fixed with the native `transitionEnd` event |
+| 45 | Demo video: every scroll and transition, frame by frame | ✅ no freeze longer than 2 frames (33 ms) in 1:38 |

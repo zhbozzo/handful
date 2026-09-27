@@ -56,19 +56,26 @@ def cfr(name):
     return out
 
 
+def cut_parts(c):
+    """A cut is [start, end], optionally followed by a speed (> 1 for scenes recorded in slow motion)
+    and a dissolve length in seconds into this cut (to step over a transition the Simulator drops frames in)."""
+    return c[0], c[1], (c[2] if len(c) > 2 else 1.0), (c[3] if len(c) > 3 else 0.0)
+
+
 def seg_length(s):
     if s["kind"] == "clip":
-        return sum(e - a for a, e in s["cuts"]) + s.get("hold", 0)
+        return sum((e - a) / sp - fade for a, e, sp, fade in map(cut_parts, s["cuts"])) + s.get("hold", 0)
     return s["duration"]
 
 
 def to_segment_time(s, src_t):
     """Where a moment of the recording lands inside the segment."""
     acc = 0.0
-    for a, e in s["cuts"]:
+    for a, e, sp, fade in map(cut_parts, s["cuts"]):
+        acc -= fade
         if a <= src_t <= e:
-            return acc + src_t - a
-        acc += e - a
+            return acc + (src_t - a) / sp
+        acc += (e - a) / sp
     raise ValueError(f"{src_t}s is not inside any cut of {s['source']}")
 
 
@@ -79,15 +86,27 @@ def clip_segment(i, s):
     cards.caption_panel(cap, s["label"], s["headline"], s.get("sub"), width=CAPTION_W)
     mask, shadow, bg = BUILD / "phone-mask.png", BUILD / "phone-shadow.png", BUILD / "bg.png"
     out = BUILD / f"seg-{i:02d}.mp4"
-    k = len(s["cuts"])
+    cuts = list(map(cut_parts, s["cuts"]))
+    k = len(cuts)
     parts = "".join(
-        f"[s{j}]trim=start={a}:end={e},setpts=PTS-STARTPTS[c{j}];" for j, (a, e) in enumerate(s["cuts"])
+        f"[s{j}]trim=start={a}:end={e},setpts=(PTS-STARTPTS)/{sp},fps={FPS},settb=AVTB,format=yuv420p[c{j}];"
+        for j, (a, e, sp, _) in enumerate(cuts)
     )
-    joined = "".join(f"[c{j}]" for j in range(k))
+    # Join the cuts: a hard join where the screen is still, a dissolve where one is asked for.
+    chain, acc, length = "", "[c0]", (cuts[0][1] - cuts[0][0]) / cuts[0][2]
+    for j in range(1, k):
+        a, e, sp, fade = cuts[j]
+        nxt = f"[j{j}]"
+        if fade > 0:
+            chain += f"{acc}[c{j}]xfade=transition=fade:duration={fade}:offset={length - fade:.4f}{nxt};"
+        else:
+            chain += f"{acc}[c{j}]concat=n=2:v=1:a=0{nxt};"
+        acc = nxt
+        length += (e - a) / sp - fade
     hold = s.get("hold", 0)
     filt = (
-        f"[0:v]split={k}" + "".join(f"[s{j}]" for j in range(k)) + ";" + parts
-        + f"{joined}concat=n={k}:v=1:a=0,tpad=stop_mode=clone:stop_duration={hold},format=rgba[ph];"
+        f"[0:v]split={k}" + "".join(f"[s{j}]" for j in range(k)) + ";" + parts + chain
+        + f"{acc}tpad=stop_mode=clone:stop_duration={hold},format=rgba[ph];"
         + "[1:v]format=gray[m];[ph][m]alphamerge[phm];"
         + f"[2:v][3:v]overlay={PHONE_X - 80}:{PHONE_Y - 80}[b1];"
         + f"[b1][phm]overlay={PHONE_X}:{PHONE_Y}[b2];"

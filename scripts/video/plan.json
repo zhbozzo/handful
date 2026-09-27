@@ -21,10 +21,12 @@
     },
     {
       "kind": "clip",
-      "source": "s2-give",
+      "source": "sH-home",
       "cuts": [
-        [1.0, 3.95],
-        [8.3, 12.1]
+        [1.5, 2.6],
+        [4.95, 12.9, 3],
+        [14.7, 19.2, 3],
+        [21.9, 25.0, 3]
       ],
       "label": "Real needs",
       "headline": "Priced *item by item.*",
@@ -32,11 +34,10 @@
     },
     {
       "kind": "clip",
-      "source": "s2-give",
+      "source": "sA2-give",
       "cuts": [
-        [25.6, 29.0],
-        [35.1, 39.7],
-        [45.1, 48.4]
+        [18.3, 19.15],
+        [20.75, 27.6, 1, 0.35]
       ],
       "label": "Transparency",
       "headline": "What it pays for. Who verified it. *What’s left.*",
@@ -44,37 +45,39 @@
     },
     {
       "kind": "clip",
-      "source": "s2-give",
+      "source": "sA5-give",
       "cuts": [
-        [50.5, 52.6],
-        [57.9, 61.2],
-        [63.1, 70.3]
+        [22.1, 25.0],
+        [25.7, 28.9],
+        [40.7, 41.5],
+        [42.97, 48.4]
       ],
       "music": "lift",
-      "sfx": [[67.6, "success"]],
+      "sfx": [[45.75, "success"]],
       "label": "Complete it",
       "headline": "Only $4 left. *One tap finishes it.*",
-      "sub": "A real RevenueCat purchase: consumable gifts in the Test Store, no real money."
+      "sub": "A real RevenueCat purchase: consumable gifts in the Test Store, no real money.",
+      "hold": 0.6
     },
     {
       "kind": "clip",
-      "source": "s3-impact",
+      "source": "sB3-impact",
       "cuts": [
-        [10.5, 11.6],
-        [17.6, 19.25]
+        [1.2, 3.4],
+        [6.0, 8.95, 3]
       ],
-      "hold": 1.4,
+      "hold": 1.8,
       "label": "Your impact",
       "headline": "Follow your gift *like an order.*",
       "sub": "Funded, bought, delivered. Each gift keeps its RevenueCat transaction ID."
     },
     {
       "kind": "clip",
-      "source": "s4-nonprofit",
+      "source": "sD-nonprofit",
       "cuts": [
-        [0.6, 3.2],
-        [9.3, 11.9],
-        [17.2, 20.4]
+        [0.9, 3.0],
+        [14.7, 17.6],
+        [18.2, 21.2]
       ],
       "label": "Nonprofit",
       "headline": "Every dollar reaches *the nonprofit.*",
@@ -82,12 +85,11 @@
     },
     {
       "kind": "clip",
-      "source": "s4-nonprofit",
+      "source": "sD-nonprofit",
       "cuts": [
-        [27.9, 30.5],
-        [35.3, 37.0],
-        [45.7, 47.0],
-        [50.6, 52.3]
+        [32.6, 37.2],
+        [40.3, 41.3],
+        [44.35, 45.9]
       ],
       "label": "Proof",
       "headline": "Then it posts the receipt and *a thank-you photo.*",
@@ -95,11 +97,12 @@
     },
     {
       "kind": "clip",
-      "source": "s4-nonprofit",
+      "source": "sD-nonprofit",
       "cuts": [
-        [60.6, 66.8],
-        [70.2, 73.4],
-        [80.8, 82.9]
+        [91.5, 92.7],
+        [92.7, 97.0, 2],
+        [97.0, 99.3],
+        [108.5, 114.55]
       ],
       "label": "Privacy Shield",
       "headline": "Faces blurred. Location removed. *On the phone.*",
@@ -107,29 +110,30 @@
     },
     {
       "kind": "clip",
-      "source": "s4-nonprofit",
+      "source": "sD-nonprofit",
       "cuts": [
-        [85.5, 86.6],
-        [92.8, 95.9],
-        [99.0, 102.0]
+        [114.55, 115.9],
+        [128.5, 133.8],
+        [135.0, 136.45]
       ],
       "sfx": [
-        [93.9, "soft"],
-        [99.6, "notify"]
+        [130.5, "soft"],
+        [135.3, "notify"]
       ],
       "label": "Delivered",
       "headline": "Everyone who gave *gets notified.*",
-      "sub": "The receipt, the note and the protected photo."
+      "sub": "The receipt, the note and the protected photo.",
+      "hold": 1.8
     },
     {
       "kind": "clip",
-      "source": "s5-result",
+      "source": "sC2-result",
       "cuts": [
-        [16.2, 18.9],
-        [22.5, 24.8],
-        [32.3, 35.3]
+        [2.0, 3.8],
+        [12.6, 16.0],
+        [19.3, 23.0, 3]
       ],
-      "hold": 1.2,
+      "hold": 1.8,
       "label": "The result",
       "headline": "And you see *it got there.*",
       "sub": "Proof that doesn’t cost anyone their dignity."
@@ -147,6 +151,9 @@
       "headline": "Nonprofits pay nothing. *Supporters keep it free.*",
       "sub": "A RevenueCat subscription: offering, package and entitlement, with restore."
     },
-    { "kind": "end", "duration": 5.8 }
+    {
+      "kind": "end",
+      "duration": 5.8
+    }
   ]
 }

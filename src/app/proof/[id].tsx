@@ -2,7 +2,12 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  useAnimatedRef,
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CoverArt } from '@/components/CoverArt';
@@ -13,6 +18,7 @@ import { ScrollHeader } from '@/components/ScrollHeader';
 import { Timeline } from '@/components/Timeline';
 import { Txt } from '@/components/Txt';
 import { devScroll } from '@/lib/devScroll';
+import { useDemoScroll } from '@/lib/demoScroll';
 import { categoryById } from '@/data/categories';
 import { proofPhoto } from '@/data/photos';
 import { shareCause } from '@/lib/share';
@@ -29,6 +35,8 @@ export default function ProofScreen() {
   const onScroll = useAnimatedScrollHandler((e) => {
     scrollY.value = e.contentOffset.y;
   });
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  useDemoScroll(scrollRef, 'proof');
   const gave = useStore((s) => s.contributions.filter((c) => c.causeId === id).reduce((sum, c) => sum + c.amount, 0));
   const inbox = useStore((s) => s.inbox);
   const markInboxRead = useStore((s) => s.markInboxRead);
@@ -59,6 +67,7 @@ export default function ProofScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: color.paper }}>
       <Animated.ScrollView
+        ref={scrollRef}
         contentOffset={devScroll()}
         onScroll={onScroll}
         scrollEventThrottle={16}

@@ -5,6 +5,7 @@ import Animated, {
   FadeIn,
   FadeInDown,
   interpolate,
+  useAnimatedRef,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -26,6 +27,7 @@ import { Txt } from '@/components/Txt';
 import { recentGifts } from '@/lib/activity';
 import { shareCause } from '@/lib/share';
 import { devScroll } from '@/lib/devScroll';
+import { useDemoScroll } from '@/lib/demoScroll';
 import { categoryById } from '@/data/categories';
 import { orgById } from '@/data/seed';
 import { ago, money, pct, plural } from '@/lib/format';
@@ -43,6 +45,8 @@ export default function CauseScreen() {
   const onScroll = useAnimatedScrollHandler((e) => {
     scrollY.value = e.contentOffset.y;
   });
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  useDemoScroll(scrollRef, 'cause');
   const coverH = 300 + insets.top;
   // Pull down: the cover stretches from the top. Scroll up: it drifts slower than the page.
   const coverStyle = useAnimatedStyle(() => {
@@ -64,6 +68,7 @@ export default function CauseScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: color.paper }}>
       <Animated.ScrollView
+        ref={scrollRef}
         contentOffset={devScroll()}
         onScroll={onScroll}
         scrollEventThrottle={16}

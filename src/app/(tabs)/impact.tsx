@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown, LinearTransition, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeInDown, LinearTransition, useAnimatedRef, ZoomIn } from 'react-native-reanimated';
 
 import { Button } from '@/components/Button';
 import { CountUp } from '@/components/CountUp';
@@ -23,6 +23,7 @@ import type { Cause, CauseItem, CauseStatus, InboxItem } from '@/data/types';
 import { ago, money, when } from '@/lib/format';
 import { getRevenueCatUserId } from '@/lib/purchases';
 import { devScroll } from '@/lib/devScroll';
+import { useDemoScroll } from '@/lib/demoScroll';
 import { DONOR_TRACK, type MoneySplit, sortForTracking, trackCause, whereYourMoneyIs } from '@/lib/funds';
 import { shareCause } from '@/lib/share';
 import { tap } from '@/lib/haptics';
@@ -32,6 +33,8 @@ import { color, radius, shadow, space } from '@/theme/tokens';
 export default function ImpactScreen() {
   const { contributions, causes, inbox, supporter, markInboxRead } = useStore();
   const [rcUser, setRcUser] = useState<string | null>(null);
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  useDemoScroll(scrollRef, 'impact');
 
   useEffect(() => {
     getRevenueCatUserId().then(setRcUser);
@@ -81,7 +84,8 @@ export default function ImpactScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: color.paper }}>
-      <ScrollView
+      <Animated.ScrollView
+        ref={scrollRef}
         contentOffset={devScroll()}
         style={{ flex: 1, backgroundColor: color.paper }}
         contentInsetAdjustmentBehavior="automatic"
@@ -249,7 +253,7 @@ export default function ImpactScreen() {
           </View>
           <Icon name="chevron.right" size={14} color={color.ink3} />
         </PressableScale>
-      </ScrollView>
+      </Animated.ScrollView>
       <StatusScrim />
     </View>
   );
