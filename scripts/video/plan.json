@@ -1,41 +1,152 @@
-[
-  { "kind": "card", "source": "card-01.png", "duration": 3.2 },
-  { "kind": "card", "source": "card-02.png", "duration": 3.8 },
-  { "kind": "card", "source": "card-03.png", "duration": 4.0 },
-  {
-    "kind": "clip", "source": "home.mp4", "start": 0.5, "duration": 9,
-    "label": "Real needs", "headline": "Small, specific needs, priced item by item.",
-    "sub": "Posted by verified nonprofits. Demo data."
-  },
-  {
-    "kind": "clip", "source": "cause.mp4", "start": 0.3, "duration": 12,
-    "label": "Transparency", "headline": "What it pays for. Who verified it. What’s left.",
-    "sub": "Every cause has the same four-step timeline."
-  },
-  {
-    "kind": "clip", "source": "complete.mp4", "start": 0.3, "duration": 15,
-    "label": "Complete it", "headline": "Only $4 left. One tap finishes it.",
-    "sub": "RevenueCat Test Store — real SDK, no real money."
-  },
-  {
-    "kind": "clip", "source": "impact.mp4", "start": 0.3, "duration": 6,
-    "label": "Your impact", "headline": "Only what you actually did.",
-    "sub": "Gift history with RevenueCat transaction IDs."
-  },
-  {
-    "kind": "clip", "source": "proof-post.mp4", "start": 0.3, "duration": 24,
-    "label": "Privacy Shield", "headline": "Faces blurred. Location removed. On the phone.",
-    "sub": "Apple Vision + Core Image, before anything is posted."
-  },
-  {
-    "kind": "clip", "source": "delivered.mp4", "start": 0.3, "duration": 12,
-    "label": "Proof", "headline": "It got there — without costing anyone their dignity.",
-    "sub": "Receipt, leftover, and a privacy-safe photo."
-  },
-  {
-    "kind": "clip", "source": "supporter.mp4", "start": 0.3, "duration": 6,
-    "label": "Business model", "headline": "Nonprofits pay nothing. Supporters keep it free.",
-    "sub": "RevenueCat subscription + entitlement."
-  },
-  { "kind": "card", "source": "card-end.png", "duration": 5.5 }
-]
+{
+  "segments": [
+    {
+      "kind": "card",
+      "duration": 5.4,
+      "lines": [
+        ["People want to help.", 88, 0.3],
+        ["", 36, 0],
+        ["But most donations disappear", 88, 2.0],
+        ["into a *general fund.*", 88, 2.3]
+      ]
+    },
+    {
+      "kind": "clip",
+      "source": "s1-launch",
+      "cuts": [[8.0, 12.6]],
+      "music": "story",
+      "label": "Handful",
+      "headline": "Small, real needs from *verified nonprofits.*",
+      "sub": "An iPhone app built with Expo and RevenueCat."
+    },
+    {
+      "kind": "clip",
+      "source": "s2-give",
+      "cuts": [
+        [1.0, 3.95],
+        [8.3, 12.1]
+      ],
+      "label": "Real needs",
+      "headline": "Priced *item by item.*",
+      "sub": "A hot meal and dry socks. A bus fare. A month of food for Toby. (Demo data.)"
+    },
+    {
+      "kind": "clip",
+      "source": "s2-give",
+      "cuts": [
+        [25.6, 29.0],
+        [35.1, 39.7],
+        [45.1, 48.4]
+      ],
+      "label": "Transparency",
+      "headline": "What it pays for. Who verified it. *What’s left.*",
+      "sub": "Every cause follows the same steps: verified, funded, bought, delivered."
+    },
+    {
+      "kind": "clip",
+      "source": "s2-give",
+      "cuts": [
+        [50.5, 52.6],
+        [57.9, 61.2],
+        [63.1, 70.3]
+      ],
+      "music": "lift",
+      "sfx": [[67.6, "success"]],
+      "label": "Complete it",
+      "headline": "Only $4 left. *One tap finishes it.*",
+      "sub": "A real RevenueCat purchase: consumable gifts in the Test Store, no real money."
+    },
+    {
+      "kind": "clip",
+      "source": "s3-impact",
+      "cuts": [
+        [10.5, 11.6],
+        [17.6, 19.25]
+      ],
+      "hold": 1.4,
+      "label": "Your impact",
+      "headline": "Follow your gift *like an order.*",
+      "sub": "Funded, bought, delivered. Each gift keeps its RevenueCat transaction ID."
+    },
+    {
+      "kind": "clip",
+      "source": "s4-nonprofit",
+      "cuts": [
+        [0.6, 3.2],
+        [9.3, 11.9],
+        [17.2, 20.4]
+      ],
+      "label": "Nonprofit",
+      "headline": "Every dollar reaches *the nonprofit.*",
+      "sub": "Released only when the goal is reached. Handful fee: $0. (Simulated payout.)"
+    },
+    {
+      "kind": "clip",
+      "source": "s4-nonprofit",
+      "cuts": [
+        [27.9, 30.5],
+        [35.3, 37.0],
+        [45.7, 47.0],
+        [50.6, 52.3]
+      ],
+      "label": "Proof",
+      "headline": "Then it posts the receipt and *a thank-you photo.*",
+      "sub": "Two steps. Anything left over moves to its next cause."
+    },
+    {
+      "kind": "clip",
+      "source": "s4-nonprofit",
+      "cuts": [
+        [60.6, 66.8],
+        [70.2, 73.4],
+        [80.8, 82.9]
+      ],
+      "label": "Privacy Shield",
+      "headline": "Faces blurred. Location removed. *On the phone.*",
+      "sub": "Apple Vision and Core Image run before anything is posted. Nothing is uploaded."
+    },
+    {
+      "kind": "clip",
+      "source": "s4-nonprofit",
+      "cuts": [
+        [85.5, 86.6],
+        [92.8, 95.9],
+        [99.0, 102.0]
+      ],
+      "sfx": [
+        [93.9, "soft"],
+        [99.6, "notify"]
+      ],
+      "label": "Delivered",
+      "headline": "Everyone who gave *gets notified.*",
+      "sub": "The receipt, the note and the protected photo."
+    },
+    {
+      "kind": "clip",
+      "source": "s5-result",
+      "cuts": [
+        [16.2, 18.9],
+        [22.5, 24.8],
+        [32.3, 35.3]
+      ],
+      "hold": 1.2,
+      "label": "The result",
+      "headline": "And you see *it got there.*",
+      "sub": "Proof that doesn’t cost anyone their dignity."
+    },
+    {
+      "kind": "clip",
+      "source": "s6-supporter",
+      "cuts": [
+        [1.9, 4.8],
+        [27.2, 30.9],
+        [51.4, 55.5]
+      ],
+      "sfx": [[53.8, "success"]],
+      "label": "Supporter",
+      "headline": "Nonprofits pay nothing. *Supporters keep it free.*",
+      "sub": "A RevenueCat subscription: offering, package and entitlement, with restore."
+    },
+    { "kind": "end", "duration": 5.8 }
+  ]
+}

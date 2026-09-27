@@ -1,7 +1,8 @@
-"""Title cards, caption panels and frame assets for the demo video (1920x1080).
+"""Graphics for the demo video (1920x1080): background, animated title cards, caption panels,
+the phone mask and shadow, and the thumbnail.
 
-Uses the app's own type: Figtree (bundled via @expo-google-fonts). Headlines are ExtraBold;
-the accent line of a headline is set in the deep sun color, as in the app.
+Uses the app's own type: Figtree (bundled via @expo-google-fonts). Headlines are ExtraBold; text
+between *asterisks* is the accent, set in deep sun as in the app.
 """
 from pathlib import Path
 
@@ -12,17 +13,17 @@ FONT_DIR = ROOT / "node_modules/@expo-google-fonts/figtree"
 HEAVY = str(FONT_DIR / "800ExtraBold/Figtree_800ExtraBold.ttf")
 SANS = str(FONT_DIR / "500Medium/Figtree_500Medium.ttf")
 SANS_BOLD = str(FONT_DIR / "700Bold/Figtree_700Bold.ttf")
-# Kept for callers: a "serif" headline is now the heavy weight, "italic" means the accent color.
-SERIF = HEAVY
-SERIF_ITALIC = HEAVY
+ICON = ROOT / "submission/app-icon-1024.png"
 
 W, H = 1920, 1080
 PAPER = (246, 243, 236)
+GLOW = (251, 236, 207)
 INK = (23, 20, 15)
 INK2 = (78, 73, 63)
 INK3 = (111, 105, 94)
 SUN = (244, 166, 42)
 SUN_DEEP = (154, 89, 8)
+LEAF = (31, 107, 79)
 
 
 def font(path, size):
@@ -31,6 +32,31 @@ def font(path, size):
 
 def sans(size, bold=False):
     return ImageFont.truetype(SANS_BOLD if bold else SANS, size)
+
+
+def ease_out(p):
+    p = min(max(p, 0.0), 1.0)
+    return 1 - (1 - p) ** 3
+
+
+# ---------- background ----------
+
+def background(path=None, glow_at=(476, 560), radius=760):
+    """Paper with a soft warm glow behind the phone (smooth radial falloff, dithered against banding)."""
+    import numpy as np
+
+    y, x = np.mgrid[0:H, 0:W].astype(np.float32)
+    d = np.sqrt((x - glow_at[0]) ** 2 + (y - glow_at[1]) ** 2) / radius
+    a = np.clip(1 - d, 0, 1)
+    a = a * a * (3 - 2 * a) * 0.9  # smoothstep
+    paper = np.array(PAPER, np.float32)
+    glow = np.array(GLOW, np.float32)
+    rgb = paper + (glow - paper) * a[..., None]
+    rgb += np.random.default_rng(1).uniform(-0.6, 0.6, rgb.shape)
+    img = Image.fromarray(np.clip(rgb + 0.5, 0, 255).astype(np.uint8), "RGB")
+    if path:
+        img.save(path)
+    return img
 
 
 def draw_mark(img, cx, cy, size, cup=INK, sun=SUN):
@@ -49,73 +75,72 @@ def draw_mark(img, cx, cy, size, cup=INK, sun=SUN):
     img.alpha_composite(layer, (int(cx - size / 2), int(cy - size / 2)))
 
 
-def text_block(draw, lines, x, y, anchor="la", spacing=1.08):
-    """lines: [(text, font, color)]. Returns bottom y."""
-    for text, f, col in lines:
-        draw.text((x, y), text, font=f, fill=col, anchor=anchor)
-        y += int(f.size * spacing)
-    return y
+# ---------- rich text ----------
+
+def runs(text):
+    """'Plain *accent* plain' -> [(word, accent)]"""
+    out = []
+    for i, part in enumerate(text.split("*")):
+        for w in part.split():
+            out.append((w, i % 2 == 1))
+    return out
 
 
-def title_card(path, lines, mark=False, footer=None):
-    """Centered serif lines on paper. lines: [(text, italic, color?)]"""
-    img = Image.new("RGBA", (W, H), PAPER + (255,))
-    d = ImageDraw.Draw(img)
-    size = 92
-    fonts = [font(HEAVY, size) for _ in lines]
-    total = len(lines) * int(size * 1.18)
-    y = H / 2 - total / 2 + (40 if mark else 0)
-    if mark:
-        draw_mark(img, W / 2, y - 110, 120)
-    for (text, it, *rest), f in zip(lines, fonts):
-        col = rest[0] if rest else (SUN_DEEP if it else INK)
-        d.text((W / 2, y), text, font=f, fill=col, anchor="ma")
-        y += int(size * 1.18)
-    if footer:
-        d.text((W / 2, H - 90), footer, font=sans(26), fill=INK3, anchor="ma")
-    img.convert("RGB").save(path)
+def wrap(draw, words, f, width):
+    rows, cur = [], []
+    for w in words:
+        test = " ".join(x for x, _ in cur + [w])
+        if cur and draw.textlength(test, font=f) > width:
+            rows.append(cur)
+            cur = [w]
+        else:
+            cur.append(w)
+    if cur:
+        rows.append(cur)
+    return rows
 
 
-def end_card(path):
-    img = Image.new("RGBA", (W, H), PAPER + (255,))
-    d = ImageDraw.Draw(img)
-    draw_mark(img, W / 2 - 215, 400, 132)
-    d.text((W / 2 - 135, 400), "handful", font=font(HEAVY, 140), fill=INK, anchor="lm")
-    d.text((W / 2, 560), "Small gifts. Real needs.", font=font(HEAVY, 60), fill=INK, anchor="ma")
-    d.text((W / 2, 636), "Proof that protects.", font=font(HEAVY, 60), fill=SUN_DEEP, anchor="ma")
-    d.text((W / 2, 830), "Built with Expo + RevenueCat  ·  Shipaton 2026 · Next Gen", font=sans(28), fill=INK3, anchor="ma")
-    d.text((W / 2, 874), "Demo data · fictional nonprofits · RevenueCat Test Store (no real money)", font=sans(24), fill=INK3, anchor="ma")
-    img.convert("RGB").save(path)
+def draw_row(draw, row, f, x, y, anchor_center=False, color=INK, accent=SUN_DEEP):
+    space = draw.textlength(" ", font=f)
+    total = sum(draw.textlength(w, font=f) for w, _ in row) + space * (len(row) - 1)
+    cx = x - total / 2 if anchor_center else x
+    for w, acc in row:
+        draw.text((cx, y), w, font=f, fill=accent if acc else color)
+        cx += draw.textlength(w, font=f) + space
+    return total
 
 
-def caption_panel(path, label, headline, sub=None, width=820):
-    """Transparent panel placed right of the phone: small label, serif headline, optional sub."""
+# ---------- caption panel ----------
+
+def caption_panel(path, label, headline, sub=None, width=880, step=None):
+    """Transparent panel right of the phone: step + label, headline (with *accent*), optional sub."""
     img = Image.new("RGBA", (width, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    hf = font(HEAVY, 72)
-    # wrap headline
-    words, rows, cur = headline.split(), [], ""
-    for w in words:
-        test = (cur + " " + w).strip()
-        if d.textlength(test, font=hf) > width - 40 and cur:
-            rows.append(cur)
-            cur = w
-        else:
-            cur = test
-    rows.append(cur)
-    block_h = 50 + len(rows) * 86 + (80 if sub else 0)
+    hf = font(HEAVY, 74)
+    lh = 86
+    rows = wrap(d, runs(headline), hf, width - 30)
+    sf = sans(31)
+    sub_rows = wrap(d, [(w, False) for w in sub.split()], sf, width - 60) if sub else []
+    block_h = 64 + len(rows) * lh + (30 + len(sub_rows) * 44 if sub else 0)
     y = H / 2 - block_h / 2
-    d.text((0, y), label.upper(), font=sans(24, bold=True), fill=SUN_DEEP)
-    y += 50
+    # label: a small sun dot, then the label in spaced caps
+    lf = sans(24, bold=True)
+    d.ellipse((2, y + 7, 16, y + 21), fill=SUN)
+    tag = label.upper() if not step else f"{step}  ·  {label.upper()}"
+    d.text((30, y), tag, font=lf, fill=SUN_DEEP)
+    y += 64
     for r in rows:
-        d.text((0, y), r, font=hf, fill=INK)
-        y += 86
+        draw_row(d, r, hf, 0, y)
+        y += lh
     if sub:
-        y += 34
-        sf = sans(30)
-        d.text((0, y), sub, font=sf, fill=INK2)
+        y += 30
+        for r in sub_rows:
+            draw_row(d, r, sf, 0, y, color=INK2)
+            y += 44
     img.save(path)
 
+
+# ---------- phone frame ----------
 
 def phone_mask(path, w, h, r):
     s = 4
@@ -127,36 +152,95 @@ def phone_mask(path, w, h, r):
 def phone_shadow(path, w, h, r, pad=80):
     img = Image.new("RGBA", (w + pad * 2, h + pad * 2), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    d.rounded_rectangle((pad, pad + 24, pad + w, pad + h + 24), r, fill=(59, 47, 26, 70))
-    img.filter(ImageFilter.GaussianBlur(34)).save(path)
+    d.rounded_rectangle((pad, pad + 26, pad + w, pad + h + 26), r, fill=(80, 58, 20, 64))
+    img.filter(ImageFilter.GaussianBlur(36)).save(path)
 
 
-def thumbnail(path, ring_png=None):
-    img = Image.new("RGBA", (1280, 720), PAPER + (255,))
+# ---------- animated cards ----------
+
+def card_frames(bg, lines, duration, fps, mark=None):
+    """Kinetic title card. lines: [(text, size, t_in, color)] centered vertically as a block.
+    Each line rises 26 px and fades in over 0.6 s from t_in. Yields RGB frames."""
+    base = bg.convert("RGBA")
+    d0 = ImageDraw.Draw(base)
+    heights = [int(size * 1.2) for _, size, _, _ in lines]
+    top = H / 2 - sum(heights) / 2 + (50 if mark else 0)
+    layers = []
+    y = top
+    for (text, size, t_in, color), hgt in zip(lines, heights):
+        layer = Image.new("RGBA", (W, hgt + 40), (0, 0, 0, 0))
+        ld = ImageDraw.Draw(layer)
+        f = font(HEAVY, size) if size >= 48 else sans(size)
+        rows = [runs(text)]
+        draw_row(ld, rows[0], f, W / 2, 10, anchor_center=True, color=color)
+        layers.append((layer, y - 10, t_in))
+        y += hgt
+    icon = None
+    if mark:
+        icon = Image.open(ICON).convert("RGBA").resize((mark, mark), Image.LANCZOS)
+        m = Image.new("L", (mark * 4, mark * 4), 0)
+        ImageDraw.Draw(m).rounded_rectangle((0, 0, mark * 4 - 1, mark * 4 - 1), int(mark * 4 * 0.225), fill=255)
+        icon.putalpha(m.resize((mark, mark), Image.LANCZOS))
+    n = int(round(duration * fps))
+    del d0
+    for i in range(n):
+        t = i / fps
+        frame = base.copy()
+        if icon is not None:
+            p = ease_out((t - 0.1) / 0.7)
+            if p > 0:
+                ic = icon.copy()
+                ic.putalpha(ic.getchannel("A").point(lambda v, p=p: int(v * p)))
+                frame.alpha_composite(ic, (int(W / 2 - mark / 2), int(top - mark - 40 + 20 * (1 - p))))
+        for layer, ly, t_in in layers:
+            p = ease_out((t - t_in) / 0.6)
+            if p <= 0:
+                continue
+            l2 = layer if p >= 1 else layer.copy()
+            if p < 1:
+                l2.putalpha(l2.getchannel("A").point(lambda v, p=p: int(v * p)))
+            frame.alpha_composite(l2, (0, int(ly + 26 * (1 - p))))
+        yield frame.convert("RGB")
+
+
+def end_frames(bg, duration, fps):
+    lines = [
+        ("Small gifts. Real needs.", 72, 0.35, INK),
+        ("*Proof that protects.*", 72, 0.75, INK),
+        ("", 30, 0.0, INK),
+        ("Handful  ·  built with Expo + RevenueCat  ·  Shipaton 2026, Next Gen", 30, 1.3, INK2),
+        ("Demo data: fictional nonprofits and causes. RevenueCat Test Store, no real money.", 25, 1.5, INK3),
+    ]
+    return card_frames(bg, lines, duration, fps, mark=150)
+
+
+# ---------- thumbnail ----------
+
+def thumbnail(path, phone_png=None):
+    img = background(None, glow_at=(420, 520), radius=760).resize((1280, 720)).convert("RGBA")
     d = ImageDraw.Draw(img)
-    # ring
-    cx, cy, r = 330, 360, 200
-    s = 4
-    ring = Image.new("RGBA", (r * 2 * s + 80, r * 2 * s + 80), (0, 0, 0, 0))
-    rd = ImageDraw.Draw(ring)
-    rd.ellipse((40, 40, 40 + r * 2 * s, 40 + r * 2 * s), outline=SUN, width=44 * s // 2)
-    ring = ring.resize((r * 2 + 20, r * 2 + 20), Image.LANCZOS)
-    img.alpha_composite(ring, (cx - r - 10, cy - r - 10))
-    # check
-    d.line([(cx - 70, cy + 5), (cx - 20, cy + 55), (cx + 80, cy - 55)], fill=INK, width=30, joint="curve")
-    d.text((600, 250), "Only $4 left.", font=font(HEAVY, 86), fill=INK)
-    d.text((600, 360), "Complete it.", font=font(HEAVY, 86), fill=SUN_DEEP)
-    draw_mark(img, 628, 560, 56)
-    d.text((666, 560), "handful", font=font(HEAVY, 52), fill=INK, anchor="lm")
+    if phone_png:
+        ph = Image.open(phone_png).convert("RGBA")
+        h = 640
+        w = int(ph.width * h / ph.height)
+        ph = ph.resize((w, h), Image.LANCZOS)
+        m = Image.new("L", (w * 4, h * 4), 0)
+        ImageDraw.Draw(m).rounded_rectangle((0, 0, w * 4 - 1, h * 4 - 1), 42 * 4, fill=255)
+        ph.putalpha(m.resize((w, h), Image.LANCZOS))
+        sh = Image.new("RGBA", (w + 120, h + 120), (0, 0, 0, 0))
+        ImageDraw.Draw(sh).rounded_rectangle((60, 78, 60 + w, 78 + h), 42, fill=(80, 58, 20, 70))
+        sh = sh.filter(ImageFilter.GaussianBlur(26))
+        img.alpha_composite(sh, (130 - 60, 40 - 60))
+        img.alpha_composite(ph, (130, 40))
+    x = 540
+    icon = Image.open(ICON).convert("RGBA").resize((96, 96), Image.LANCZOS)
+    m = Image.new("L", (384, 384), 0)
+    ImageDraw.Draw(m).rounded_rectangle((0, 0, 383, 383), 86, fill=255)
+    icon.putalpha(m.resize((96, 96), Image.LANCZOS))
+    img.alpha_composite(icon, (x, 150))
+    f = font(HEAVY, 70)
+    d.text((x, 285), "Small gifts.", font=f, fill=INK)
+    d.text((x, 367), "Real needs.", font=f, fill=INK)
+    d.text((x, 449), "Proof that protects.", font=f, fill=SUN_DEEP)
+    d.text((x + 2, 580), "Handful · iOS · Expo + RevenueCat", font=sans(30, bold=True), fill=INK2)
     img.convert("RGB").save(path)
-
-
-if __name__ == "__main__":
-    out = ROOT / "submission/video/build"
-    out.mkdir(parents=True, exist_ok=True)
-    title_card(out / "card-01.png", [("People want to help.", False)])
-    title_card(out / "card-02.png", [("But most donations disappear", False), ("into a general fund.", True)])
-    title_card(out / "card-03.png", [("Handful.", False), ("Small, real needs from", False), ("verified nonprofits.", True)], mark=True)
-    end_card(out / "card-end.png")
-    thumbnail(ROOT / "submission/video/thumbnail.png")
-    print("cards written to", out)

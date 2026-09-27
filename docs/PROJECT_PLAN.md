@@ -18,7 +18,7 @@ Peace Prize / Design Award require a published store app — out of scope for Ne
 - [x] QA pass (see docs/QA.md) — a few steps marked ⚠️ where a dev shortcut was used
 - [x] Ethical review (see docs/ETHICS.md)
 - [x] Screenshots 1179×2556 (no frame), from a real Test Store + Privacy Shield run
-- [ ] Demo video < 2 min (script: docs/VIDEO.md; pipeline tested: scripts/video/build.py)
+- [x] Demo video < 2 min (1:40; script: docs/VIDEO.md; built by scripts/video/build.py)
 - [x] README, LICENSE, .env.example, secret scan (clean), unit tests, lint, CI
 - [ ] Public GitHub repo with license visible
 - [x] Devpost copy (submission/DEVPOST.md)
