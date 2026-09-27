@@ -2,13 +2,16 @@
   "segments": [
     {
       "kind": "card",
-      "duration": 5.4,
+      "duration": 8.4,
       "lines": [
-        ["People want to help.", 88, 0.3],
+        ["People want to help.", 88, 0.4],
         ["", 36, 0],
-        ["But most donations disappear", 88, 2.0],
-        ["into a *general fund.*", 88, 2.3]
-      ]
+        ["But most donations disappear", 88, 2.2],
+        ["into a *general fund.*", 88, 2.5],
+        ["", 24, 0],
+        ["And you never see what they did.", 56, 6.0]
+      ],
+      "label": "Intro"
     },
     {
       "kind": "clip",
@@ -153,7 +156,27 @@
     },
     {
       "kind": "end",
-      "duration": 5.8
+      "duration": 6.2,
+      "label": "End",
+      "beats": [1.25, 3.35, 4.1]
     }
-  ]
+  ],
+  "voice": {
+    "source": "voice.m4a",
+    "takes": [
+      [17.7, 25.2, "Intro", 0.35],
+      [28.37, 29.95, "Handful", 1.0],
+      [30.22, 35.85, "Real needs", 0.25],
+      [49.85, 55.05, "Transparency", 0.5],
+      [59.06, 65.5, "Complete it", 0.3],
+      [68.75, 71.45, "Your impact", 0.4],
+      [107.82, 111.1, "Nonprofit", 0.3],
+      [111.26, 115.4, "Proof", 0.3],
+      [118.5, 127.35, "Privacy Shield", 1.2],
+      [133.91, 136.8, "Delivered", 6.5],
+      [152.28, 157.3, "The result", 1.0],
+      [161.52, 167.25, "Supporter", 0.5],
+      [188.18, 192.65, "End", 0.3]
+    ]
+  }
 }

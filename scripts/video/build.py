@@ -20,6 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 import cards  # noqa: E402
 import music  # noqa: E402
+import voice  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "submission/video/raw"
@@ -159,7 +160,8 @@ def timeline(plan):
 
 def main():
     args = sys.argv[1:]
-    plan = json.loads(PLAN_FILE.read_text())["segments"]
+    doc = json.loads(PLAN_FILE.read_text())
+    plan = doc["segments"]
     starts, total = timeline(plan)
     print(f"{len(plan)} segments, {total:.1f}s total")
     if "--dry-run" in args:
@@ -186,7 +188,7 @@ def main():
         elif s["kind"] == "card":
             segs.append(card_segment(i, s, card_bg))
         else:
-            segs.append(frames_segment(i, cards.end_frames(card_bg, s["duration"], FPS), s["duration"]))
+            segs.append(frames_segment(i, cards.end_frames(card_bg, s["duration"], FPS, tuple(s.get("beats", (1.2, 3.3, 4.0)))), s["duration"]))
     if only is not None:
         print("wrote", segs[only])
         return
@@ -201,6 +203,20 @@ def main():
     ]
     score = BUILD / "score.wav"
     music.soundtrack(score, total + 1, story, lift, events)
+
+    # Voice-over: the good take of each line, placed on its scene; the music ducks under it.
+    if "voice" in doc:
+        v = doc["voice"]
+        at = {s.get("label"): t for s, t in zip(plan, starts)}
+        memo = voice.clean(RAW / v["source"])
+        placements = [(a, b, at[label] + offset) for a, b, label, offset in v["takes"]]
+        for a, b, label, offset in v["takes"]:
+            seg = next(s for s in plan if s.get("label") == label)
+            if offset + (b - a) > seg_length(seg) + 0.2:
+                print(f"  ! take {a}-{b} runs past the end of '{label}'")
+        mixed = BUILD / "mix.wav"
+        voice.mix(score, voice.track(memo, placements, total), mixed)
+        score = mixed
 
     # Cross-fade the segments into one picture.
     inputs, chain, prev = [], [], "[0:v]"

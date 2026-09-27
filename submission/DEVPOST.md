@@ -16,7 +16,7 @@
 
 ## YouTube upload
 
-- **File:** `submission/video/handful-demo.mp4` (1:40, 1080p60) · **Thumbnail:** `submission/video/thumbnail.png`
+- **File:** `submission/video/handful-demo.mp4` (1:41, 1080p60) · **Thumbnail:** `submission/video/thumbnail.png`
 - **Visibility:** Public (the rules ask for a publicly visible video) · **Audience:** not made for kids
 - **Title:** Handful — small gifts for real needs, with proof that protects · RevenueCat Shipaton 2026
 - **Description:**
@@ -24,11 +24,11 @@
   > Handful is an iPhone app where verified nonprofits turn real needs into small, fundable causes: a hot meal and dry socks for tonight, a bus fare to a hospital, a month of food for a street dog. You see what it pays for, who verified it and what's left; you can finish a cause with one small gift, and you get the receipt and a privacy-safe thank-you photo when it's delivered.
   >
   > In this demo (real app in the iOS Simulator, real taps):
-  > 0:26 a $4 gift through RevenueCat (Test Store, no real money)
-  > 0:38 following the gift like an order
+  > 0:25 a $4 gift through RevenueCat (Test Store, no real money)
+  > 0:37 following the gift like an order
   > 0:42 the nonprofit withdraws the money
-  > 0:57 Privacy Shield blurs faces and strips GPS on the phone (Apple Vision)
-  > 1:16 the donor sees the result
+  > 0:56 Privacy Shield blurs faces and strips GPS on the phone (Apple Vision)
+  > 1:17 the donor sees the result
   > 1:25 the Supporter subscription (RevenueCat offering + entitlement) that keeps it free for nonprofits
   >
   > Built with Expo SDK 57, React Native and RevenueCat for the RevenueCat Shipaton 2026 (Next Gen).

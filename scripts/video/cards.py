@@ -203,13 +203,14 @@ def card_frames(bg, lines, duration, fps, mark=None):
         yield frame.convert("RGB")
 
 
-def end_frames(bg, duration, fps):
+def end_frames(bg, duration, fps, beats=(1.2, 3.3, 4.0)):
+    """beats: when "Small gifts. Real needs.", "Proof that protects." and the credits appear (voice-synced)."""
     lines = [
-        ("Small gifts. Real needs.", 72, 0.35, INK),
-        ("*Proof that protects.*", 72, 0.75, INK),
+        ("Small gifts. Real needs.", 72, beats[0], INK),
+        ("*Proof that protects.*", 72, beats[1], INK),
         ("", 30, 0.0, INK),
-        ("Handful  ·  built with Expo + RevenueCat  ·  Shipaton 2026, Next Gen", 30, 1.3, INK2),
-        ("Demo data: fictional nonprofits and causes. RevenueCat Test Store, no real money.", 25, 1.5, INK3),
+        ("Handful  ·  built with Expo + RevenueCat  ·  Shipaton 2026, Next Gen", 30, beats[2], INK2),
+        ("Demo data: fictional nonprofits and causes. RevenueCat Test Store, no real money.", 25, beats[2] + 0.2, INK3),
     ]
     return card_frames(bg, lines, duration, fps, mark=150)
 

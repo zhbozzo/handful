@@ -15,7 +15,7 @@ import wave
 
 import numpy as np
 
-SR = 44100
+SR = 48000
 BPM = 92
 BEAT = 60 / BPM
 # D major: I – vi – IV – V (Dmaj9, Bm7, Gmaj9, A6sus2), two bars each.
