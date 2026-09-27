@@ -139,6 +139,8 @@ npx expo run:ios            # builds the dev client and opens the iOS Simulator
 
 If port 8081 is busy: `npx expo run:ios --port 8090`.
 
+**On a real iPhone with a free Apple ID:** add your Apple ID in Xcode → Settings → Accounts (it appears as a *Personal Team*), turn on Developer Mode on the iPhone, then `npx expo run:ios --device`. Handful only uses local notifications, so a small config plugin (`plugins/withoutPushEntitlement.js`) drops the push entitlement that personal teams can't sign. The first launch asks you to trust the developer in Settings → General → VPN & Device Management.
+
 > **Use a debug build.** RevenueCat’s SDK refuses Test Store keys in release builds on purpose (“Wrong API Key… the app will close”), so gifts through the Test Store only work in debug/dev-client builds. That’s also how the demo video was recorded.
 
 Without a RevenueCat key the app still runs: gifts are recorded as **“offline demo”** (clearly labeled, no SDK call), and the Supporter screen explains how to enable it.

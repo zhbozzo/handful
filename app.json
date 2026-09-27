@@ -43,6 +43,7 @@
           "cameraPermission": "Handful lets nonprofits take a delivery photo. Privacy Shield protects it on this device before anything is posted."
         }
       ],
+      "./plugins/withoutPushEntitlement",
       "expo-notifications",
       "expo-font"
     ],
