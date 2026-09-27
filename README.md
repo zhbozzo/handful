@@ -12,6 +12,8 @@ Verified nonprofits turn real needs into small, fundable causes. You see what it
   Built for the <b>RevenueCat Shipaton 2026 — Next Gen Award</b>
 </p>
 
+<p align="center"><a href="https://youtu.be/k3RIT8sT208"><b>▶ Watch the 1:41 demo</b></a> · <a href="https://devpost.com/software/handful-qlgvoe">Devpost</a></p>
+
 > **This is a working prototype with demo data.** Every nonprofit, cause, amount and donor count in the app is fictional. Gifts run through RevenueCat’s **Test Store**: real SDK, real transactions, **no real money**. Nothing is delivered to anyone. See [Demo data](#demo-data) and [Production architecture](#production-architecture).
 
 ---

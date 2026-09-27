@@ -1,6 +1,6 @@
 # Devpost submission — Handful
 
-> Copy-paste source for the Devpost form. Fields marked **[FILL]** need the entrant.
+> Submitted on 2026-09-27: https://devpost.com/software/handful-qlgvoe
 
 ## Basics
 
@@ -10,7 +10,7 @@
 - **Academic email:** entered on Devpost (kept out of this public repo)
 - **RevenueCat Project ID:** `proje8b43c37`
 - **Repository:** https://github.com/zhbozzo/handful
-- **Video:** **[FILL — YouTube/Vimeo URL]**
+- **Video:** https://youtu.be/k3RIT8sT208
 - **Platform:** iOS (iPhone), built with Expo SDK 57 / React Native 0.86
 - **Built with:** expo, react-native, typescript, expo-router, revenuecat, react-native-purchases, swift, apple-vision, core-image, reanimated, react-native-svg, zustand, sf-symbols
 

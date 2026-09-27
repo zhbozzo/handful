@@ -20,7 +20,7 @@ Peace Prize / Design Award require a published store app — out of scope for Ne
 - [x] Screenshots 1179×2556 (no frame), from a real Test Store + Privacy Shield run
 - [x] Demo video < 2 min (1:40; script: docs/VIDEO.md; built by scripts/video/build.py)
 - [x] README, LICENSE, .env.example, secret scan (clean), unit tests, lint, CI
-- [ ] Public GitHub repo with license visible
+- [x] Public GitHub repo with license visible (github.com/zhbozzo/handful)
 - [x] Devpost copy (submission/DEVPOST.md)
 
 ## Needs from the entrant
