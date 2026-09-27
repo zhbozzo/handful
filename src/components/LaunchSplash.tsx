@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Platform, Pressable, Settings, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
   Easing,
   interpolate,
@@ -36,13 +36,28 @@ const WORD = 'handful';
 const ARC = Math.PI * 33; // length of the hands' arc
 
 // Timeline (ms), from the moment the first screen has mounted.
-const DRAW = 60;
-const DROP = 260;
-const LAND = DROP + 520;
-const MORPH = LAND + 420;
-const LETTERS = MORPH + 180;
-const FLY = LETTERS + 780;
-const FLY_MS = 680;
+// Demo-video recording aid: `-handfulLaunchSlow 3` plays the whole animation 3× slower so the Simulator
+// renders every frame; the edit speeds it back up. Off unless the Simulator passes that launch argument.
+const SLOW = (Platform.OS === 'ios' && Number(Settings.get('handfulLaunchSlow'))) || 1;
+const T = (ms: number) => ms * SLOW;
+const DRAW = T(60);
+const DROP = T(260);
+const LAND = DROP + T(520);
+const MORPH = LAND + T(420);
+const LETTERS = MORPH + T(180);
+const FLY = LETTERS + T(780);
+const FLY_MS = T(680);
+// Durations used inside UI-thread callbacks are precomputed: worklets can't call T().
+const DRAW_MS = T(560);
+const BOUNCE_UP_MS = T(130);
+const BOUNCE_DOWN_MS = T(150);
+const SQUASH_MS = T(70);
+const WAVE_MS = T(900);
+const BURST_MS = T(820);
+const MORPH_MS = T(460);
+const LETTERS_MS = T(520);
+// A spring slowed by SLOW keeps its shape: stiffness / SLOW², damping / SLOW.
+const SQUASH_SPRING = { damping: 13 / SLOW, stiffness: 260 / (SLOW * SLOW) };
 const SPARKS = 16;
 
 export function LaunchSplash({
@@ -88,7 +103,7 @@ export function LaunchSplash({
     }
     const timers: ReturnType<typeof setTimeout>[] = [];
     {
-      draw.set(withDelay(DRAW, withTiming(1, { duration: 560, easing: Easing.out(Easing.cubic) })));
+      draw.set(withDelay(DRAW, withTiming(1, { duration: DRAW_MS, easing: Easing.out(Easing.cubic) })));
       // Everything after the landing is chained to the sun actually touching the hands,
       // so a dropped frame can never make the shockwave fire before the sun arrives.
       drop.set(
@@ -99,15 +114,17 @@ export function LaunchSplash({
             landed.set(1);
             drop.set(
               withSequence(
-                withTiming(0.93, { duration: 130, easing: Easing.out(Easing.quad) }),
-                withTiming(1, { duration: 150, easing: Easing.in(Easing.quad) }),
+                withTiming(0.93, { duration: BOUNCE_UP_MS, easing: Easing.out(Easing.quad) }),
+                withTiming(1, { duration: BOUNCE_DOWN_MS, easing: Easing.in(Easing.quad) }),
               ),
             );
-            squash.set(withSequence(withTiming(1, { duration: 70 }), withSpring(0, { damping: 13, stiffness: 260 })));
-            wave.set(withTiming(1, { duration: 900, easing: Easing.out(Easing.cubic) }));
-            burst.set(withTiming(1, { duration: 820, easing: Easing.out(Easing.quad) }));
-            morph.set(withDelay(MORPH - LAND, withTiming(1, { duration: 460, easing: Easing.inOut(Easing.cubic) })));
-            letters.set(withDelay(LETTERS - LAND, withTiming(1, { duration: 520 })));
+            squash.set(withSequence(withTiming(1, { duration: SQUASH_MS }), withSpring(0, SQUASH_SPRING)));
+            wave.set(withTiming(1, { duration: WAVE_MS, easing: Easing.out(Easing.cubic) }));
+            burst.set(withTiming(1, { duration: BURST_MS, easing: Easing.out(Easing.quad) }));
+            morph.set(
+              withDelay(MORPH - LAND, withTiming(1, { duration: MORPH_MS, easing: Easing.inOut(Easing.cubic) })),
+            );
+            letters.set(withDelay(LETTERS - LAND, withTiming(1, { duration: LETTERS_MS })));
             fly.set(
               withDelay(
                 FLY - LAND,

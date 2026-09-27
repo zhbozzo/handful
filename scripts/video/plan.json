@@ -15,12 +15,13 @@
     },
     {
       "kind": "clip",
-      "source": "s1-launch",
-      "cuts": [[8.0, 12.6]],
+      "source": "s1b-launch",
+      "cuts": [[10.3, 20.2, 3]],
       "music": "story",
       "label": "Handful",
       "headline": "Small, real needs from *verified nonprofits.*",
-      "sub": "An iPhone app built with Expo and RevenueCat."
+      "sub": "An iPhone app built with Expo and RevenueCat.",
+      "hold": 1.3
     },
     {
       "kind": "clip",
